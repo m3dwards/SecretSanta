@@ -1,0 +1,6 @@
+{
+    "name": "Secret Santa",
+    "description": "A site to help with organisation of a secret santa event.",
+    "image": "heroku/clojure",
+    "addons": [ "heroku-postgresql" ]
+}
