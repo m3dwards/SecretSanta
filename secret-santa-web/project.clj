@@ -7,7 +7,8 @@
                  [ring/ring-defaults "0.1.5"]]
   :plugins [[lein-ring "0.9.7"]]
   :ring {:handler secret-santa-web.handler/app}
-  :profiles {:production {:env {:production true}}}
+  :profiles
   {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]
-                        [ring/ring-mock "0.3.0"]]}}
+                        [ring/ring-mock "0.3.0"]]}
+   :production {:env {:production true}}}
   :uberjar-name "secret-santa.jar")
