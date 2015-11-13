@@ -21,7 +21,7 @@ angular.module('secretSanta').controller('preferencesController', ['$scope', 'da
 	}
 	
 	self.formatDate = function(date){
-		return date.format('MMMM Do YYYY, h:mm:ss a');
+		return date.format('MMMM Do YYYY');
 	};
 	
 	self.savePreferences = function(){
