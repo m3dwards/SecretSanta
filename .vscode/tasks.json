@@ -1,0 +1,15 @@
+{
+    "version": "0.1.0",
+    "command": "grunt",
+    "isShellCommand": true,
+    "args": [
+        
+    ],
+    "tasks": [
+		{
+			"taskName": "copy",
+			"isBuildCommand": true,
+			"showOutput": "always"
+		}
+	]
+}
