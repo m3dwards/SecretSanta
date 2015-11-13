@@ -1,0 +1,32 @@
+<div class="container">
+
+	<div>
+		<h1>Preferences</h1>
+		<p class="lead">Please select your avilable dates and preferred venus.</p>
+		
+		<h3>Preferred Dates</h3>
+		<span class="label label-default">{{preferences.selectedDates.length}} dates selected</span>
+		<ul>
+			<li ng-repeat="date in preferences.availableDates">
+				<label>
+					<input type="checkbox" ng-click="preferences.addDate(date)" />
+					{{preferences.formatDate(date)}}
+				</label>
+			</li>
+		</ul>
+		
+		
+		<h3>Preferred Venue</h3>
+		<ul>
+			<li ng-repeat="venue in preferences.availableVenues">
+				<label>
+					<input type="radio" name="venuSelect" />
+					{{venue}}
+				</label>
+			</li>
+		</ul>
+		
+		<button class="btn btn-primary" ng-click="preferences.savePreferences()">Save preferences</button>
+	</div>
+
+</div>
