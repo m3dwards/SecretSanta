@@ -1,0 +1,30 @@
+{
+  "name": "bower.json",
+  "description": "Secret santa client",
+  "main": "gruntfile.js",
+  "authors": [
+    "Aaron Rhodes <aaroncraigrhodes@googlemail.com>"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/maxwedwards/SecretSanta",
+  "moduleType": [
+    "node"
+  ],
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-resource": "~1.4.7",
+    "angular": "angularjs#~1.4.7",
+    "bootstrap": "~3.3.5"
+  },
+  "devDependencies": {
+    "angular-route": "~1.4.7",
+    "moment": "momentjs#~2.10.6"
+  }
+}
