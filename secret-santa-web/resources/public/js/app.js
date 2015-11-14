@@ -49,7 +49,7 @@ angular.module('secretSanta', ['ngRoute', 'ngResource'])
 	function($scope, $routeParams, $rootScope, preferences) {
 		var self = this;
 		
-		self.userEmail = $rootScope.email == null ? $routeParams.email : $rootScope.email;
+		self.userEmail = $routeParams.email == null ? $rootScope.email : $routeParams.email;
 		$rootScope.email = self.userEmail;
 		
 		self.availableVenues = ['Red Lion', 'Parson'];
