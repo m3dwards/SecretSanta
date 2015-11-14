@@ -17,6 +17,6 @@ angular.module('secretSanta', ['ngRoute', 'ngResource'])
 
     //$locationProvider.html5Mode(true);
 }])
-.factory('dates', function($resource) {
-  return $resource('/api/entries/:id'); // Note the full endpoint address
+.factory('preferences', function($resource) {
+  return $resource('/api/entries/:id');
 });

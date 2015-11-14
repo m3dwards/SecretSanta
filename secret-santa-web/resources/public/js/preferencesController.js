@@ -1,6 +1,6 @@
 angular.module('secretSanta')
-	.controller('preferencesController', ['$scope', 'dates', '$routeParams', '$rootScope',
-	function($scope, dates, $routeParams, $rootScope) {
+	.controller('preferencesController', ['$scope', '$routeParams', '$rootScope', 'preferences',
+	function($scope, $routeParams, $rootScope, preferences) {
 		var self = this;
 		
 		self.userEmail = $rootScope.email == null ? $routeParams.email : $rootScope.email;
@@ -21,7 +21,19 @@ angular.module('secretSanta')
 		};
 		
 		self.savePreferences = function(){
-			console.log(self);	
+			var dates = [];
+			
+			for (var i = 0; i < self.availableDates.length; i++)
+			{
+				var date = self.availableDates[i];
+				dates.push({ date: date.date.toDate(), selected: date.selected });
+			}
+			
+			preferences.save({
+				email: self.userEmail,
+				dates: dates,
+				venue: self.venue
+			});
 		};
 	}
 ]);
