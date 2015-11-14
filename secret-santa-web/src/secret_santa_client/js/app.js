@@ -18,5 +18,5 @@ angular.module('secretSanta', ['ngRoute', 'ngResource'])
     //$locationProvider.html5Mode(true);
 }])
 .factory('preferences', function($resource) {
-  return $resource('/api/entries/:id');
+  return $resource('/preferences');
 });
