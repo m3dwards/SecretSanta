@@ -1,7 +1,7 @@
-function preferences(email, selectedDates, selectedVenue){
+function date(date, selected)
+{
 	var self = this;
 	
-	self.email = email;
-	self.selectedDates = selectedDates;
-	self.selectedVenue = selectedVenue;
+	self.date = date;
+	self.selected = selected != null ? selected : true;
 }

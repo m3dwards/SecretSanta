@@ -17,6 +17,6 @@ angular.module('secretSanta', ['ngRoute', 'ngResource'])
 
     //$locationProvider.html5Mode(true);
 }])
-.factory('preferences', function($resource) {
+.factory('preferences', ['$resource', function($resource) {
   return $resource('/preferences');
-});
+}]);

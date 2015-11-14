@@ -8,11 +8,11 @@ angular.module('secretSanta')
 		
 		self.availableVenues = ['Red Lion', 'Parson'];
 		self.availableDates = [
-			{ date: moment(new Date(2015,1,1)), selected: false },
-			{ date: moment(new Date(2015,1,2)), selected: false },
-			{ date: moment(new Date(2015,1,5)), selected: false },
-			{ date: moment(new Date(2015,1,6)), selected: false }
-		]
+			new date(moment(new Date(2015,1,1))),
+			new date(moment(new Date(2015,1,2))),
+			new date(moment(new Date(2015,1,5))),
+			new date(moment(new Date(2015,1,6)))
+		];
 
 		self.venue = null;
 		
