@@ -9,9 +9,15 @@
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
             [ring.util.response :refer [resource-response content-type]]
             [ring.adapter.jetty :as jetty]
-            [environ.core :refer [env]]))
+            [environ.core :refer [env]]
+            [clojure.java.jdbc :as sql]))
+
+(def db (or (System/getenv "DATABASE_URL")
+                          "postgresql://localhost:5432/secret-santa"))
 
 (defn save-preferences [pref]
+
+  (print pref) (flush)
   "saved")
 
 (defroutes app-routes
