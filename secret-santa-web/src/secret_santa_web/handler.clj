@@ -3,6 +3,7 @@
             [compojure.route :as route]
             [compojure.handler :refer [site]]
             [ring.middleware.resource :refer [wrap-resource]]
+            [ring.middleware.json :refer [wrap-json-response wrap-json-body]]
             [ring.middleware.content-type :refer [wrap-content-type]]
             [ring.middleware.not-modified :refer [wrap-not-modified]]
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
@@ -10,10 +11,14 @@
             [ring.adapter.jetty :as jetty]
             [environ.core :refer [env]]))
 
+(defn save-preferences [pref]
+  "saved")
+
 (defroutes app-routes
   (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
   (GET "/backend" [] "Hello backend")
   (GET "/broken" [] (/ 1 0))
+  (POST "/preferences" pref (save-preferences (pref :body)))
   (route/not-found "<html><body><img src='/img/404.png' style='max-width:100%'/></body></html>")
   )
 
@@ -21,8 +26,9 @@
   (fn [request]
     (try (f request)
       (catch Exception e
+        (do (print (.getMessage e)) (flush)
          {:status 500
-          :body "<html><body><img src='img/500.png' style='max-width:100%'/></body></html>"}))))
+          :body "<html><body><img src='img/500.png' style='max-width:100%'/></body></html>"})))))
 
 (defn ignore-trailing-slash
   [handler]
@@ -36,10 +42,13 @@
 (def app
   (-> app-routes
     (ignore-trailing-slash)
-    (wrap-defaults site-defaults)
+    (wrap-defaults (assoc site-defaults :security (assoc (site-defaults :security) :anti-forgery false)))
     (wrap-content-type)
     (wrap-not-modified)
-    (wrap-exception)))
+    (wrap-exception)
+    (wrap-json-response)
+    (wrap-json-body)
+      ))
 
 
 (defn -main [& [port]]
