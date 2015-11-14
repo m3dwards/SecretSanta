@@ -39,9 +39,19 @@ module.exports = function (grunt) {
 					"../../resources/public/css/site.css": "less/site.less"
 				}
 			},
-		}
+		},
+		watch: {
+			all: {
+				files: ['**/*'],
+				tasks: ['concat', 'uglify', 'copy', 'less'],
+				options: {
+					spawn: false,
+				},
+			},
+		},
 	});
 
+	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-copy');

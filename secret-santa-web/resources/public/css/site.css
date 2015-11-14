@@ -5,3 +5,20 @@ h3 {
   display: inline-block;
   margin-bottom: 20px;
 }
+.checkbox-list,
+.radio-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.checkbox-list li,
+.radio-list li {
+  margin: 10px;
+  float: left;
+}
+.checkbox,
+.radio {
+  padding: 20px;
+  padding-left: 40px;
+  background-color: #eeeeee;
+}

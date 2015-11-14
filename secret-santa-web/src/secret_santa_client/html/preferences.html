@@ -1,31 +1,35 @@
 <div class="container">
 
-	<div>
+	<div class="row">
 		<h1>Preferences</h1>
 		<p class="lead">Hey {{preferences.userEmail}}, please select your available dates and preferred venus.</p>
-		
+
 		<h3>Preferred Dates</h3>
-		
-		<ul>
+
+		<ul class="checkbox-list">
 			<li ng-repeat="date in preferences.availableDates">
 				<label class="checkbox">
-					<input type="checkbox" ng-model="date.selected" />
-					{{preferences.formatDate(date)}}
+					<input type="checkbox" ng-model="date.selected" /> {{preferences.formatDate(date)}}
 				</label>
 			</li>
 		</ul>
-		
-		
+		<div class="clearfix"></div>
+
+
 		<h3>Preferred Venue</h3>
-		<ul>
+		<ul class="radio-list">
 			<li ng-repeat="venue in preferences.availableVenues">
 				<label class="radio">
-					<input type="radio" name="venuSelect" />
-					{{venue}}
+					<input type="radio" name="venuSelect" /> {{venue}}
 				</label>
 			</li>
 		</ul>
-		
+		<div class="clearfix"></div>
+
+	</div>
+
+	<div class="row">
+		<br/>
 		<button class="btn btn-primary" ng-click="preferences.savePreferences()">Save preferences</button>
 	</div>
 
