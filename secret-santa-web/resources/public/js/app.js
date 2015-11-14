@@ -3,9 +3,16 @@ angular.module('secretSanta', ['ngRoute', 'ngResource'])
   function($routeProvider, $locationProvider) {
     $routeProvider
       .when('/', {
+        templateUrl: 'home.html',
+        name: 'Home',
+        path: '#/'
+      })
+      .when('/preferences/:email?', {
         templateUrl: 'preferences.html',
         controller: 'preferencesController',
-        controllerAs: 'preferences'
+        controllerAs: 'preferences',
+        name: 'Preferences',
+        path: '#/preferences'
       });
 
     //$locationProvider.html5Mode(true);

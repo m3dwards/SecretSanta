@@ -2,14 +2,14 @@
 
 	<div>
 		<h1>Preferences</h1>
-		<p class="lead">Please select your avilable dates and preferred venus.</p>
+		<p class="lead">Hey {{preferences.userEmail}}, please select your avilable dates and preferred venus.</p>
 		
 		<h3>Preferred Dates</h3>
-		<span class="label label-default">{{preferences.selectedDates.length}} dates selected</span>
+		
 		<ul>
 			<li ng-repeat="date in preferences.availableDates">
-				<label>
-					<input type="checkbox" ng-click="preferences.addDate(date)" />
+				<label class="checkbox">
+					<input type="checkbox" ng-model="date.selected" />
 					{{preferences.formatDate(date)}}
 				</label>
 			</li>
@@ -19,7 +19,7 @@
 		<h3>Preferred Venue</h3>
 		<ul>
 			<li ng-repeat="venue in preferences.availableVenues">
-				<label>
+				<label class="radio">
 					<input type="radio" name="venuSelect" />
 					{{venue}}
 				</label>
