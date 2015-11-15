@@ -3,11 +3,11 @@ var app = angular.module('secretSanta', ['ngRoute', 'ngResource'])
 app.config(['$routeProvider', '$locationProvider',
   function ($routeProvider, $locationProvider) {
     $routeProvider
-      .when('/', {
+      /*.when('/', {
         templateUrl: 'home.html',
         name: 'Home',
         path: '#/'
-      })
+      })*/
       .when('/preferences/:email?', {
         templateUrl: 'preferences.html',
         controller: 'preferencesController',
@@ -22,7 +22,7 @@ app.config(['$routeProvider', '$locationProvider',
     return $resource('/preferences');
   }])
   .config(['$httpProvider', function ($httpProvider) {
-    $httpProvider.interceptors.push(function ($q) {
+    $httpProvider.interceptors.push(['$q', function ($q) {
       return {
         // optional method
         'request': function (config) {
@@ -54,7 +54,7 @@ app.config(['$routeProvider', '$locationProvider',
           return $q.reject(rejection);
         }
       };
-    });
+    }]);
   }]);;function date(date, available)
 {
 	var self = this;
