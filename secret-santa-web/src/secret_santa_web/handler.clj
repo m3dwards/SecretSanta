@@ -9,9 +9,63 @@
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
             [ring.util.response :refer [resource-response content-type]]
             [ring.adapter.jetty :as jetty]
-            [environ.core :refer [env]]))
+            [environ.core :refer [env]]
+            [clojure.java.jdbc :as sql]
+            [clj-time.core :as t]
+            [clj-time.format :as f]
+            [clj-time.coerce :as c]
+            [clj-time.jdbc]))
 
+(def iso-date-pattern (re-pattern "^\\d{4}-\\d{2}-\\d{2}.*"))
+
+(defn date? [date-str]                                                         
+  (when (and date-str (string? date-str))
+    (re-matches iso-date-pattern date-str)))
+
+(defn json->datetime [json-str]
+  (when (date? json-str)
+    (if-let [res (c/from-string json-str)]                                     
+            res
+            nil))) ;; you should probably throw an exception or something here !
+
+(def db (or (System/getenv "DATABASE_URL")
+                          "postgresql://localhost:5432/secret-santa"))
+
+(defn has-event? []
+  (-> (sql/query db ["select count(*) from events"]) first :count pos?))
+
+(defn has-user? [email]
+  (-> (sql/query db ["select count(*) from users where email = ?" email]) first :count pos?))
+
+(defn get-user-id [email]
+  (-> (sql/query db ["select id from users where email = ?" email]) first :id))
+
+(defn create-event [name]
+  (sql/insert! db :events [:name] [name]))
+
+(defn create-user [email]
+  (sql/insert! db :users [:email] [email]))
+
+(defn delete-preferences [user event]
+  (sql/execute! db ["delete from date_preferences where \"user\" = ? and event = ?" user event]))
+
+(defn insert-preferences [user event date]
+  (print "\nDate\n") (print (json->datetime (date :date))) (print "\n") (flush)
+  ;(try
+  (sql/insert! db :date_preferences ["\"user\"" :event :date :available] [user event (json->datetime (date "date")) (date "available")])
+ ; (catch Exception e (print (.getNextException e)) (flush))
+  ;)
+)
+  
 (defn save-preferences [pref]
+  (print pref) (print "\n") (flush)
+  (print (pref "email")) (flush)
+  (when (not (has-event?)) (create-event "SecretSanta"))
+  (when (not (has-user? (pref "email"))) (create-user (pref "email")))
+  (let [user-id (get-user-id (pref "email"))]
+    (delete-preferences user-id 1)
+    (doseq [date (pref "dates")] (insert-preferences user-id 1 date)))
+  (print pref) (flush)
   "saved")
 
 (defroutes app-routes
@@ -45,7 +99,7 @@
     (wrap-defaults (assoc site-defaults :security (assoc (site-defaults :security) :anti-forgery false)))
     (wrap-content-type)
     (wrap-not-modified)
-    (wrap-exception)
+    ;;(wrap-exception)
     (wrap-json-response)
     (wrap-json-body)
       ))

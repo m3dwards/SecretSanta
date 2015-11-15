@@ -8,6 +8,7 @@
                  [ring/ring-jetty-adapter "1.4.0"]
                  [ring/ring-json "0.4.0"]
                  [environ "1.0.0"]
+                 [clj-time "0.11.0"]
                  [org.clojure/java.jdbc "0.4.1"]
                  [org.postgresql/postgresql "9.4-1201-jdbc41"]]
   :plugins [[lein-ring "0.9.7"]]
