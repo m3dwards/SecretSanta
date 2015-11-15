@@ -10,6 +10,7 @@
             [ring.util.response :refer [resource-response content-type]]
             [ring.adapter.jetty :as jetty]
             [environ.core :refer [env]]
+            [secret-santa-web.models.migrations :refer [migrate]]
             [clojure.java.jdbc :as sql]
             [clj-time.core :as t]
             [clj-time.format :as f]
@@ -106,5 +107,6 @@
 
 
 (defn -main [& [port]]
+    (migrate)
     (let [port (Integer. (or port (env :port) 5000))]
           (jetty/run-jetty (site #'app) {:port port :join? false})))
