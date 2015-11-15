@@ -1,5 +1,4 @@
-angular.module('secretSanta')
-	.controller('preferencesController', ['$scope', '$routeParams', '$rootScope', 'preferences',
+app.controller('preferencesController', ['$scope', '$routeParams', '$rootScope', 'preferences',
 	function($scope, $routeParams, $rootScope, preferences) {
 		var self = this;
 		
@@ -26,7 +25,7 @@ angular.module('secretSanta')
 			for (var i = 0; i < self.availableDates.length; i++)
 			{
 				var date = self.availableDates[i];
-				dates.push({ date: date.date.utc().toDate(), selected: date.selected });
+				dates.push({ date: date.date.utc().toDate(), available: date.selected });
 			}
 			
 			preferences.save({

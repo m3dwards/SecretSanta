@@ -1,15 +1,25 @@
 <div class="container">
 
 	<div class="row">
-		<h1>Preferences</h1>
+		<div class="page-header">
+			<h1>Secret Santa <small>Event preferences</small></h1>
+		</div>
 		<p class="lead">Hey {{preferences.userEmail}}, please select your available dates and preferred venue.</p>
+
+		<div class="alert alert-success ajax-success" style="display: none;">
+			<strong>Thanks!</strong> Your preferences have been saved
+		</div> 
+		
+		<div class="alert alert-danger ajax-failure" style="display: none;">
+			<strong>Uh oh!</strong> There was a problem saving your preferences. Please try again later.
+		</div> 
 
 		<h3>Preferred Dates</h3>
 
 		<ul class="checkbox-list">
 			<li ng-repeat="date in preferences.availableDates">
 				<label class="checkbox">
-					<input type="checkbox" ng-model="date.selected" /> {{preferences.formatDate(date)}}
+					<input type="checkbox" ng-model="date.available" /> {{preferences.formatDate(date)}}
 				</label>
 			</li>
 		</ul>
@@ -30,7 +40,14 @@
 
 	<div class="row">
 		<br/>
-		<button class="btn btn-primary" ng-click="preferences.savePreferences()">Save preferences</button>
+		
+		<button class="btn btn-primary hide-on-busy" ng-click="preferences.savePreferences()">Save preferences</button>
+		
+		<div id="busy" class="progress" style="display: none;">
+			<div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+				<span class="sr-only">Submitting...</span>
+			</div>
+		</div>
 	</div>
 
 </div>

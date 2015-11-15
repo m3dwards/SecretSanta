@@ -1,5 +1,4 @@
-angular.module('secretSanta')
-.controller('appController', ['$scope', '$route', '$location', 
+app.controller('appController', ['$scope', '$route', '$location', 
 	function ($scope, $route, $location){
 		var self = this;
 		

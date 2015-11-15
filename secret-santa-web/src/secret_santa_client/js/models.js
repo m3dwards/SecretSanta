@@ -1,7 +1,7 @@
-function date(date, selected)
+function date(date, available)
 {
 	var self = this;
 	
 	self.date = date;
-	self.selected = selected != null ? selected : true;
+	self.available = available != null ? available : true;
 }
