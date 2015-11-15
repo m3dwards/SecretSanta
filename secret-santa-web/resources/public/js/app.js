@@ -97,7 +97,7 @@ app.config(['$routeProvider', '$locationProvider',
 		self.venue = null;
 		
 		self.formatDate = function(date){
-			return date.date.format('MMMM Do YYYY');
+			return date.date.format('Do MMMM YYYY');
 		};
 		
 		self.savePreferences = function(){
