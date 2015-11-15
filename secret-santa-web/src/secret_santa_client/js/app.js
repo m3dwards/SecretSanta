@@ -6,14 +6,24 @@ app.config(['$routeProvider', '$locationProvider',
       /*.when('/', {
         templateUrl: 'home.html',
         name: 'Home',
-        path: '#/'
+        path: '#/',
+        includeInNav: true
       })*/
+      .when('/login', {
+        templateUrl: 'login.html',
+        controller: 'loginController',
+        controllerAs: 'login',
+        name: 'Login',
+        path: '#/login',
+        includeInNav: false
+      })
       .when('/preferences/:email?', {
         templateUrl: 'preferences.html',
         controller: 'preferencesController',
         controllerAs: 'preferences',
         name: 'Preferences',
-        path: '#/preferences'
+        path: '#/preferences',
+        includeInNav: true
       });
 
     //$locationProvider.html5Mode(true);
@@ -23,6 +33,9 @@ app.config(['$routeProvider', '$locationProvider',
   }])
   .factory('options', ['$resource', function ($resource) {
     return $resource('/options');
+  }])
+  .factory('authentication', ['$resource', function ($resource) {
+    return $resource('/authentication');
   }])
   .config(['$httpProvider', function ($httpProvider) {
     $httpProvider.interceptors.push(['$q', function ($q) {

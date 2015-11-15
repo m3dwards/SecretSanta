@@ -8,7 +8,7 @@ app.controller('appController', ['$scope', '$route', '$location',
 		};
 		
 		angular.forEach($route.routes, function (config,route){			
-			if (config.redirectTo == null)
+			if (config.includeInNav == true)
 				self.routes.push(config);
 		});
 		

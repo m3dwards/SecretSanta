@@ -5,14 +5,14 @@ module.exports = function (grunt) {
 				separator: ';',
 			},
 			dist: {
-				src: ['js/app.js', 'js/models.js', 'js/appController.js', 'js/preferencesController.js'],
+				src: ['js/app.js', 'js/models.js', 'js/appController.js', 'js/preferencesController.js', 'js/loginController.js'],
 				dest: '../../resources/public/js/app.js',
 			},
 		},
 		uglify: {
 			app: {
 				files: {
-					'../../resources/public/js//app.min.js': ['js/app.js', 'js/models.js', 'js/appController.js', 'js/preferencesController.js']
+					'../../resources/public/js//app.min.js': ['js/app.js', 'js/models.js', 'js/appController.js', 'js/preferencesController.js', 'js/loginController.js']
 				}
 			}
 		},
