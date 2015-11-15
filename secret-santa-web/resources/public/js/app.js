@@ -88,10 +88,10 @@ app.config(['$routeProvider', '$locationProvider',
 		
 		self.availableVenues = ['Red Lion', 'Parson'];
 		self.availableDates = [
-			new date(moment(new Date(2015,1,1))),
-			new date(moment(new Date(2015,1,2))),
-			new date(moment(new Date(2015,1,5))),
-			new date(moment(new Date(2015,1,6)))
+			new date(moment(new Date(2015,0,1))),
+			new date(moment(new Date(2015,0,2))),
+			new date(moment(new Date(2015,0,5))),
+			new date(moment(new Date(2015,0,6)))
 		];
 
 		self.venue = null;
@@ -106,7 +106,7 @@ app.config(['$routeProvider', '$locationProvider',
 			for (var i = 0; i < self.availableDates.length; i++)
 			{
 				var date = self.availableDates[i];
-				dates.push({ date: date.date.utc().toDate(), available: date.selected });
+				dates.push({ date: date.date.utc().format('YYYY-MM-DD'), available: date.available });
 			}
 			
 			preferences.save({
