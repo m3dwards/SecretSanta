@@ -21,6 +21,9 @@ app.config(['$routeProvider', '$locationProvider',
   .factory('preferences', ['$resource', function ($resource) {
     return $resource('/preferences');
   }])
+  .factory('options', ['$resource', function ($resource) {
+    return $resource('/options');
+  }])
   .config(['$httpProvider', function ($httpProvider) {
     $httpProvider.interceptors.push(['$q', function ($q) {
       return {

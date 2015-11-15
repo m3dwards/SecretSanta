@@ -1,5 +1,5 @@
-app.controller('preferencesController', ['$scope', '$routeParams', '$rootScope', 'preferences',
-	function($scope, $routeParams, $rootScope, preferences) {
+app.controller('preferencesController', ['$scope', '$routeParams', '$rootScope', 'preferences', 'options',
+	function($scope, $routeParams, $rootScope, preferences, options) {
 		var self = this;
 		
 		self.userEmail = $routeParams.email == null ? $rootScope.email : $routeParams.email;
