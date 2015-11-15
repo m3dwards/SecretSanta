@@ -37,6 +37,9 @@
 (defn has-user? [email]
   (-> (sql/query db ["select count(*) from users where email = ?" email]) first :count pos?))
 
+(defn get-user-id [email]
+  (-> (sql/query db ["select id from users where email = ?" email]) first :id))
+
 (defn create-event [name]
   (sql/insert! db :events [:name] [name]))
 
@@ -49,7 +52,7 @@
 (defn insert-preferences [user event date]
   (print "\nDate\n") (print (json->datetime (date :date))) (print "\n") (flush)
   ;(try
-  (sql/insert! db :date_preferences ["\"user\"" :event :date :available] [user event (json->datetime "2015-02-01") (date "selected")])
+  (sql/insert! db :date_preferences ["\"user\"" :event :date :available] [user event (json->datetime (date "date")) (date "available")])
  ; (catch Exception e (print (.getNextException e)) (flush))
   ;)
 )
@@ -59,8 +62,9 @@
   (print (pref "email")) (flush)
   (when (not (has-event?)) (create-event "SecretSanta"))
   (when (not (has-user? (pref "email"))) (create-user (pref "email")))
-  (delete-preferences 1 1)
-  (insert-preferences 1 1 (first (pref "dates")))
+  (let [user-id (get-user-id (pref "email"))]
+    (delete-preferences user-id 1)
+    (doseq [date (pref "dates")] (insert-preferences user-id 1 date)))
   (print pref) (flush)
   "saved")
 
