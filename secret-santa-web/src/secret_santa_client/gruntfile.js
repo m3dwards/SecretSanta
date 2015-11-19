@@ -21,6 +21,7 @@ module.exports = function (grunt) {
 				files: [
 					{ expand: true, src: ['**'], cwd: 'lib/flatui/fonts/', dest: '../../resources/public/fonts' },
 					{ expand: true, src: ['**'], cwd: 'lib/flatui/img/', dest: '../../resources/public/img' },
+					{ expand: true, src: ['*.js'], cwd: 'lib/flatui/dist/js/', dest: '../../resources/public/js' },
 					{ expand: true, src: ['**'], cwd: 'html/', dest: '../../resources/public/' },
 					{ expand: true, src: ['angular.*'], cwd: 'bower_components/angular/', dest: '../../resources/public/js' },
 					{ expand: true, src: ['angular-resource.*'], cwd: 'bower_components/angular-resource/', dest: '../../resources/public/js' },
