@@ -20,8 +20,13 @@
 
 		<ul class="checkbox-list">
 			<li ng-repeat="date in preferences.availableDates">
-				<label class="checkbox">
-					<input type="checkbox" ng-model="date.available" /> {{preferences.formatDate(date)}}
+				<label class="checkbox primary" for="checkbox6">
+					<input type="checkbox" ng-model="date.available" data-toggle="checkbox" class="custom-checkbox">
+					<span class="icons">
+						<span class="icon-unchecked"></span>
+						<span class="icon-checked"></span>
+					</span>
+					{{preferences.formatDate(date)}}
 				</label>
 			</li>
 		</ul>
@@ -32,7 +37,12 @@
 		<ul class="radio-list">
 			<li ng-repeat="venue in preferences.availableVenues">
 				<label class="radio">
-					<input type="radio" name="venuSelect" ng-model="preferences.venue" value="{{venue}}" /> {{venue}}
+					<input type="radio" name="venuSelect" ng-model="preferences.venue" value="{{venue}}" data-toggle="radio" class="custom-radio">
+					<span class="icons">
+						<span class="icon-unchecked"></span>
+						<span class="icon-checked"></span>
+					</span>
+					{{venue}}
 				</label>
 			</li>
 		</ul>

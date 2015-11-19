@@ -7,8 +7,8 @@ app.controller('preferencesController', ['$scope', '$routeParams', '$rootScope',
 		self.userEmail = $routeParams.email == null ? $rootScope.email : $routeParams.email;
 		$rootScope.email = self.userEmail;
 		
-		self.availableVenues = [];
-		self.availableDates = [];
+		self.availableVenues = ['Test Venue'];
+		self.availableDates = [new date(moment(new Date(2015,12,1)))];
 
 		venues.query({id: eventId}, function(data){
 			self.availableVenues = data;
