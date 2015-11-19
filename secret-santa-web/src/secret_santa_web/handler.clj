@@ -11,6 +11,7 @@
             [ring.adapter.jetty :as jetty]
             [environ.core :refer [env]]
             [secret-santa-web.models.migrations :refer [migrate]]
+            [postal.core :refer [send-message]]
             [clojure.java.jdbc :as sql]
             [clj-time.core :as t]
             [clj-time.format :as f]
@@ -91,6 +92,17 @@
   (print pref) (flush)
   "saved")
 
+(defn send-auth-token [email]
+  (send-message {:host "smtp.sendgrid.net"
+                 :user "secretsantamailman"
+                 :pass ""
+                 :port 587}
+                {:from "santa@secretsanta.lol"
+                 :to email
+                 :subject "Log in to Secret Santa"
+                 :body [{:type "text/html" :content "Your special login link is <a href='http://www.secretsanta.lol/token/huoweqhgwh2huht2hoghou'>link with code</a> <br> <br> Santa"}]})
+  (str email "sent auth token"))
+
 (defroutes app-routes
   (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
   (GET "/backend" [] "Hello backend")
@@ -100,6 +112,7 @@
   (GET "/event/:event_id/venues" [event_id] (get-venues event_id))
   (POST "/event/:event_id/venues" [event_id] ("saved venues"))
   (POST "/preferences" pref (save-preferences (pref :body)))
+  (POST "/event/:event_id/login" {{event_id :event_id} :params {email "email"} :body} (send-auth-token email))
   (route/not-found "<html><body><img src='/img/404.png' style='max-width:100%'/></body></html>")
   )
 

@@ -10,6 +10,7 @@
                  [environ "1.0.0"]
                  [clj-time "0.11.0"]
                  [org.clojure/java.jdbc "0.4.1"]
+                 [com.draines/postal "1.11.3"]
                  [org.postgresql/postgresql "9.4-1201-jdbc41"]]
   :plugins [[lein-ring "0.9.7"]]
   :ring {:handler secret-santa-web.handler/app

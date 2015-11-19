@@ -78,6 +78,15 @@
                         [:event :int "references events (id) NOT NULL"]
                         [:venue :varchar "NOT NULL"])))
 
+(defn add-tokens-table []
+  (sql/db-do-commands db
+                      (sql/create-table-ddl
+                        :user_tokens
+                        [:id :serial "PRIMARY KEY"]
+                        [:event :int "references events (id) NOT NULL"]
+                        ["\"user\"" :int "references users (id) NOT NULL"]
+                        [:token :uuid "NOT NULL"])))
+
 (defn migrate []
   (init-db)
   (let [db-version (get-version)]
@@ -91,4 +100,6 @@
                              (set-version 2)))
     (if (< db-version 3) (do (add-venue-preference-table)
                              (set-version 3)))
+    (if (< db-version 4) (do (add-tokens-table)
+                             (set-version 4)))
     ))
