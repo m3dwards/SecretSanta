@@ -19,6 +19,8 @@ module.exports = function (grunt) {
 		copy: {
 			site: {
 				files: [
+					{ expand: true, src: ['**'], cwd: 'lib/flatui/fonts/', dest: '../../resources/public/fonts' },
+					{ expand: true, src: ['**'], cwd: 'lib/flatui/img/', dest: '../../resources/public/img' },
 					{ expand: true, src: ['**'], cwd: 'html/', dest: '../../resources/public/' },
 					{ expand: true, src: ['angular.*'], cwd: 'bower_components/angular/', dest: '../../resources/public/js' },
 					{ expand: true, src: ['angular-resource.*'], cwd: 'bower_components/angular-resource/', dest: '../../resources/public/js' },
@@ -26,12 +28,17 @@ module.exports = function (grunt) {
 					{ expand: true, src: 'bootstrap.min.js', cwd: 'bower_components/bootstrap/dist/js/', dest: '../../resources/public/js' },
 					{ expand: true, src: 'moment.min.js', cwd: 'bower_components/moment/min/', dest: '../../resources/public/js' },
 				],
-			},
+			}
 		},
 		less: {
 			bootstrap: {
 				files: {
-					"../../resources/public/css/bootstrap.css": "lib/flatui/less/flat-ui-pro.less"
+					"../../resources/public/css/bootstrap.css": "bower_components/bootstrap/less/bootstrap.less"
+				}
+			},
+			flatui: {
+				files: {
+					"../../resources/public/css/ui.css": "lib/flatui/less/flat-ui-pro.less"
 				}
 			},
 			site: {
