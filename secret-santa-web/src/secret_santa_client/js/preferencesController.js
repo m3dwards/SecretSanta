@@ -10,11 +10,11 @@ app.controller('preferencesController', ['$scope', '$routeParams', '$rootScope',
 		self.availableVenues = [];
 		self.availableDates = [];
 
-		venues.get({id: eventId}, function(data){
+		venues.query({id: eventId}, function(data){
 			self.availableVenues = data;
 		});
 
-		dates.get({id: eventId}, function(data){
+		dates.query({id: eventId}, function(data){
 			self.availableDates = data;
 		});
 
