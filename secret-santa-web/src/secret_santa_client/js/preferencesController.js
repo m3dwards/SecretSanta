@@ -1,17 +1,22 @@
-app.controller('preferencesController', ['$scope', '$routeParams', '$rootScope', 'preferences', 'options',
-	function($scope, $routeParams, $rootScope, preferences, options) {
+app.controller('preferencesController', ['$scope', '$routeParams', '$rootScope', 'preferences', 'dates', 'venues',
+	function($scope, $routeParams, $rootScope, preferences, dates, venues) {
 		var self = this;
+
+		var eventId = 1;
 		
 		self.userEmail = $routeParams.email == null ? $rootScope.email : $routeParams.email;
 		$rootScope.email = self.userEmail;
 		
-		self.availableVenues = ['Red Lion', 'Parson'];
-		self.availableDates = [
-			new date(moment(new Date(2015,0,1))),
-			new date(moment(new Date(2015,0,2))),
-			new date(moment(new Date(2015,0,5))),
-			new date(moment(new Date(2015,0,6)))
-		];
+		self.availableVenues = [];
+		self.availableDates = [];
+
+		venues.get({id: eventId}, function(data){
+			self.availableVenues = data;
+		});
+
+		dates.get({id: eventId}, function(data){
+			self.availableDates = data;
+		});
 
 		self.venue = null;
 		

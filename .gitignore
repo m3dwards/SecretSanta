@@ -10,3 +10,6 @@ pom.xml.asc
 .lein-plugins/
 .lein-failures
 *.swp
+secret-santa-web/src/secret_santa_client/node_modules/
+secret-santa-web/src/secret_santa_client/bower_components/
+.idea/

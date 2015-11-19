@@ -31,8 +31,11 @@ app.config(['$routeProvider', '$locationProvider',
   .factory('preferences', ['$resource', function ($resource) {
     return $resource('/preferences');
   }])
-  .factory('options', ['$resource', function ($resource) {
-    return $resource('/options');
+  .factory('dates', ['$resource', function ($resource) {
+    return $resource('/event/:id/dates');
+  }])
+  .factory('venues', ['$resource', function ($resource) {
+    return $resource('/event/:id/venues');
   }])
   .factory('authentication', ['$resource', function ($resource) {
     return $resource('/authentication');
