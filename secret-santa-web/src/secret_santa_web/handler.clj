@@ -61,12 +61,20 @@
   (sql/insert! db :users [:email] [email]))
 
 (defn delete-preferences [user event]
-  (sql/execute! db ["delete from date_preferences where \"user\" = ? and event = ?" user event]))
+  (sql/execute! db ["delete from date_preferences where \"user\" = ? and event = ?" user event])
+  (sql/execute! db ["delete from venue_preference where \"user\" = ? and event = ?" user event]))
 
-(defn insert-preferences [user event date]
+(defn insert-date-preferences [user event date]
   (print "\nDate\n") (print (json->datetime (date :date))) (print "\n") (flush)
   ;(try
   (sql/insert! db :date_preferences ["\"user\"" :event :date :available] [user event (json->datetime (date "date")) (date "available")])
+ ; (catch Exception e (print (.getNextException e)) (flush))
+  ;)
+)
+
+(defn insert-venue-preference [user event venue]
+  ;(try
+  (sql/insert! db :venue_preference ["\"user\"" :event :venue] [user event venue])
  ; (catch Exception e (print (.getNextException e)) (flush))
   ;)
 )
@@ -78,7 +86,8 @@
   (when (not (has-user? (pref "email"))) (create-user (pref "email")))
   (let [user-id (get-user-id (pref "email"))]
     (delete-preferences user-id 1)
-    (doseq [date (pref "dates")] (insert-preferences user-id 1 date)))
+    (doseq [date (pref "dates")] (insert-date-preferences user-id 1 date))
+    (insert-venue-preference user-id 1 (pref "venue")))
   (print pref) (flush)
   "saved")
 
