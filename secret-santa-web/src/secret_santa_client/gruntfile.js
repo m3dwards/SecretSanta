@@ -31,7 +31,7 @@ module.exports = function (grunt) {
 		less: {
 			bootstrap: {
 				files: {
-					"../../resources/public/css/bootstrap.css": "bower_components/bootstrap/less/bootstrap.less"
+					"../../resources/public/css/bootstrap.css": "lib/flatui/less/flat-ui-pro.less"
 				}
 			},
 			site: {
