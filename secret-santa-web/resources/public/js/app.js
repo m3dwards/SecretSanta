@@ -115,7 +115,9 @@ app.config(['$routeProvider', '$locationProvider',
 		});
 
 		dates.query({id: eventId}, function(data){
-			self.availableDates = data;
+			angular.forEach(data, function(item) {
+				self.availableDates.push(new date(moment(new Date(item))));
+			});
 		});
 
 		self.venue = null;
