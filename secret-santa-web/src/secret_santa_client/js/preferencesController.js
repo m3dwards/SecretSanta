@@ -1,45 +1,76 @@
-app.controller('preferencesController', ['$scope', '$routeParams', '$rootScope', 'preferences', 'dates', 'venues',
-	function($scope, $routeParams, $rootScope, preferences, dates, venues) {
+app.controller('preferencesController', ['$scope', '$routeParams', 'preferences', 'dates', 'venues', '$rootScope',
+	function ($scope, $routeParams, preferences, dates, venues, $rootScope) {
 		var self = this;
 
 		var eventId = 1;
-		
+
 		self.userEmail = $routeParams.email == null ? $rootScope.email : $routeParams.email;
 		$rootScope.email = self.userEmail;
-		
-		self.availableVenues = ['Test Venue'];
-		self.availableDates = [new date(moment(new Date(2015,12,1)))];
 
-		venues.query({id: eventId}, function(data){
+		self.availableVenues = ['Test Venue'];
+		self.availableDates = [new date(moment(new Date(2015, 12, 1)))];
+
+		venues.query({ id: eventId }, function (data) {
 			self.availableVenues = data;
 		});
 
-		dates.query({id: eventId}, function(data){
-			angular.forEach(data, function(item) {
+		dates.query({ id: eventId }, function (data) {
+			angular.forEach(data, function (item) {
 				self.availableDates.push(new date(moment(new Date(item))));
 			});
 		});
 
 		self.venue = null;
-		
-		self.formatDate = function(date){
+
+		self.busy = false;
+		self.success = false;
+		self.fail = false;
+
+		self.formatDate = function (date) {
 			return date.date.format('Do MMMM YYYY');
 		};
-		
-		self.savePreferences = function(){
+
+		self.savePreferences = function () {
 			var dates = [];
 			
-			for (var i = 0; i < self.availableDates.length; i++)
-			{
+			self.busy = true;
+
+			for (var i = 0; i < self.availableDates.length; i++) {
 				var date = self.availableDates[i];
 				dates.push({ date: date.date.utc().format('YYYY-MM-DD'), available: date.available });
 			}
-			
+
 			preferences.save({
 				email: self.userEmail,
 				dates: dates,
 				venue: self.venue
+			}, function (data) {
+				self.busy = false;
+				self.success = true;
+				self.fail = false;
+			}, function (error) {
+				self.busy = false;
+				self.success = false;
+				self.fail = false;
 			});
 		};
+
+		/*$scope.$on('ajax-state', function (e, args) {
+			if (args.busy) {
+				self.busy = true;
+			}
+			else {
+				self.busy = true;
+
+				if (args.success) {
+					self.success = true;
+					self.fail = false;
+				}
+				else {
+					self.success = false;
+					self.fail = true;
+				}
+			}
+		});*/
 	}
 ]);

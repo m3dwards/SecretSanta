@@ -3,12 +3,12 @@ var app = angular.module('secretSanta', ['ngRoute', 'ngResource'])
 app.config(['$routeProvider', '$locationProvider',
   function ($routeProvider, $locationProvider) {
     $routeProvider
-      /*.when('/', {
-        templateUrl: 'home.html',
-        name: 'Home',
-        path: '#/',
-        includeInNav: true
-      })*/
+    /*.when('/', {
+      templateUrl: 'home.html',
+      name: 'Home',
+      path: '#/',
+      includeInNav: true
+    })*/
       .when('/login', {
         templateUrl: 'login.html',
         controller: 'loginController',
@@ -38,40 +38,30 @@ app.config(['$routeProvider', '$locationProvider',
     return $resource('/event/:id/venues');
   }])
   .factory('authentication', ['$resource', function ($resource) {
-    return $resource('/authentication');
-  }])
-  .config(['$httpProvider', function ($httpProvider) {
-    $httpProvider.interceptors.push(['$q', function ($q) {
+    return $resource('/authentication/:id');
+  }]);
+  /*.factory('ajaxInterceptor', ['$q', '$rootScope', '$injector',
+    function ($q, $rootScope, $injector) {
       return {
         // optional method
         'request': function (config) {
-          $("#busy").show();
-          $('.hide-on-busy').hide();
-          $('.ajax-success').hide();
-          $('.ajax-failure').hide();
+          $rootScope.$broadcast('ajax-state', { busy: true, success: false });
           return config;
         },
         'requestError': function (rejection) {
-
-          $("#busy").hide();
-          $('.hide-on-busy').show();
-          $('.ajax-failure').show();
+          $rootScope.$broadcast('ajax-state', { busy: false, success: false });
           return $q.reject(rejection);
         },
         'response': function (response) {
-          $("#busy").hide();
-          $('.hide-on-busy').show();
-          $('.ajax-success').show();
-
+          $rootScope.$broadcast('ajax-state', { busy: false, sucess: true });
           return response;
         },
         'responseError': function (rejection) {
-          $("#busy").hide();
-          $('.hide-on-busy').show();
-          $('.ajax-failure').show();
-
+          $rootScope.$broadcast('ajax-state', { busy: false, success: false });
           return $q.reject(rejection);
         }
       };
-    }]);
-  }]);
+    }])
+  .config(['$httpProvider', '$rootScope', function ($httpProvider) {
+    $httpProvider.interceptors.push('ajaxInterceptor');
+  }]);*/

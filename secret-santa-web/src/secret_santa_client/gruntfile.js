@@ -64,5 +64,5 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-contrib-less');
 
-	grunt.registerTask('default', ['concat', 'uglify', 'copy', 'less']);
+	grunt.registerTask('default', ['concat', 'copy', 'less']);
 }
