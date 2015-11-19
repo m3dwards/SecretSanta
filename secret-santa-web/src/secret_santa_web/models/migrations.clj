@@ -53,6 +53,15 @@
                         [:date :timestamp "NOT NULL"]
                         [:available :boolean "NOT NULL"])))
 
+(defn add-venue-preference-table []
+  (sql/db-do-commands db
+                      (sql/create-table-ddl
+                        :venue_preference
+                        [:id :serial "PRIMARY KEY"]
+                        ["\"user\"" :int "references users (id) NOT NULL"]
+                        [:event :int "references events (id) NOT NULL"]
+                        [:venue :varchar "NOT NULL"])))
+
 (defn add-config-dates-table []
   (sql/db-do-commands db
                       (sql/create-table-ddl
@@ -80,4 +89,6 @@
     (if (< db-version 2) (do (add-config-dates-table)
                              (add-config-venues-table) 
                              (set-version 2)))
+    (if (< db-version 3) (do (add-venue-preference-table)
+                             (set-version 3)))
     ))
