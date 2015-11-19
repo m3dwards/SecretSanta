@@ -110,12 +110,12 @@ app.config(['$routeProvider', '$locationProvider',
 		self.availableVenues = [];
 		self.availableDates = [];
 
-		venues.get({id: eventId}, function(data){
-			console.log(data);
+		venues.query({id: eventId}, function(data){
+			self.availableVenues = data;
 		});
 
-		dates.get({id: eventId}, function(data){
-			console.log(data);
+		dates.query({id: eventId}, function(data){
+			self.availableDates = data;
 		});
 
 		self.venue = null;
