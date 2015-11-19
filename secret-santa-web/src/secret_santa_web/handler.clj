@@ -29,6 +29,13 @@
             res
             nil))) ;; you should probably throw an exception or something here !
 
+(defn unpack-date [row]
+  (c/to-string (row :date)))
+  ;;(f/unparse (c/to-date-time "dd.MM.yyyy hh:mm") (row :date)))
+
+(defn unpack-venue [row]
+  (row :venue))
+
 (def db (or (System/getenv "DATABASE_URL")
                           "postgresql://localhost:5432/secret-santa"))
 
@@ -40,6 +47,12 @@
 
 (defn get-user-id [email]
   (-> (sql/query db ["select id from users where email = ?" email]) first :id))
+
+(defn get-dates [event_id]
+  (map unpack-date (sql/query db ["select \"date\" from config_dates where event = ?" (read-string event_id)])))
+
+(defn get-venues [event_id]
+  (map unpack-venue (sql/query db ["select venue from config_venues where event = ?" (read-string event_id)])))
 
 (defn create-event [name]
   (sql/insert! db :events [:name] [name]))
@@ -73,6 +86,10 @@
   (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
   (GET "/backend" [] "Hello backend")
   (GET "/broken" [] (/ 1 0))
+  (GET "/event/:event_id/dates" [event_id] (get-dates event_id))
+  (POST "/event/:specific/dates" [specific] ("saved dates"))
+  (GET "/event/:event_id/venues" [event_id] (get-venues event_id))
+  (POST "/event/:event_id/venues" [event_id] ("saved venues"))
   (POST "/preferences" pref (save-preferences (pref :body)))
   (route/not-found "<html><body><img src='/img/404.png' style='max-width:100%'/></body></html>")
   )

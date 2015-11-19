@@ -53,6 +53,22 @@
                         [:date :timestamp "NOT NULL"]
                         [:available :boolean "NOT NULL"])))
 
+(defn add-config-dates-table []
+  (sql/db-do-commands db
+                      (sql/create-table-ddl
+                        :config_dates
+                        [:id :serial "PRIMARY KEY"]
+                        [:event :int "references events (id) NOT NULL"]
+                        [:date :timestamp "NOT NULL"])))
+
+(defn add-config-venues-table []
+  (sql/db-do-commands db
+                      (sql/create-table-ddl
+                        :config_venues
+                        [:id :serial "PRIMARY KEY"]
+                        [:event :int "references events (id) NOT NULL"]
+                        [:venue :varchar "NOT NULL"])))
+
 (defn migrate []
   (init-db)
   (let [db-version (get-version)]
@@ -61,5 +77,7 @@
                              (add-users-table)
                              (add-date-preferences-table) 
                              (set-version 1)))
-
+    (if (< db-version 2) (do (add-config-dates-table)
+                             (add-config-venues-table) 
+                             (set-version 2)))
     ))
