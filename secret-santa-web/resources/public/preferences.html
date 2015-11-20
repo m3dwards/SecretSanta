@@ -16,16 +16,12 @@
 		</div>
 
 		<h3>Preferred Dates</h3>
-		<p>Please tick the dates that you CAN attend a secret santa event.</p>
+		<p>Please leave ticked the dates that you CAN attend a secret santa event and un-tick any that you can't.</p>
 
 		<ul class="checkbox-list">
 			<li ng-repeat="date in preferences.availableDates">
-				<label class="checkbox primary">
-					<input type="checkbox" value="" ng-model="date.available" data-toggle="checkbox" class="custom-checkbox">
-					<span class="icons">
-						<span class="icon-unchecked"></span>
-						<span class="icon-checked"></span>
-					</span>
+				<label class="checkbox-large">
+					<input type="checkbox" value="" ng-model="date.available">
 					{{preferences.formatDate(date)}}
 				</label>
 			</li>
@@ -36,12 +32,8 @@
 		<h3>Preferred Venue</h3>
 		<ul class="radio-list">
 			<li ng-repeat="venue in preferences.availableVenues">
-				<label class="radio">
-					<input type="radio" name="venuSelect" ng-model="preferences.venue" value="{{venue}}" data-toggle="radio" class="custom-radio">
-					<span class="icons">
-						<span class="icon-unchecked"></span>
-						<span class="icon-checked"></span>
-					</span>
+				<label class="radio-large">
+					<input type="radio" name="venuSelect" ng-model="preferences.venue" value="{{venue}}">
 					{{venue}}
 				</label>
 			</li>
