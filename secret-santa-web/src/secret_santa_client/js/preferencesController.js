@@ -15,6 +15,8 @@ app.controller('preferencesController', ['$scope', '$routeParams', 'preferences'
 		});
 
 		dates.query({ id: eventId }, function (data) {
+			self.availableDates = [];
+
 			angular.forEach(data, function (item) {
 				self.availableDates.push(new date(moment(new Date(item))));
 			});
