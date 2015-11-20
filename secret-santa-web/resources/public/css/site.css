@@ -13,11 +13,11 @@ h3 {
 }
 .checkbox-list li,
 .radio-list li {
-  margin: 10px;
+  margin: 5px;
   float: left;
 }
 .checkbox-large,
 .radio-large {
-  padding: 20px;
+  padding: 15px;
   background-color: #ecf0f1;
 }
