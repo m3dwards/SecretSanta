@@ -24,3 +24,15 @@ h3 {
 	padding: 15px;
 	background-color: @clouds;
 }
+
+.animate-show {
+	opacity: 1;
+}
+
+.animate-show.ng-hide-add, .animate-show.ng-hide-remove {
+	transition: all linear 0.5s;
+}
+
+.animate-show.ng-hide {
+	opacity: 0;
+}

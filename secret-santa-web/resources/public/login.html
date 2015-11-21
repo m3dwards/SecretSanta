@@ -1,19 +1,37 @@
 <div class="container">
   <div class="row">
+    <div class="dialog dialog-default animate-show" ng-show="login.success">
+      <div class="container">
+        Activation link was sent to <span class="text-primary">{{login.email}}</span>
+        <button class="btn btn-primary btn-wide mll" data-dismiss="alert" ng-click="login.login()">
+          <i class="fui-mail"></i>
+          Resend it to me!
+        </button>
+      </div>
+    </div>
+
     <div class="page-header">
       <h1>Secret Santa <small>Login</small></h1>
     </div>
 
     <form>
-      <div class="form-group">
-        <label>Email address
-          <input ng-model="login.email" type="email" class="form-control col-md-8" id="email" placeholder="Enter your email address">
-        </label>
-        <span id="helpBlock" class="help-block">Submit your email address and we will send you a link you can use to access your account.</span>
+      <div class="alert alert-danger ajax-failure animate-show" ng-show="login.fail">
+        <button type="button" class="close fui-cross" ng-click="login.fail = false;"></button>
+        <h4><strong>Uh oh!</strong> There was a problem communicating with the server</h4>
       </div>
-      
+
+      <div class="form-group">
+        <label class="col-lg-8 col-md-8 col-sm-12 col-xs-12">Email address
+          <input ng-model="login.email" type="email" class="form-control" id="email" placeholder="Enter your email address">
+        </label>
+        <span id="helpBlock" class="help-block col-lg-12 col-md-12 col-sm-12 col-xs-12">Submit your email address and we will send you a link you can use to access your account.</span>
+      </div>
+
       <div class="clearfix"></div>
-      <button type="submit" class="btn btn-default" ng-click="login.login()">Request</button>
+
+      <div class="form-group">
+        <button class="btn btn-default" ng-click="login.login()">Request</button>
+      </div>
     </form>
   </div>
 </div>

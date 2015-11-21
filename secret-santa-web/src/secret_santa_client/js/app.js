@@ -38,7 +38,7 @@ app.config(['$routeProvider', '$locationProvider',
     return $resource('/event/:id/venues');
   }])
   .factory('authentication', ['$resource', function ($resource) {
-    return $resource('/authentication/:id');
+    return $resource('/login');
   }]);
   /*.factory('ajaxInterceptor', ['$q', '$rootScope', '$injector',
     function ($q, $rootScope, $injector) {
