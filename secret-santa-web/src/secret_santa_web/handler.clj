@@ -148,6 +148,18 @@
 (defn user-info [token]
       (content-type {:body (get-user-from-token token)} "text/json"))
 
+
+
+(defroute insecure-routes
+
+          (POST "/login" {{email "email"} :body} (send-auth-token email))
+
+          )
+
+
+
+
+
 (defroutes app-routes
            (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
            (GET "/backend" [] "Hello backend")
@@ -157,12 +169,13 @@
            (GET "/event/:event_id/venues" [event_id] (get-venues event_id))
            (POST "/event/:event_id/venues" [event_id] ("saved venues"))
            (POST "/preferences" pref (save-preferences (pref :body)))
-           (POST "/login" {{email "email"} :body} (send-auth-token email))
            (GET "/user" {{{token :value} "session_id"} :cookies} (user-info token))
            (POST "/event/:event_id/reveal-name" [event_id] "Christopher")
            (GET "/token/:token" [token] (reply-with-cookie token))
            (route/not-found "<html><body><img src='/img/404.png' style='max-width:100%'/></body></html>")
            )
+
+
 
 (defn wrap-exception [f]
       (fn [request]
