@@ -188,7 +188,17 @@
       (content-type {:body buying_for} "text/json")
       )
 
+(defn get-users-who-have-not-collected [event_id]
+  )
+
+(defn get-users-to-be-bought-for [event_id]
+  )
+
 (defn allocate-for-event [event_id]
+      (let [users_who_have_not_collected (get-users-who-have-not-collected event_id)]
+           (let [users_to_be_bought_for (get-users-to-be-bought-for event_id)]
+
+                ))
       (throw (Exception. "low numbers!!"))
 
       )
