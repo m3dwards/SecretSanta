@@ -247,11 +247,11 @@ app.config(['$routeProvider', '$locationProvider',
 
     santa.save({ id: eventId }, {},
         function(data){
-            if (data.allowed) {
-                self.santa = data.name;
+            if (data.allowed == false) {
+                self.santaSaysNo = true;
             }
             else {
-                self.santaSaysNo = true;
+                self.santa = data.name;
             }
 
             self.fail = false;
