@@ -166,7 +166,7 @@
                               "where u.id <> ? "
                               "AND not exists (select * from user_buying_for where \"user\" = u.id AND event = ?)")  (read-string event_id) user_id (read-string event_id)]) rand-nth))
 
-;;(defn number-of-remaining [event_id] )
+(defn number-of-remaining [event_id] 10)
 
 
 (defn save-allocation [event_id user_id buying_for]
@@ -184,9 +184,12 @@
       (content-type {:body buying_for} "text/json")
       )
 
-;(defn allocate-all-when-few [event_id]
-;      (when (< (number-of-remaining event_id) 6) (create-event "SecretSanta"))
-;      )
+(defn allocate-for-event [event_id]
+  )
+
+(defn allocate-all-when-few [event_id]
+      (when (< (number-of-remaining event_id) 6) (allocate-for-event event_id))
+      )
 
 (defn user-can-have-name [event_id user_id]
       (-> (sql/query db ["select count(*) from users u JOIN present_preference pp on u.id = pp.user and pp.event = ? AND pp.wants_presents = true where u.id = ?" (Integer. event_id) user_id]) first :count pos?))
