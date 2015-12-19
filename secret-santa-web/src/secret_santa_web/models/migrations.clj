@@ -104,7 +104,8 @@
                             [:id :serial "PRIMARY KEY"]
                             [:event :int "references events (id) NOT NULL"]
                             ["\"user\"" :int "references users (id) NOT NULL"]
-                            [:buyingfor :int "references users (id) NOT NULL"])))
+                            [:buyingfor :int "references users (id) NOT NULL"]
+                            [:collected_on :timestamp])))
 
 (defn migrate []
       (init-db)

@@ -54,7 +54,7 @@
       (-> (sql/query db ["select \"user\" from user_tokens where token = ?" (java.util.UUID/fromString token)]) first :user))
 
 (defn get-user-from-token [token]
-      (-> (sql/query db ["select u.id, u.name, u.email from user_tokens ut join users u on u.id = ut.\"user\" where ut.token = ?" (java.util.UUID/fromString token)]) first))
+      (-> (sql/query db ["select u.id, u.name from user_tokens ut join users u on u.id = ut.\"user\" where ut.token = ?" (java.util.UUID/fromString token)]) first))
 
 (defn get-dates [event_id]
       (map unpack-date (sql/query db ["select \"date\" from config_dates where event = ?" (read-string event_id)])))
@@ -155,10 +155,27 @@
 ;; check if there are only 5 left - if so allocate all remaining
 ;; update collected date
 
+(defn get-current-buying-for [user-id event-id]
+      (-> (sql/query db ["select u.id, u.name from user_buying_for ubf join users u on u.id = ubf.buyingfor where ubf.\"user\" = ? AND event = ?" user-id (read-string event-id)]) first))
+
+
+(defn get-unallocated-users [user_id event_id]
+      (sql/query db ["select u.id from users u where not exists (select 1 from user_buying_for where \"user\" = u.id AND event = ?)" user_id (read-string event_id)]))
+
+
+(defn allocate-random-user [user_id event_id]
+      (get-unallocated-users user_id event_id)
+      (content-type {:body {:id 1 :name "random user"}} "text/json")
+      )
 
 (defn get-buying-for [event_id token]
       (let [user_id (get-user-id-from-token token)]
-           (if user_id "Good auth" "Bad auth")
+           (if user_id
+             (let [buying_for (get-current-buying-for user_id event_id)]
+                  (if buying_for
+                    (content-type {:body buying_for} "text/json")
+                    (allocate-random-user user_id event_id)))
+             "Bad auth")
            )
       )
 
@@ -179,8 +196,6 @@
            (GET "/token/:token" [token] (reply-with-cookie token))
            (route/not-found "<html><body><img src='/img/404.png' style='max-width:100%'/></body></html>")
            )
-
-
 
 (defn wrap-exception [f]
       (fn [request]
