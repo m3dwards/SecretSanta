@@ -224,7 +224,7 @@ app.config(['$routeProvider', '$locationProvider',
 			self.success = false;
 		});
 	};
-}]);;app.controller('eventController', ['event', 'santa', '$timeout', function(event, santa, $timeout){
+}]);;app.controller('eventController', ['event', 'santa', '$timeout', '$location', function(event, santa, $timeout, $location){
     var self = this;
 
     var eventId = 1;
@@ -235,6 +235,7 @@ app.config(['$routeProvider', '$locationProvider',
     self.event = null;
 
     self.santaVisible = false;
+    self.santaSaysNo = false;
 
     self.santa = "Uh oh, something is wrong here..";
 
@@ -246,12 +247,17 @@ app.config(['$routeProvider', '$locationProvider',
 
     santa.save({ id: eventId }, {},
         function(data){
-            self.santa = data.name;
+            if (data.allowed) {
+                self.santa = data.name;
+            }
+            else {
+                self.santaSaysNo = true;
+            }
+
             self.fail = false;
             self.success = true;
         }, function(error){
-            self.fail = true;
-            self.success = false;
+            $location.path('/login')
         }
     );
 
