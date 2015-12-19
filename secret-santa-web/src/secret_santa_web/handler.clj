@@ -166,6 +166,8 @@
                               "where u.id <> ? "
                               "AND not exists (select * from user_buying_for where \"user\" = u.id AND event = ?)")  (read-string event_id) user_id (read-string event_id)]) rand-nth))
 
+;;(defn number-of-remaining [event_id] )
+
 
 (defn save-allocation [event_id user_id buying_for]
       (sql/insert! db :user_buying_for [:event "\"user\"" :buyingfor :collected_on] [(Integer. event_id) user_id buying_for (c/to-sql-time (l/local-now))])
@@ -182,19 +184,26 @@
       (content-type {:body buying_for} "text/json")
       )
 
-(defn allocate-all-when-few [event_id]
-      
-      )
+;(defn allocate-all-when-few [event_id]
+;      (when (< (number-of-remaining event_id) 6) (create-event "SecretSanta"))
+;      )
+
+(defn user-can-have-name [event_id user_id]
+      (-> (sql/query db ["select count(*) from users u JOIN present_preference pp on u.id = pp.user and pp.event = ? AND pp.wants_presents = true where u.id = ?" (Integer. event_id) user_id]) first :count pos?))
+
 
 (defn get-buying-for [event_id token]
+
       (allocate-all-when-few event_id)
       (let [user_id (get-user-id-from-token token)]
            (if user_id
-             (let [buying_for (get-current-buying-for user_id event_id)]
-                  (if buying_for
-                    (update-collected event_id user_id buying_for)
-                    (allocate-random-user user_id event_id)))
-             "Bad auth")
+             (if (user-can-have-name event_id user_id)
+               (let [buying_for (get-current-buying-for user_id event_id)]
+                    (if buying_for
+                      (update-collected event_id user_id buying_for)
+                      (allocate-random-user user_id event_id)))
+               (content-type {:body {:allowed false}} "text/json"))
+             (content-type {:code 401} "text/json"))
            )
       )
 
