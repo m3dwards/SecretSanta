@@ -92,12 +92,12 @@
       (print pref) (flush)
       "saved")
 
-(defn save-token [event_id email token]
+(defn save-token [email token]
       (when (not (has-user? email)) (create-user email))
       (let [user_id (get-user-id email)]
-           (sql/execute! db ["delete from user_tokens where \"user\" = ? and event = ?" user_id (read-string event_id)])
+           (sql/execute! db ["delete from user_tokens where \"user\" = ?" user_id])
            (try
-             (sql/insert! db :user_tokens [:event "\"user\"" :token] [(read-string event_id) user_id token])
+             (sql/insert! db :user_tokens ["\"user\"" :token] [user_id token])
              (catch Exception e
                (prn "caught" (.getNextException e))))
            ))
@@ -108,8 +108,8 @@
 (defn email-token [email token]
       ()
       (send-message {:host "smtp.sendgrid.net"
-                     :user (System/getenv "SENDGRID_PASSWORD")
-                     :pass (System/getenv "SENDGRID_USERNAME")
+                     :user (System/getenv "SENDGRID_USERNAME")
+                     :pass (System/getenv "SENDGRID_PASSWORD")
                      :port 587}
                     {:from    "santa@secretsanta.lol"
                      :to      email
@@ -120,10 +120,10 @@
                                                                 (str token)
                                                                 "</a> <br> <br> Santa")}]}))
 
-(defn send-auth-token [event_id email]
+(defn send-auth-token [email]
       (->> (make-token)
-           (save-token event_id email)
-           (email-token event_id email))
+           (save-token email)
+           (email-token email))
       "Sent auth token")
 
 (defroutes app-routes
@@ -135,7 +135,7 @@
            (GET "/event/:event_id/venues" [event_id] (get-venues event_id))
            (POST "/event/:event_id/venues" [event_id] ("saved venues"))
            (POST "/preferences" pref (save-preferences (pref :body)))
-           (POST "/event/:event_id/login" {{event_id :event_id} :params {email "email"} :body} (send-auth-token event_id email))
+           (POST "/login" {{email "email"} :body} (send-auth-token email))
            (POST "/event/:event_id/reveal-name" [event_id] "Christopher")
            (route/not-found "<html><body><img src='/img/404.png' style='max-width:100%'/></body></html>")
            )

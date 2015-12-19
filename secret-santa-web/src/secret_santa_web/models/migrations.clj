@@ -83,9 +83,10 @@
                       (sql/create-table-ddl
                         :user_tokens
                         [:id :serial "PRIMARY KEY"]
-                        [:event :int "references events (id) NOT NULL"]
                         ["\"user\"" :int "references users (id) NOT NULL"]
-                        [:token :uuid "NOT NULL"])))
+                        [:token :uuid "NOT NULL"]
+                        [:expiry :timestamp]
+                        )))
 
 (defn add-present-preference-table []
   (sql/db-do-commands db
