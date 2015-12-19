@@ -7,6 +7,7 @@
       [ring.middleware.content-type :refer [wrap-content-type]]
       [ring.middleware.not-modified :refer [wrap-not-modified]]
       [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
+      [ring.middleware.cookies :refer [wrap-cookies]]
       [ring.util.response :refer [resource-response content-type]]
       [ring.adapter.jetty :as jetty]
       [environ.core :refer [env]]
@@ -48,6 +49,12 @@
 
 (defn get-user-id [email]
       (-> (sql/query db ["select id from users where email = ?" email]) first :id))
+
+(defn get-user-id-from-token [token]
+      (-> (sql/query db ["select \"user\" from user_tokens where token = ?" (java.util.UUID/fromString token)]) first :user))
+
+(defn get-user-from-token [token]
+      (-> (sql/query db ["select u.id, u.name, u.email from user_tokens ut join users u on u.id = ut.\"user\" where ut.token = ?" (java.util.UUID/fromString token)]) first))
 
 (defn get-dates [event_id]
       (map unpack-date (sql/query db ["select \"date\" from config_dates where event = ?" (read-string event_id)])))
@@ -107,7 +114,6 @@
       (java.util.UUID/randomUUID))
 
 (defn email-token [email token]
-      (print (str token)) (flush)
       (send-message {:host "smtp.sendgrid.net"
                      :user (System/getenv "SENDGRID_USERNAME")
                      :pass (System/getenv "SENDGRID_PASSWORD")
@@ -115,8 +121,7 @@
                     {:from    "santa@secretsanta.lol"
                      :to      email
                      :subject "Log in to Secret Santa"
-                     :body    [{:type "text/html" :content (str (str token)
-                                                                "Your special login link is <a href='http://www.secretsanta.lol/token/"
+                     :body    [{:type "text/html" :content (str "Your special login link is <a href='http://www.secretsanta.lol/token/"
                                                                 (str token)
                                                                 "'>http://www.secretsanta.lol/token/"
                                                                 (str token)
@@ -128,6 +133,21 @@
            (email-token email))
       "Sent auth token")
 
+(defn check-token [token]
+      (-> (sql/query db ["select count(*) from user_tokens where token = ?" (java.util.UUID/fromString token)]) first :count pos?))
+
+(defn reply-with-cookie [token]
+      (if (check-token token)
+        {:status  303
+         :headers {"Location" "/"}
+         :cookies {"session_id" {:value token :http-only true :path "/"}}
+         :body    "Redirect"}
+        "Bad token"
+        ))
+
+(defn user-info [token]
+      (content-type {:body (get-user-from-token token)} "text/json"))
+
 (defroutes app-routes
            (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
            (GET "/backend" [] "Hello backend")
@@ -138,8 +158,9 @@
            (POST "/event/:event_id/venues" [event_id] ("saved venues"))
            (POST "/preferences" pref (save-preferences (pref :body)))
            (POST "/login" {{email "email"} :body} (send-auth-token email))
+           (GET "/user" {{{token :value} "session_id"} :cookies} (user-info token))
            (POST "/event/:event_id/reveal-name" [event_id] "Christopher")
-           (POST "/token" [] (str (java.util.UUID/randomUUID)))
+           (GET "/token/:token" [token] (reply-with-cookie token))
            (route/not-found "<html><body><img src='/img/404.png' style='max-width:100%'/></body></html>")
            )
 
@@ -169,6 +190,7 @@
       ;;(wrap-exception)
       (wrap-json-response)
       (wrap-json-body)
+      (wrap-cookies)
       ))
 
 
