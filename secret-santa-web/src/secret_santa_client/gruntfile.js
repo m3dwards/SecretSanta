@@ -5,7 +5,7 @@ module.exports = function (grunt) {
 				separator: ';',
 			},
 			dist: {
-				src: ['js/app.js', 'js/models.js', 'js/appController.js', 'js/preferencesController.js', 'js/loginController.js'],
+				src: ['js/app.js', 'js/models.js', 'js/appController.js', 'js/preferencesController.js', 'js/loginController.js', 'js/eventController.js', 'js/homeController.js'],
 				dest: '../../resources/public/js/app.js',
 			},
 		},
@@ -51,7 +51,7 @@ module.exports = function (grunt) {
 		watch: {
 			all: {
 				files: ['**/*'],
-				tasks: ['concat', 'uglify', 'copy', 'less'],
+				tasks: ['concat', 'copy', 'less'],
 				options: {
 					spawn: false,
 				},

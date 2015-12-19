@@ -3,12 +3,14 @@ var app = angular.module('secretSanta', ['ngRoute', 'ngResource'])
 app.config(['$routeProvider', '$locationProvider',
   function ($routeProvider, $locationProvider) {
     $routeProvider
-    /*.when('/', {
-      templateUrl: 'home.html',
-      name: 'Home',
-      path: '#/',
-      includeInNav: true
-    })*/
+        .when('/', {
+            templateUrl: 'home.html',
+            controller: 'homeController',
+            controllerAs: 'home',
+            name: 'Home',
+            path: '#/',
+            includeInNav: false
+        })
       .when('/login', {
         templateUrl: 'login.html',
         controller: 'loginController',
@@ -24,6 +26,13 @@ app.config(['$routeProvider', '$locationProvider',
         name: 'Preferences',
         path: '#/preferences',
         includeInNav: true
+      })
+      .when('/event/', {
+        templateUrl: 'event.html',
+        controller: 'eventController',
+        controllerAs: 'event',
+        name: 'Event',
+        includeInNav: false
       });
 
     //$locationProvider.html5Mode(true);
@@ -39,7 +48,13 @@ app.config(['$routeProvider', '$locationProvider',
   }])
   .factory('authentication', ['$resource', function ($resource) {
     return $resource('/login');
-  }]);
+  }])
+    .factory('event', ['$resource', function ($resource) {
+        return $resource('/event/:id');
+    }])
+    .factory('santa', ['$resource', function ($resource) {
+        return $resource('/event/:id/reveal-name');
+    }]);
   /*.factory('ajaxInterceptor', ['$q', '$rootScope', '$injector',
     function ($q, $rootScope, $injector) {
       return {
@@ -191,4 +206,58 @@ app.config(['$routeProvider', '$locationProvider',
 			self.success = false;
 		});
 	};
+}]);;app.controller('eventController', ['event', 'santa', '$timeout', function(event, santa, $timeout){
+    var self = this;
+
+    var eventId = 1;
+
+    self.fail = false;
+    self.success = false;
+
+    self.event = null;
+
+    self.santaVisible = false;
+
+    self.santa = "Jim McJefferson";
+
+    /*event.query({ id: eventId }, function (data) {
+        self.event = data;
+    });*/
+
+    santa.save({ id: eventId }, {},
+        function(data){
+            self.santa = data;
+            self.fail = false;
+            self.success = true;
+        }, function(error){
+            self.fail = true;
+            self.success = false;
+        }
+    );
+
+    self.showSanta = function(){
+        self.santaVisible = true;
+
+        $timeout(function(){
+            self.santaVisible = false;
+        }, 2000);
+
+        return false;
+    };
+}]);;app.controller('homeController', ['authentication', function(authentication){
+    var self = this;
+
+    self.fail = false;
+    self.success = false;
+
+    self.login = function(){
+        authentication.save({ email : self.email },
+            function(data){
+                self.fail = false;
+                self.success = true;
+            }, function(error){
+                self.fail = true;
+                self.success = false;
+            });
+    };
 }]);

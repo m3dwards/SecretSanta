@@ -3,12 +3,14 @@ var app = angular.module('secretSanta', ['ngRoute', 'ngResource'])
 app.config(['$routeProvider', '$locationProvider',
   function ($routeProvider, $locationProvider) {
     $routeProvider
-    /*.when('/', {
-      templateUrl: 'home.html',
-      name: 'Home',
-      path: '#/',
-      includeInNav: true
-    })*/
+        .when('/', {
+            templateUrl: 'home.html',
+            controller: 'homeController',
+            controllerAs: 'home',
+            name: 'Home',
+            path: '#/',
+            includeInNav: false
+        })
       .when('/login', {
         templateUrl: 'login.html',
         controller: 'loginController',
@@ -24,6 +26,13 @@ app.config(['$routeProvider', '$locationProvider',
         name: 'Preferences',
         path: '#/preferences',
         includeInNav: true
+      })
+      .when('/event/', {
+        templateUrl: 'event.html',
+        controller: 'eventController',
+        controllerAs: 'event',
+        name: 'Event',
+        includeInNav: false
       });
 
     //$locationProvider.html5Mode(true);
@@ -39,7 +48,13 @@ app.config(['$routeProvider', '$locationProvider',
   }])
   .factory('authentication', ['$resource', function ($resource) {
     return $resource('/login');
-  }]);
+  }])
+    .factory('event', ['$resource', function ($resource) {
+        return $resource('/event/:id');
+    }])
+    .factory('santa', ['$resource', function ($resource) {
+        return $resource('/event/:id/reveal-name');
+    }]);
   /*.factory('ajaxInterceptor', ['$q', '$rootScope', '$injector',
     function ($q, $rootScope, $injector) {
       return {

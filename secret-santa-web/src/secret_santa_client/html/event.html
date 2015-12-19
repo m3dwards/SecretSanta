@@ -1,0 +1,91 @@
+<div class="container">
+
+    <div class="row">
+        <div class="page-header">
+            <h1>Secret Santa <small>Details</small></h1>
+        </div>
+
+        <div class="alert alert-success ajax-success" ng-show="preferences.success">
+            <strong>Thanks!</strong> Your preferences have been saved
+        </div>
+
+        <div class="alert alert-danger ajax-failure" ng-show="preferences.fail">
+            <button type="button" class="close fui-cross" data-dismiss="alert"></button>
+            <h4><strong>Uh oh!</strong> There was a problem communicating with the server</h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-md-5 col-lg-5">
+            <div class="todo">
+                <div class="todo-search">
+
+                </div>
+                <ul>
+                    <li class="todo-done">
+                        <div class="todo-icon fui-user"></div>
+                        <div class="todo-content">
+                            <h4 class="todo-name">
+                                You are <strong>attending</strong> this event!
+                            </h4>
+                            Woohoo!
+                        </div>
+                    </li>
+                    <li class="todo-done">
+                        <div class="todo-icon fui-tag"></div>
+                        <div class="todo-content">
+                            <h4 class="todo-name">
+                                You are <strong>doing</strong> presents
+                            </h4>
+                            Purchasing and receiving!
+                        </div>
+                    </li>
+                    <li class="todo-done">
+                        <div class="todo-icon fui-eye"></div>
+                        <div class="todo-content">
+                            <h4 class="todo-name">
+                                The event will be held at <strong>The Red Lion</strong>
+                            </h4>
+                            You can no longer edit your preferences
+                        </div>
+                    </li>
+                    <li class="todo-done">
+                        <div class="todo-icon fui-time"></div>
+                        <div class="todo-content">
+                            <h4 class="todo-name">
+                                The event is on <strong>02/01/2015</strong> at <strong>7 PM</strong>
+                            </h4>
+                            You can no longer edit your preferences
+                        </div>
+                    </li>
+                    <li class="">
+                        <div class="todo-icon fui-list"></div>
+                        <div class="todo-content">
+                            <h4 class="todo-name">
+                                You <strong>do not have</strong> a secret santa name allocated
+                            </h4>
+                            Reveal your secret santa name on this page asap
+                        </div>
+                    </li>
+                </ul>
+            </div><!-- /.todo -->
+        </div>
+
+        <div class="col-xs-12 col-md-7 col-lg-7">
+            <div>
+                <div class="tile" ng-show="!event.santaVisible">
+                    <img src="img/icons/svg/gift-box.svg" alt="Gift-Box" class="tile-image big-illustration">
+                    <h3 class="tile-title">Get your secret santa!</h3>
+                    <p>Click the button to reveal your secret santa name for a few seconds</p>
+                    <button type="button" class="btn btn-primary btn-large btn-block" ng-click="event.showSanta()">Reveal</button>
+                </div>
+                <div class="tile" ng-show="event.santaVisible">
+                    <img src="img/icons/svg/girl.svg" alt="Girl" class="tile-image big-illustration">
+                    <h3 class="tile-title">Darth Vader</h3>
+                    <p>This message will self destruct in 5 seconds</p>
+                    <button type="button" class="btn btn-primary btn-large btn-block" ng-click="event.santaVisible=false">Quick, shoo!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

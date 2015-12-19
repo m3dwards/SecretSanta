@@ -31,3 +31,8 @@ h3 {
 .animate-show.ng-hide {
   opacity: 0;
 }
+.tile-image {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
