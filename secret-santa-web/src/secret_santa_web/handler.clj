@@ -92,16 +92,35 @@
   (print pref) (flush)
   "saved")
 
-(defn send-auth-token [email]
+(defn save-token [event_id email token]
+      (when (not (has-user? email)) (create-user email))
+      (let [user_id (get-user-id email)]
+           (sql/execute! db ["delete from user_tokens where \"user\" = ? and event = ?" user_id event_id])
+           (sql/insert! db :user_tokens ["\"user\"" :event :token] [user_id event_id token])))
+
+(defn make-token []
+      (str (java.util.UUID/randomUUID)))
+
+(defn email-token [email token]
+  ()
   (send-message {:host "smtp.sendgrid.net"
-                 :user "secretsantamailman"
-                 :pass ""
+                 :user (System/getenv "SENDGRID_PASSWORD")
+                 :pass (System/getenv "SENDGRID_USERNAME")
                  :port 587}
                 {:from "santa@secretsanta.lol"
                  :to email
                  :subject "Log in to Secret Santa"
-                 :body [{:type "text/html" :content "Your special login link is <a href='http://www.secretsanta.lol/token/huoweqhgwh2huht2hoghou'>link with code</a> <br> <br> Santa"}]})
-  (str email "sent auth token"))
+                 :body [{:type "text/html" :content (str "Your special login link is <a href='http://www.secretsanta.lol/token/"
+                                                         token
+                                                         "'>http://www.secretsanta.lol/token/"
+                                                         token
+                                                         "</a> <br> <br> Santa") }]}))
+
+(defn send-auth-token [event_id email]
+      (->> (make-token)
+           (save-token event_id email)
+           (email-token event_id email))
+      "Sent auth token")
 
 (defroutes app-routes
   (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
@@ -112,7 +131,7 @@
   (GET "/event/:event_id/venues" [event_id] (get-venues event_id))
   (POST "/event/:event_id/venues" [event_id] ("saved venues"))
   (POST "/preferences" pref (save-preferences (pref :body)))
-  (POST "/event/:event_id/login" {{event_id :event_id} :params {email "email"} :body} (send-auth-token email))
+  (POST "/event/:event_id/login" {{event_id :event_id} :params {email "email"} :body} (send-auth-token event_id email))
   (route/not-found "<html><body><img src='/img/404.png' style='max-width:100%'/></body></html>")
   )
 
