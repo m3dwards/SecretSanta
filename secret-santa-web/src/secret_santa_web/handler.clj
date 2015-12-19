@@ -177,12 +177,22 @@
            (content-type {:body allocated} "text/json")
            ))
 
+(defn update-collected [event user buying_for]
+      (sql/execute! db ["update user_buying_for set collected_on = ? where \"user\" = ? and event = ?" (c/to-sql-time (l/local-now)) user (Integer. event)])
+      (content-type {:body buying_for} "text/json")
+      )
+
+(defn allocate-all-when-few [event_id]
+      
+      )
+
 (defn get-buying-for [event_id token]
+      (allocate-all-when-few event_id)
       (let [user_id (get-user-id-from-token token)]
            (if user_id
              (let [buying_for (get-current-buying-for user_id event_id)]
                   (if buying_for
-                    (content-type {:body buying_for} "text/json")
+                    (update-collected event_id user_id buying_for)
                     (allocate-random-user user_id event_id)))
              "Bad auth")
            )
