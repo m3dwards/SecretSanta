@@ -100,13 +100,14 @@
              (sql/insert! db :user_tokens ["\"user\"" :token] [user_id token])
              (catch Exception e
                (prn "caught" (.getNextException e))))
-           ))
+           )
+      token)
 
 (defn make-token []
       (java.util.UUID/randomUUID))
 
 (defn email-token [email token]
-      ()
+      (print (str token)) (flush)
       (send-message {:host "smtp.sendgrid.net"
                      :user (System/getenv "SENDGRID_USERNAME")
                      :pass (System/getenv "SENDGRID_PASSWORD")
@@ -114,7 +115,8 @@
                     {:from    "santa@secretsanta.lol"
                      :to      email
                      :subject "Log in to Secret Santa"
-                     :body    [{:type "text/html" :content (str "Your special login link is <a href='http://www.secretsanta.lol/token/"
+                     :body    [{:type "text/html" :content (str (str token)
+                                                                "Your special login link is <a href='http://www.secretsanta.lol/token/"
                                                                 (str token)
                                                                 "'>http://www.secretsanta.lol/token/"
                                                                 (str token)
@@ -137,6 +139,7 @@
            (POST "/preferences" pref (save-preferences (pref :body)))
            (POST "/login" {{email "email"} :body} (send-auth-token email))
            (POST "/event/:event_id/reveal-name" [event_id] "Christopher")
+           (POST "/token" [] (str (java.util.UUID/randomUUID)))
            (route/not-found "<html><body><img src='/img/404.png' style='max-width:100%'/></body></html>")
            )
 
