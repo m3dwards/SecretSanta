@@ -159,13 +159,13 @@
       (-> (sql/query db ["select u.id, u.name from user_buying_for ubf join users u on u.id = ubf.buyingfor where ubf.\"user\" = ? AND event = ?" user-id (read-string event-id)]) first))
 
 
-(defn get-unallocated-users [user_id event_id]
-      (sql/query db ["select u.id from users u where not exists (select 1 from user_buying_for where \"user\" = u.id AND event = ?)" user_id (read-string event_id)]))
+(defn get-random-unallocated-user [user_id event_id]
+      (-> (sql/query db ["select u.id, u.name from users u where u.id <> ? AND not exists (select * from user_buying_for where \"user\" = u.id AND event = ?)" user_id (read-string event_id)]) rand-nth))
 
 
 (defn allocate-random-user [user_id event_id]
-      (get-unallocated-users user_id event_id)
-      (content-type {:body {:id 1 :name "random user"}} "text/json")
+
+      (content-type {:body (get-random-unallocated-user user_id event_id)} "text/json")
       )
 
 (defn get-buying-for [event_id token]
