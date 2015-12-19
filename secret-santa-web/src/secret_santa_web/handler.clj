@@ -102,7 +102,7 @@
 (defn save-token [email token]
       (when (not (has-user? email)) (create-user email))
       (let [user_id (get-user-id email)]
-           (sql/execute! db ["delete from user_tokens where \"user\" = ?" user_id])
+           ;;(sql/execute! db ["delete from user_tokens where \"user\" = ?" user_id])
            (try
              (sql/insert! db :user_tokens ["\"user\"" :token] [user_id token])
              (catch Exception e
@@ -160,13 +160,21 @@
 
 
 (defn get-random-unallocated-user [user_id event_id]
-      (-> (sql/query db ["select u.id, u.name from users u where u.id <> ? AND not exists (select * from user_buying_for where \"user\" = u.id AND event = ?)" user_id (read-string event_id)]) rand-nth))
+      (-> (sql/query db [(str "select u.id, u.name from users u "
+                              "JOIN present_preference pp on u.id = pp.user and pp.event = ? AND pp.wants_presents = true "
+                              "where u.id <> ? "
+                              "AND not exists (select * from user_buying_for where \"user\" = u.id AND event = ?)")  (read-string event_id) user_id (read-string event_id)]) rand-nth))
 
+
+(defn save-allocation [event_id user_id buying_for]
+      (sql/insert! db :user_buying_for [:event "\"user\"" :buyingfor] [(Integer. event_id) user_id buying_for])
+  )
 
 (defn allocate-random-user [user_id event_id]
-
-      (content-type {:body (get-random-unallocated-user user_id event_id)} "text/json")
-      )
+      (let [allocated (get-random-unallocated-user user_id event_id)]
+           (save-allocation event_id user_id (allocated :id))
+           (content-type {:body allocated} "text/json")
+           ))
 
 (defn get-buying-for [event_id token]
       (let [user_id (get-user-id-from-token token)]
