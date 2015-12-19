@@ -17,6 +17,7 @@
       [clj-time.core :as t]
       [clj-time.format :as f]
       [clj-time.coerce :as c]
+      [clj-time.local :as l]
       [clj-time.jdbc]))
 
 (def iso-date-pattern (re-pattern "^\\d{4}-\\d{2}-\\d{2}.*"))
@@ -167,7 +168,7 @@
 
 
 (defn save-allocation [event_id user_id buying_for]
-      (sql/insert! db :user_buying_for [:event "\"user\"" :buyingfor] [(Integer. event_id) user_id buying_for])
+      (sql/insert! db :user_buying_for [:event "\"user\"" :buyingfor :collected_on] [(Integer. event_id) user_id buying_for (c/to-sql-time (l/local-now))])
   )
 
 (defn allocate-random-user [user_id event_id]
