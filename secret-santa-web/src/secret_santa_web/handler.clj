@@ -164,13 +164,13 @@
       (-> (sql/query db [(str "select u.id, u.name from users u "
                               "JOIN present_preference pp on u.id = pp.user and pp.event = ? AND pp.wants_presents = true "
                               "where u.id <> ? "
-                              "AND not exists (select * from user_buying_for where \"user\" = u.id AND event = ?)")  (read-string event_id) user_id (read-string event_id)]) rand-nth))
+                              "AND not exists (select * from user_buying_for where buyingfor = u.id AND event = ?)")  (read-string event_id) user_id (read-string event_id)]) rand-nth))
 
 (defn number-of-remaining [event_id]
       (-> (sql/query db [(str "select count(*) from users u "
                               "JOIN present_preference pp on u.id = pp.user and pp.event = ? AND pp.wants_presents = true "
                               "where "
-                              "not exists (select * from user_buying_for where \"user\" = u.id AND event = ?)")  (read-string event_id) (read-string event_id)]) first :count))
+                              "not exists (select * from user_buying_for where buyingfor = u.id AND event = ?)")  (read-string event_id) (read-string event_id)]) first :count))
 
 
 (defn save-allocation [event_id user_id buying_for]
@@ -188,19 +188,17 @@
       (content-type {:body buying_for} "text/json")
       )
 
-(defn get-users-who-have-not-collected [event_id]
-  )
+(defn get-users-who-have-not-collected [event-id]
+      (sql/query db ["select u.id from user u where not exists (select 1 from user_buying_for ubf where ubf.\"user\" = u.id AND event = ?)" (read-string event-id)]))
 
-(defn get-users-to-be-bought-for [event_id]
-  )
+(defn get-users-to-be-bought-for [event-id]
+      (sql/query db ["select u.id from user u where not exists (select 1 from user_buying_for ubf where ubf.buyingfor = u.id AND event = ?)" (read-string event-id)]))
 
 (defn allocate-for-event [event_id]
       (let [users_who_have_not_collected (get-users-who-have-not-collected event_id)]
            (let [users_to_be_bought_for (get-users-to-be-bought-for event_id)]
-
+                (throw (Exception. (str users_who_have_not_collected " GAP " users_to_be_bought_for)))
                 ))
-      (throw (Exception. "low numbers!!"))
-
       )
 
 (defn allocate-all-when-few [event_id]
