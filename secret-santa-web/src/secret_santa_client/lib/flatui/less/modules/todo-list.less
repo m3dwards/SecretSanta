@@ -2,7 +2,7 @@
 // Todo list
 // --------------------------------------------------
 
-.todo {  
+.todo {
   color: @todo-color;
   margin-bottom: 20px;
   border-radius: @todo-border-radius;
@@ -24,10 +24,10 @@
     padding: 18px 42px 21px 25px;
     position: relative;
     transition: .25s;
-    
+
     &:first-child {
       margin-top: 0;
-    }  
+    }
     &:last-child {
       border-radius: 0 0 @todo-border-radius @todo-border-radius;
       padding-bottom: 21px;
@@ -38,7 +38,7 @@
 
       .todo-name {
         color: @todo-color-active;
-      }  
+      }
     }
     &:after {
       content:" ";
@@ -51,7 +51,7 @@
       margin-top: -10px;
       background: @todo-name-color;
       border-radius: 50%;
-    }  
+    }
     &.todo-done:after {
       content:"\e60a";
       font-family: 'Flat-UI-Pro-Icons';
@@ -67,7 +67,7 @@
       background: @todo-color-active;
       color:@todo-bg-active;
     }
-  }      
+  }
 }
 
 .todo-search {
@@ -76,12 +76,10 @@
   background-size: 16px 16px;
   border-radius: @todo-border-radius @todo-border-radius 0 0;
   color: @todo-search-color;
-  padding: 19px 25px 20px;
-  
+  padding: 10px 25px 10px;
+
   &:before {
     position: absolute;
-    font-family: 'Flat-UI-Pro-Icons';
-    content: "\e630";
     font-size: 16px;
     line-height: 17px;
     display: inline-block;
@@ -121,4 +119,4 @@ input.todo-search-field {
   color: @todo-name-color;
   font-size: 17px;
   margin: 1px 0 3px;
-}  
+}

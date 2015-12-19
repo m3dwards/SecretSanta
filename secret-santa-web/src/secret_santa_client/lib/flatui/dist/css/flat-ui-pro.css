@@ -7966,7 +7966,7 @@ fieldset[disabled] .navbar-inverse .navbar-btn.active {
   }
 .todo-search {
   position: relative;
-  padding: 19px 25px 20px;
+  padding: 10px 25px 10px;
   color: #34495e;
   background: #1abc9c;
   background-size: 16px 16px;
@@ -7978,10 +7978,8 @@ fieldset[disabled] .navbar-inverse .navbar-btn.active {
   left: 92%;
   display: inline-block;
   margin: -.5em 0 0 -1em;
-  font-family: 'Flat-UI-Pro-Icons';
   font-size: 16px;
   line-height: 17px;
-  content: "\e630";
   }
 input.todo-search-field {
   padding: 5px 0;

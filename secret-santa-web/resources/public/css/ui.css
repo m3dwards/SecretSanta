@@ -7884,12 +7884,10 @@ fieldset[disabled] .navbar-inverse .navbar-btn.active {
   background-size: 16px 16px;
   border-radius: 6px 6px 0 0;
   color: #34495e;
-  padding: 19px 25px 20px;
+  padding: 10px 25px 10px;
 }
 .todo-search:before {
   position: absolute;
-  font-family: 'Flat-UI-Pro-Icons';
-  content: "\e630";
   font-size: 16px;
   line-height: 17px;
   display: inline-block;

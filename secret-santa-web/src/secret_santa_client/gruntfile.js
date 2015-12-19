@@ -50,7 +50,7 @@ module.exports = function (grunt) {
 		},
 		watch: {
 			all: {
-				files: ['**/*'],
+				files: ['*/**'],
 				tasks: ['concat', 'copy', 'less'],
 				options: {
 					spawn: false,
