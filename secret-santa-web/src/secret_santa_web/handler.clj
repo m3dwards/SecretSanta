@@ -150,12 +150,6 @@
 
 
 
-(defroute insecure-routes
-
-          (POST "/login" {{email "email"} :body} (send-auth-token email))
-
-          )
-
 
 
 
@@ -170,6 +164,7 @@
            (POST "/event/:event_id/venues" [event_id] ("saved venues"))
            (POST "/preferences" pref (save-preferences (pref :body)))
            (GET "/user" {{{token :value} "session_id"} :cookies} (user-info token))
+           (POST "/login" {{email "email"} :body} (send-auth-token email))
            (POST "/event/:event_id/reveal-name" [event_id] "Christopher")
            (GET "/token/:token" [token] (reply-with-cookie token))
            (route/not-found "<html><body><img src='/img/404.png' style='max-width:100%'/></body></html>")
