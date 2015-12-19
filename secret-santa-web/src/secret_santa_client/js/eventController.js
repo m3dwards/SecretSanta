@@ -18,7 +18,7 @@ app.controller('eventController', ['event', 'santa', '$timeout', function(event,
 
     santa.save({ id: eventId }, {},
         function(data){
-            self.santa = data;
+            self.santa = data.name;
             self.fail = false;
             self.success = true;
         }, function(error){

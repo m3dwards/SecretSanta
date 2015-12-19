@@ -37,8 +37,11 @@ app.config(['$routeProvider', '$locationProvider',
 
     //$locationProvider.html5Mode(true);
   }])
-  .factory('preferences', ['$resource', function ($resource) {
-    return $resource('/preferences');
+    .factory('user', ['$resource', function ($resource) {
+        return $resource('/user');
+    }])
+    .factory('preferences', ['$resource', function ($resource) {
+    return $resource('/event/:id/preferences');
   }])
   .factory('dates', ['$resource', function ($resource) {
     return $resource('/event/:id/dates');
@@ -85,10 +88,16 @@ app.config(['$routeProvider', '$locationProvider',
 	
 	self.date = date;
 	self.available = available != null ? available : true;
-};app.controller('appController', ['$scope', '$route', '$location', 
-	function ($scope, $route, $location){
+};app.controller('appController', ['$scope', '$route', '$location', 'user',
+	function ($scope, $route, $location, user){
 		var self = this;
-		
+
+		user.get(function (data) {
+				// we're authenticated
+			}, function (error) {
+				$location.path('/login');
+			});
+
 		self.routes = [];
 		self.routeIsActive = function(route){
 			return route.regexp.test($location.path());
@@ -112,6 +121,9 @@ app.config(['$routeProvider', '$locationProvider',
 		self.userEmail = $routeParams.email == null ? $rootScope.email : $routeParams.email;
 		$rootScope.email = self.userEmail;
 
+		self.attending = false;
+		self.doingPresents = false;
+
 		self.availableVenues = ['Test Venue'];
 		self.availableDates = [
 			new date(moment(new Date(2015, 12, 1))),
@@ -123,6 +135,11 @@ app.config(['$routeProvider', '$locationProvider',
 			new date(moment(new Date(2015, 2, 14))),
 
 		];
+
+		preferences.get({ id: eventId }, function(data){
+			self.attending = data.attending;
+			self.doingPresents = data.doingPresents;
+		});
 
 		venues.query({ id: eventId }, function (data) {
 			self.availableVenues = data;
@@ -156,7 +173,8 @@ app.config(['$routeProvider', '$locationProvider',
 				dates.push({ date: date.date.utc().format('YYYY-MM-DD'), available: date.available });
 			}
 
-			preferences.save({
+			preferences.save({ id: eventId },
+			{
 				email: self.userEmail,
 				dates: dates,
 				venue: self.venue
@@ -226,7 +244,7 @@ app.config(['$routeProvider', '$locationProvider',
 
     santa.save({ id: eventId }, {},
         function(data){
-            self.santa = data;
+            self.santa = data.name;
             self.fail = false;
             self.success = true;
         }, function(error){
@@ -244,20 +262,11 @@ app.config(['$routeProvider', '$locationProvider',
 
         return false;
     };
-}]);;app.controller('homeController', ['authentication', function(authentication){
+}]);;app.controller('homeController', ['authentication', '$location', function(authentication, $location){
     var self = this;
 
     self.fail = false;
     self.success = false;
 
-    self.login = function(){
-        authentication.save({ email : self.email },
-            function(data){
-                self.fail = false;
-                self.success = true;
-            }, function(error){
-                self.fail = true;
-                self.success = false;
-            });
-    };
+    $location.path( "/event" );
 }]);

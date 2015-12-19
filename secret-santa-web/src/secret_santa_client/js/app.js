@@ -37,8 +37,11 @@ app.config(['$routeProvider', '$locationProvider',
 
     //$locationProvider.html5Mode(true);
   }])
-  .factory('preferences', ['$resource', function ($resource) {
-    return $resource('/preferences');
+    .factory('user', ['$resource', function ($resource) {
+        return $resource('/user');
+    }])
+    .factory('preferences', ['$resource', function ($resource) {
+    return $resource('/event/:id/preferences');
   }])
   .factory('dates', ['$resource', function ($resource) {
     return $resource('/event/:id/dates');

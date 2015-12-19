@@ -1,7 +1,13 @@
-app.controller('appController', ['$scope', '$route', '$location', 
-	function ($scope, $route, $location){
+app.controller('appController', ['$scope', '$route', '$location', 'user',
+	function ($scope, $route, $location, user){
 		var self = this;
-		
+
+		user.get(function (data) {
+				// we're authenticated
+			}, function (error) {
+				$location.path('/login');
+			});
+
 		self.routes = [];
 		self.routeIsActive = function(route){
 			return route.regexp.test($location.path());

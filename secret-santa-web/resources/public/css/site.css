@@ -40,3 +40,6 @@ h3 {
   background-color: #e67e22;
   color: white;
 }
+.option-list td {
+  padding: 0 10px;
+}

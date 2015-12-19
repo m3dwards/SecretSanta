@@ -7,6 +7,9 @@ app.controller('preferencesController', ['$scope', '$routeParams', 'preferences'
 		self.userEmail = $routeParams.email == null ? $rootScope.email : $routeParams.email;
 		$rootScope.email = self.userEmail;
 
+		self.attending = false;
+		self.doingPresents = false;
+
 		self.availableVenues = ['Test Venue'];
 		self.availableDates = [
 			new date(moment(new Date(2015, 12, 1))),
@@ -18,6 +21,11 @@ app.controller('preferencesController', ['$scope', '$routeParams', 'preferences'
 			new date(moment(new Date(2015, 2, 14))),
 
 		];
+
+		preferences.get({ id: eventId }, function(data){
+			self.attending = data.attending;
+			self.doingPresents = data.doingPresents;
+		});
 
 		venues.query({ id: eventId }, function (data) {
 			self.availableVenues = data;
@@ -51,7 +59,8 @@ app.controller('preferencesController', ['$scope', '$routeParams', 'preferences'
 				dates.push({ date: date.date.utc().format('YYYY-MM-DD'), available: date.available });
 			}
 
-			preferences.save({
+			preferences.save({ id: eventId },
+			{
 				email: self.userEmail,
 				dates: dates,
 				venue: self.venue
