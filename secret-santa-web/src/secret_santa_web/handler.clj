@@ -166,7 +166,11 @@
                               "where u.id <> ? "
                               "AND not exists (select * from user_buying_for where \"user\" = u.id AND event = ?)")  (read-string event_id) user_id (read-string event_id)]) rand-nth))
 
-(defn number-of-remaining [event_id] 10)
+(defn number-of-remaining [event_id]
+      (-> (sql/query db [(str "select count(*) from users u "
+                              "JOIN present_preference pp on u.id = pp.user and pp.event = ? AND pp.wants_presents = true "
+                              "where "
+                              "not exists (select * from user_buying_for where \"user\" = u.id AND event = ?)")  (read-string event_id) (read-string event_id)]) first :count))
 
 
 (defn save-allocation [event_id user_id buying_for]
@@ -185,7 +189,9 @@
       )
 
 (defn allocate-for-event [event_id]
-  )
+      (throw (Exception. "low numbers!!"))
+
+      )
 
 (defn allocate-all-when-few [event_id]
       (when (< (number-of-remaining event_id) 6) (allocate-for-event event_id))
