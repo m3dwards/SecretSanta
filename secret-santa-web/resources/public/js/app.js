@@ -236,7 +236,7 @@ app.config(['$routeProvider', '$locationProvider',
 
     self.santaVisible = false;
 
-    self.santa = "Jim McJefferson";
+    self.santa = "Uh oh, something is wrong here..";
 
     self.timeout = 0;
 
