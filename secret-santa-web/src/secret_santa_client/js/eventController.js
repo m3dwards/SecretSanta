@@ -10,7 +10,9 @@ app.controller('eventController', ['event', 'santa', '$timeout', function(event,
 
     self.santaVisible = false;
 
-    self.santa = "Jim McJefferson";
+    self.santa = "Uh oh, something is wrong here..";
+
+    self.timeout = 0;
 
     /*event.query({ id: eventId }, function (data) {
         self.event = data;
@@ -30,10 +32,22 @@ app.controller('eventController', ['event', 'santa', '$timeout', function(event,
     self.showSanta = function(){
         self.santaVisible = true;
 
-        $timeout(function(){
-            self.santaVisible = false;
-        }, 2000);
+        self.timeout = 3;
+
+        timeoutLoop();
 
         return false;
     };
+
+    function timeoutLoop(){
+        $timeout(function(){
+            if (self.timeout == 1) {
+                self.santaVisible = false;
+            }
+            else {
+                self.timeout = self.timeout - 1;
+                timeoutLoop();
+            }
+        }, 1000);
+    }
 }]);

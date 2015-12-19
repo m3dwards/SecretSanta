@@ -11,7 +11,7 @@ app.config(['$routeProvider', '$locationProvider',
             path: '#/',
             includeInNav: false
         })
-      .when('/login', {
+      .when('/login/:email?', {
         templateUrl: 'login.html',
         controller: 'loginController',
         controllerAs: 'login',
@@ -207,10 +207,10 @@ app.config(['$routeProvider', '$locationProvider',
 			}
 		});*/
 	}
-]);;app.controller('loginController', ['authentication', function(authentication){
+]);;app.controller('loginController', ['authentication', '$routeParams', function(authentication, $routeParams){
 	var self = this;
 	
-	self.email = null;
+	self.email = $routeParams.email;
 	self.fail = false;
 	self.success = false;
 	
@@ -238,6 +238,8 @@ app.config(['$routeProvider', '$locationProvider',
 
     self.santa = "Jim McJefferson";
 
+    self.timeout = 0;
+
     /*event.query({ id: eventId }, function (data) {
         self.event = data;
     });*/
@@ -256,12 +258,24 @@ app.config(['$routeProvider', '$locationProvider',
     self.showSanta = function(){
         self.santaVisible = true;
 
-        $timeout(function(){
-            self.santaVisible = false;
-        }, 2000);
+        self.timeout = 3;
+
+        timeoutLoop();
 
         return false;
     };
+
+    function timeoutLoop(){
+        $timeout(function(){
+            if (self.timeout == 1) {
+                self.santaVisible = false;
+            }
+            else {
+                self.timeout = self.timeout - 1;
+                timeoutLoop();
+            }
+        }, 1000);
+    }
 }]);;app.controller('homeController', ['authentication', '$location', function(authentication, $location){
     var self = this;
 

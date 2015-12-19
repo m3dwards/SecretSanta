@@ -1,7 +1,7 @@
-app.controller('loginController', ['authentication', function(authentication){
+app.controller('loginController', ['authentication', '$routeParams', function(authentication, $routeParams){
 	var self = this;
 	
-	self.email = null;
+	self.email = $routeParams.email;
 	self.fail = false;
 	self.success = false;
 	
