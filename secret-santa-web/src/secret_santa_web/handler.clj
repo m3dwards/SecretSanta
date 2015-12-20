@@ -177,6 +177,10 @@
       (sql/insert! db :user_buying_for [:event "\"user\"" :buyingfor :collected_on] [(Integer. event_id) user_id buying_for (c/to-sql-time (l/local-now))])
   )
 
+(defn save-allocation-no-time [event_id user_id buying_for]
+      (sql/insert! db :user_buying_for [:event "\"user\"" :buyingfor] [(Integer. event_id) user_id buying_for])
+      )
+
 (defn allocate-random-user [user_id event_id]
       (let [allocated (get-random-unallocated-user user_id event_id)]
            (save-allocation event_id user_id (allocated :id))
@@ -189,22 +193,35 @@
       )
 
 (defn get-users-who-have-not-collected [event-id]
-      (sql/query db ["select u.id from user u where not exists (select 1 from user_buying_for ubf where ubf.\"user\" = u.id AND event = ?)" (read-string event-id)]))
+      (sql/query db [(str "select u.id from users u "
+                          "JOIN present_preference pp on u.id = pp.user and pp.event = ? AND pp.wants_presents = true "
+                          "where not exists (select 1 from user_buying_for ubf where ubf.\"user\" = u.id AND event = ?)") (read-string event-id) (read-string event-id)]))
 
 (defn get-users-to-be-bought-for [event-id]
-      (sql/query db ["select u.id from user u where not exists (select 1 from user_buying_for ubf where ubf.buyingfor = u.id AND event = ?)" (read-string event-id)]))
+      (sql/query db [(str "select u.id from users u "
+                          "JOIN present_preference pp on u.id = pp.user and pp.event = ? AND pp.wants_presents = true "
+                          "where not exists (select 1 from user_buying_for ubf where ubf.buyingfor = u.id AND event = ?)") (read-string event-id) (read-string event-id)]))
+
+(defn rotate [xs] (cons (last xs) (drop-last xs)))
+
+(defn zip-lists-random [users_who_have_not_collected users_to_be_bought_for]
+      (let [zipped (zipmap users_who_have_not_collected (shuffle users_to_be_bought_for))]
+           (if (= (count (filter (fn [x] (= (first x) (second x))) zipped)) 0)
+             zipped
+             (zip-lists-random users_who_have_not_collected users_to_be_bought_for))))
 
 (defn allocate-for-event [event_id]
-      (let [users_who_have_not_collected (get-users-who-have-not-collected event_id)]
-           (let [users_to_be_bought_for (get-users-to-be-bought-for event_id)]
-                (throw (Exception. (str users_who_have_not_collected " GAP " users_to_be_bought_for)))
+      (let [users_who_have_not_collected (map :id (get-users-who-have-not-collected event_id)) ]
+           (let [users_to_be_bought_for (map :id (get-users-to-be-bought-for event_id))   ]
+                (doseq [pair (zip-lists-random users_who_have_not_collected users_to_be_bought_for)]
+                       (save-allocation-no-time event_id (first pair) (second pair)))
+
                 ))
       )
 
 (defn allocate-all-when-few [event_id]
       (when (< (number-of-remaining event_id) 6) (allocate-for-event event_id))
       )
-
 (defn user-can-have-name [event_id user_id]
       (-> (sql/query db ["select count(*) from users u JOIN present_preference pp on u.id = pp.user and pp.event = ? AND pp.wants_presents = true where u.id = ?" (Integer. event_id) user_id]) first :count pos?))
 
