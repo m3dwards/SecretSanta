@@ -1,4 +1,4 @@
-app.controller('eventController', ['event', 'santa', '$timeout', '$location', function(event, santa, $timeout, $location){
+app.controller('eventController', ['event', 'santa', '$timeout', '$location', '$rootScope', function(event, santa, $timeout, $location, $rootScope){
     var self = this;
 
     var eventId = 1;
@@ -10,6 +10,8 @@ app.controller('eventController', ['event', 'santa', '$timeout', '$location', fu
 
     self.santaVisible = false;
     self.santaSaysNo = false;
+
+    self.name = $rootScope.name != null ? $rootScope.name : "Unknown user..";
 
     self.santa = "Uh oh, something is wrong here..";
 

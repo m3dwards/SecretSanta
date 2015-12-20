@@ -11,7 +11,7 @@ app.config(['$routeProvider', '$locationProvider',
             path: '#/',
             includeInNav: false
         })
-      .when('/login/:email?', {
+      .when('/login/:email?false', {
         templateUrl: 'login.html',
         controller: 'loginController',
         controllerAs: 'login',
@@ -25,7 +25,7 @@ app.config(['$routeProvider', '$locationProvider',
         controllerAs: 'preferences',
         name: 'Preferences',
         path: '#/preferences',
-        includeInNav: true
+        includeInNav: false
       })
       .when('/event/', {
         templateUrl: 'event.html',
@@ -88,12 +88,13 @@ app.config(['$routeProvider', '$locationProvider',
 	
 	self.date = date;
 	self.available = available != null ? available : true;
-};app.controller('appController', ['$scope', '$route', '$location', 'user',
-	function ($scope, $route, $location, user){
+};app.controller('appController', ['$rootScope', '$scope', '$route', '$location', 'user',
+	function ($rootScope, $scope, $route, $location, user){
 		var self = this;
 
 		user.get(function (data) {
-				// we're authenticated
+				$rootScope.email = data.email;
+				$rootScope.name = data.name;
 			}, function (error) {
 				$location.path('/login');
 			});
@@ -224,7 +225,7 @@ app.config(['$routeProvider', '$locationProvider',
 			self.success = false;
 		});
 	};
-}]);;app.controller('eventController', ['event', 'santa', '$timeout', '$location', function(event, santa, $timeout, $location){
+}]);;app.controller('eventController', ['event', 'santa', '$timeout', '$location', '$rootScope', function(event, santa, $timeout, $location, $rootScope){
     var self = this;
 
     var eventId = 1;
@@ -236,6 +237,8 @@ app.config(['$routeProvider', '$locationProvider',
 
     self.santaVisible = false;
     self.santaSaysNo = false;
+
+    self.name = $rootScope.name != null ? $rootScope.name : "Unknown user..";
 
     self.santa = "Uh oh, something is wrong here..";
 

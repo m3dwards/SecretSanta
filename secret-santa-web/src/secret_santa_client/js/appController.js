@@ -1,9 +1,10 @@
-app.controller('appController', ['$scope', '$route', '$location', 'user',
-	function ($scope, $route, $location, user){
+app.controller('appController', ['$rootScope', '$scope', '$route', '$location', 'user',
+	function ($rootScope, $scope, $route, $location, user){
 		var self = this;
 
 		user.get(function (data) {
-				// we're authenticated
+				$rootScope.email = data.email;
+				$rootScope.name = data.name;
 			}, function (error) {
 				$location.path('/login');
 			});
