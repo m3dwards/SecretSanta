@@ -6,7 +6,7 @@ app.controller('loginController', ['authentication', '$routeParams', function(au
 	self.success = false;
 	
 	self.login = function(){
-		authentication.save({ email : self.email },
+		authentication.save({ email : self.email.toLowerCase() },
 		function(data){
 			if (data.valid)
 			{
