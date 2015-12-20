@@ -144,7 +144,7 @@
       (if (check-token token)
         {:status  303
          :headers {"Location" "/"}
-         :cookies {"session_id" {:value token :http-only true :path "/"}}
+         :cookies {"session_id" {:value token :http-only true :path "/" :expires "Sun, 20 Dec 2099 13:53:30 GMT"}}
          :body    "Redirect"}
         "Bad token"
         ))
