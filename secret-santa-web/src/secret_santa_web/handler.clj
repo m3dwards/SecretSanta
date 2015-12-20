@@ -55,7 +55,7 @@
       (-> (sql/query db ["select \"user\" from user_tokens where token = ?" (java.util.UUID/fromString token)]) first :user))
 
 (defn get-user-from-token [token]
-      (-> (sql/query db ["select u.id, u.name from user_tokens ut join users u on u.id = ut.\"user\" where ut.token = ?" (java.util.UUID/fromString token)]) first))
+      (-> (sql/query db ["select u.id, u.name, u.email from user_tokens ut join users u on u.id = ut.\"user\" where ut.token = ?" (java.util.UUID/fromString token)]) first))
 
 (defn get-dates [event_id]
       (map unpack-date (sql/query db ["select \"date\" from config_dates where event = ?" (read-string event_id)])))
