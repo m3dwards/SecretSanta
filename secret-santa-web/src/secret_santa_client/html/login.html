@@ -20,6 +20,11 @@
         <h4><strong>Uh oh!</strong> There was a problem communicating with the server</h4>
       </div>
 
+      <div class="alert alert-danger ajax-failure animate-show" ng-show="login.invalid">
+        <button type="button" class="close fui-cross" ng-click="login.fail = false;"></button>
+        <h4><strong>Uh oh!</strong> You don't seem to be registered. Have you definitely got the correct email address? Remember, all lower case please...</h4>
+      </div>
+
       <div class="form-group">
         <label class="col-lg-8 col-md-8 col-sm-12 col-xs-12">Email address
           <input ng-model="login.email" type="email" class="form-control" id="email" placeholder="Enter your email address">

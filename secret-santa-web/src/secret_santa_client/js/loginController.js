@@ -8,8 +8,15 @@ app.controller('loginController', ['authentication', '$routeParams', function(au
 	self.login = function(){
 		authentication.save({ email : self.email },
 		function(data){
+			if (data.valid)
+			{
+				self.success = true;
+			}
+			else
+			{
+				self.invalid = true;
+			}
 			self.fail = false;
-			self.success = true;
 		}, function(error){
 			self.fail = true;
 			self.success = false;
