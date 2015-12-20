@@ -11,7 +11,7 @@ app.config(['$routeProvider', '$locationProvider',
             path: '#/',
             includeInNav: false
         })
-      .when('/login/:email?false', {
+      .when('/login/:email?', {
         templateUrl: 'login.html',
         controller: 'loginController',
         controllerAs: 'login',
