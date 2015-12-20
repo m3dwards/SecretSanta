@@ -221,9 +221,11 @@ app.config(['$routeProvider', '$locationProvider',
 			if (data.valid)
 			{
 				self.success = true;
+				self.invalid = false;
 			}
 			else
 			{
+				self.success = false;
 				self.invalid = true;
 			}
 			self.fail = false;
