@@ -11,7 +11,7 @@ app.config(['$routeProvider', '$locationProvider',
             path: '#/',
             includeInNav: false
         })
-      .when('/login/:email?', {
+      .when('/login/:email?false', {
         templateUrl: 'login.html',
         controller: 'loginController',
         controllerAs: 'login',
@@ -25,7 +25,7 @@ app.config(['$routeProvider', '$locationProvider',
         controllerAs: 'preferences',
         name: 'Preferences',
         path: '#/preferences',
-        includeInNav: true
+        includeInNav: false
       })
       .when('/event/', {
         templateUrl: 'event.html',
