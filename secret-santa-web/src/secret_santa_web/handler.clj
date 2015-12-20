@@ -129,10 +129,13 @@
                                                                 "</a> <br> <br> Santa")}]}))
 
 (defn send-auth-token [email]
-      (->> (make-token)
-           (save-token email)
-           (email-token email))
-      "Sent auth token")
+      (if (has-user? email)
+        (do (->> (make-token)
+                 (save-token email)
+                 (email-token email))
+            (content-type {:body {:valid true}} "text/json"))
+        (content-type {:body {:valid false}} "text/json")
+        ))
 
 (defn check-token [token]
       (-> (sql/query db ["select count(*) from user_tokens where token = ?" (java.util.UUID/fromString token)]) first :count pos?))
