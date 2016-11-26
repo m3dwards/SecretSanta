@@ -100,6 +100,9 @@
       (print pref) (flush)
       "saved")
 
+;;attending
+;;doingPresents
+
 (defn save-token [email token]
       (when (not (has-user? email)) (create-user email))
       (let [user_id (get-user-id email)]
@@ -150,7 +153,8 @@
         ))
 
 (defn user-info [token]
-      (content-type {:body (get-user-from-token token)} "text/json"))
+      (if token
+          (content-type {:body (get-user-from-token token)} "text/json")))
 
 
 
@@ -248,17 +252,24 @@
            (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
            (GET "/backend" [] "Hello backend")
            (GET "/broken" [] (/ 1 0))
+
            (GET "/event/:event_id" [event_id] "{venueSelected: true, venue: 'The Red Lion', dateSelected: true, date: '01/02/2015 19:00', namesAvailable: false}")
+
            (GET "/event/:event_id/dates" [event_id] (get-dates event_id))
-           (POST "/event/:specific/dates" [specific] ("saved dates"))
+           (POST "/event/:specific/dates" [specific] ("saved dates")) ;; admin, save dates
+
            (GET "/event/:event_id/venues" [event_id] (get-venues event_id))
-           (POST "/event/:event_id/venues" [event_id] ("saved venues"))
-           (GET "/event/:id/preferences" {{{token :value} "session_id"} :cookies {event_id :event_id} :params} "{selectedDates: [], venue: 'The Red Lion',attending: true, doingPresents: true}")
+           (POST "/event/:event_id/venues" [event_id] ("saved venues")) ;; admin, save venues
+
+           (GET "/event/:event_id/preferences" {{{token :value} "session_id"} :cookies {event_id :event_id} :params} "{selectedDates: [], venue: 'The Red Lion', attending: true, doingPresents: true}")
            (POST "event/:event_id/preferences" pref (save-preferences (pref :body)))
+
            (GET "/user" {{{token :value} "session_id"} :cookies} (user-info token))
            (POST "/login" {{email "email"} :body} (send-auth-token email))
+
            (POST "/event/:event_id/reveal-name" {{{token :value} "session_id"} :cookies {event_id :event_id} :params} (get-buying-for event_id token))
            (GET "/token/:token" [token] (reply-with-cookie token))
+
            (route/not-found "<html><body><img src='/img/404.png' style='max-width:100%'/></body></html>")
            )
 
