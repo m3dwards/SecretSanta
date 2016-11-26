@@ -11,7 +11,7 @@
 		<div class="page-header">
 			<h1>Secret Santa <small>Event preferences</small></h1>
 		</div>
-		<p class="lead">Hey {{preferences.userEmail}}, please select your available dates and preferred venue.</p>
+		<p class="lead">Hey {{preferences.name}}, please select your available dates and preferred venue.</p>
 
 		<div class="alert alert-success ajax-success" ng-show="preferences.success">
 			<strong>Thanks!</strong> Your preferences have been saved
@@ -44,31 +44,33 @@
 			</table> <!-- /share -->
 		</div>
 
-		<h3>Preferred Dates</h3>
-		<p>Please leave ticked the dates that you CAN attend a secret santa event and un-tick any that you can't.</p>
+		<div ng-show="preferences.availableDates != null && preferences.availableDates.length > 0">
+			<h3>Preferred Dates</h3>
+			<p>Please leave ticked the dates that you CAN attend a secret santa event and un-tick any that you can't.</p>
 
-		<ul class="checkbox-list">
-			<li ng-repeat="date in preferences.availableDates">
-				<label class="checkbox-large">
-					<input type="checkbox" value="" ng-model="date.available">
-					{{preferences.formatDate(date)}}
-				</label>
-			</li>
-		</ul>
-		<div class="clearfix"></div>
+			<ul class="checkbox-list">
+				<li ng-repeat="date in preferences.availableDates">
+					<label class="checkbox-large">
+						<input type="checkbox" value="" ng-model="date.available">
+						{{preferences.formatDate(date)}}
+					</label>
+				</li>
+			</ul>
+			<div class="clearfix"></div>
+		</div>
 
-
-		<h3>Preferred Venue</h3>
-		<ul class="radio-list">
-			<li ng-repeat="venue in preferences.availableVenues">
-				<label class="radio-large">
-					<input type="radio" name="venuSelect" ng-model="preferences.venue" value="{{venue}}">
-					{{venue}}
-				</label>
-			</li>
-		</ul>
-		<div class="clearfix"></div>
-
+		<div ng-show="preferences.availableVenues != null && preferences.availableVenues.length > 0">
+			<h3>Preferred Venue</h3>
+			<ul class="radio-list">
+				<li ng-repeat="venue in preferences.availableVenues">
+					<label class="radio-large">
+						<input type="radio" name="venuSelect" ng-model="preferences.venue" value="{{venue}}">
+						{{venue}}
+					</label>
+				</li>
+			</ul>
+			<div class="clearfix"></div>
+		</div>
 	</div>
 
 	<div class="row">

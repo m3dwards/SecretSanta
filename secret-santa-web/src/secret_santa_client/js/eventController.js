@@ -6,7 +6,7 @@ app.controller('eventController', ['event', 'santa', '$timeout', '$location', 'u
     self.fail = false;
     self.success = false;
 
-    self.event = null;
+    self.event = { attending: null, doingPresents: null, preferencesAvailable: true, venueSelected: false, venue: null, dateSelected: false, date: null, namesAvailable: false };
 
     self.santaVisible = false;
     self.santaSaysNo = false;
@@ -24,21 +24,23 @@ app.controller('eventController', ['event', 'santa', '$timeout', '$location', 'u
         self.event = data;
     });*/
 
-    santa.save({ id: eventId }, {},
-        function(data){
-            if (data.allowed == false) {
-                self.santaSaysNo = true;
-            }
-            else {
-                self.santa = data.name;
-            }
+    if (self.event.namesAvailable) {
+        santa.save({id: eventId}, {},
+            function (data) {
+                if (data.allowed == false) {
+                    self.santaSaysNo = true;
+                }
+                else {
+                    self.santa = data.name;
+                }
 
-            self.fail = false;
-            self.success = true;
-        }, function(error){
-            $location.path('/login')
-        }
-    );
+                self.fail = false;
+                self.success = true;
+            }, function (error) {
+                $location.path('/login')
+            }
+        );
+    }
 
     self.showSanta = function(){
         self.santaVisible = true;

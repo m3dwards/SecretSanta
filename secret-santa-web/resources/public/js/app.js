@@ -1,4 +1,5 @@
 var app = angular.module('secretSanta', ['ngRoute', 'ngResource'])
+var root = '';
 
 app.config(['$routeProvider', '$locationProvider',
   function ($routeProvider, $locationProvider) {
@@ -33,30 +34,37 @@ app.config(['$routeProvider', '$locationProvider',
         controllerAs: 'event',
         name: 'Event',
         includeInNav: false
-      });
+      })
+        .when('/admin/', {
+            templateUrl: 'admin.html',
+            controller: 'adminController',
+            controllerAs: 'admin',
+            name: 'Admin',
+            includeInNav: false
+        });
 
     //$locationProvider.html5Mode(true);
-  }])
+    }])
     .factory('user', ['$resource', function ($resource) {
-        return $resource('/user');
+        return $resource(root + '/user');
     }])
     .factory('preferences', ['$resource', function ($resource) {
-    return $resource('/event/:id/preferences');
-  }])
-  .factory('dates', ['$resource', function ($resource) {
-    return $resource('/event/:id/dates');
-  }])
-  .factory('venues', ['$resource', function ($resource) {
-    return $resource('/event/:id/venues');
-  }])
-  .factory('authentication', ['$resource', function ($resource) {
-    return $resource('/login');
-  }])
+        return $resource(root + '/event/:id/preferences');
+    }])
+    .factory('dates', ['$resource', function ($resource) {
+        return $resource(root + '/event/:id/dates');
+    }])
+    .factory('venues', ['$resource', function ($resource) {
+        return $resource(root + '/event/:id/venues');
+    }])
+    .factory('authentication', ['$resource', function ($resource) {
+        return $resource(root + '/login');
+    }])
     .factory('event', ['$resource', function ($resource) {
-        return $resource('/event/:id');
+        return $resource(root + '/event/:id');
     }])
     .factory('santa', ['$resource', function ($resource) {
-        return $resource('/event/:id/reveal-name');
+        return $resource(root + '/event/:id/reveal-name');
     }]);
   /*.factory('ajaxInterceptor', ['$q', '$rootScope', '$injector',
     function ($q, $rootScope, $injector) {
@@ -113,29 +121,23 @@ app.config(['$routeProvider', '$locationProvider',
 			console.log(self.routes);
 		}
 	}
-]);;app.controller('preferencesController', ['$scope', '$routeParams', 'preferences', 'dates', 'venues', '$rootScope',
-	function ($scope, $routeParams, preferences, dates, venues, $rootScope) {
+]);;app.controller('preferencesController', ['$scope', '$routeParams', 'preferences', 'dates', 'venues', '$rootScope', 'user',
+	function ($scope, $routeParams, preferences, dates, venues, $rootScope, user) {
 		var self = this;
 
 		var eventId = 1;
 
-		self.userEmail = $routeParams.email == null ? $rootScope.email : $routeParams.email;
-		$rootScope.email = self.userEmail;
+		self.name = null;
+
+        user.get(function (data) {
+            self.name = data.name;
+        });
 
 		self.attending = false;
 		self.doingPresents = false;
 
 		self.availableVenues = ['Test Venue'];
-		self.availableDates = [
-			new date(moment(new Date(2015, 12, 1))),
-			new date(moment(new Date(2015, 12, 2))),
-			new date(moment(new Date(2015, 12, 3))),
-			new date(moment(new Date(2015, 1, 1))),
-			new date(moment(new Date(2015, 1, 2))),
-			new date(moment(new Date(2015, 1, 3))),
-			new date(moment(new Date(2015, 2, 14))),
-
-		];
+		self.availableDates = [];
 
 		preferences.get({ id: eventId }, function(data){
 			self.attending = data.attending;
@@ -176,9 +178,10 @@ app.config(['$routeProvider', '$locationProvider',
 
 			preferences.save({ id: eventId },
 			{
-				email: self.userEmail,
 				dates: dates,
-				venue: self.venue
+				venue: self.venue,
+				attending: self.attending,
+				doingPresents: self.doingPresents
 			}, function (data) {
 				self.busy = false;
 				self.success = true;
@@ -216,7 +219,7 @@ app.config(['$routeProvider', '$locationProvider',
 	self.success = false;
 	
 	self.login = function(){
-		authentication.save({ email : self.email },
+		authentication.save({ email : self.email.toLowerCase() },
 		function(data){
 			if (data.valid)
 			{
@@ -242,7 +245,7 @@ app.config(['$routeProvider', '$locationProvider',
     self.fail = false;
     self.success = false;
 
-    self.event = null;
+    self.event = { attending: null, doingPresents: null, preferencesAvailable: true, venueSelected: false, venue: null, dateSelected: false, date: null, namesAvailable: false };
 
     self.santaVisible = false;
     self.santaSaysNo = false;
@@ -260,21 +263,23 @@ app.config(['$routeProvider', '$locationProvider',
         self.event = data;
     });*/
 
-    santa.save({ id: eventId }, {},
-        function(data){
-            if (data.allowed == false) {
-                self.santaSaysNo = true;
-            }
-            else {
-                self.santa = data.name;
-            }
+    if (self.event.namesAvailable) {
+        santa.save({id: eventId}, {},
+            function (data) {
+                if (data.allowed == false) {
+                    self.santaSaysNo = true;
+                }
+                else {
+                    self.santa = data.name;
+                }
 
-            self.fail = false;
-            self.success = true;
-        }, function(error){
-            $location.path('/login')
-        }
-    );
+                self.fail = false;
+                self.success = true;
+            }, function (error) {
+                $location.path('/login')
+            }
+        );
+    }
 
     self.showSanta = function(){
         self.santaVisible = true;
