@@ -1,4 +1,5 @@
 var app = angular.module('secretSanta', ['ngRoute', 'ngResource'])
+var root = '';
 
 app.config(['$routeProvider', '$locationProvider',
   function ($routeProvider, $locationProvider) {
@@ -33,30 +34,37 @@ app.config(['$routeProvider', '$locationProvider',
         controllerAs: 'event',
         name: 'Event',
         includeInNav: false
-      });
+      })
+        .when('/admin/', {
+            templateUrl: 'admin.html',
+            controller: 'adminController',
+            controllerAs: 'admin',
+            name: 'Admin',
+            includeInNav: false
+        });
 
     //$locationProvider.html5Mode(true);
-  }])
+    }])
     .factory('user', ['$resource', function ($resource) {
-        return $resource('/user');
+        return $resource(root + '/user');
     }])
     .factory('preferences', ['$resource', function ($resource) {
-    return $resource('/event/:id/preferences');
-  }])
-  .factory('dates', ['$resource', function ($resource) {
-    return $resource('/event/:id/dates');
-  }])
-  .factory('venues', ['$resource', function ($resource) {
-    return $resource('/event/:id/venues');
-  }])
-  .factory('authentication', ['$resource', function ($resource) {
-    return $resource('/login');
-  }])
+        return $resource(root + '/event/:id/preferences');
+    }])
+    .factory('dates', ['$resource', function ($resource) {
+        return $resource(root + '/event/:id/dates');
+    }])
+    .factory('venues', ['$resource', function ($resource) {
+        return $resource(root + '/event/:id/venues');
+    }])
+    .factory('authentication', ['$resource', function ($resource) {
+        return $resource(root + '/login');
+    }])
     .factory('event', ['$resource', function ($resource) {
-        return $resource('/event/:id');
+        return $resource(root + '/event/:id');
     }])
     .factory('santa', ['$resource', function ($resource) {
-        return $resource('/event/:id/reveal-name');
+        return $resource(root + '/event/:id/reveal-name');
     }]);
   /*.factory('ajaxInterceptor', ['$q', '$rootScope', '$injector',
     function ($q, $rootScope, $injector) {
