@@ -101,11 +101,20 @@
       (sql/db-do-commands db
                           (sql/create-table-ddl
                             :user_buying_for
-                            [:id :serial "PRIMARY KEY"]
-                            [:event :int "references events (id) NOT NULL"]
-                            ["\"user\"" :int "references users (id) NOT NULL"]
-                            [:buyingfor :int "references users (id) NOT NULL"]
+                            [:id :serial "primary key"]
+                            [:event :int "references events (id) not null"]
+                            ["\"user\"" :int "references users (id) not null"]
+                            [:buyingfor :int "references users (id) not null"]
                             [:collected_on :timestamp])))
+
+(defn add-user-event-table []
+  (sql/db-do-commands db
+                      (sql/create-table-ddl
+                       :user_event
+                       [:id :serial "primary key"]
+                       [:event :int "references events (id) not null"]
+                       ["\"user\"" :int "references users (id) not null"]
+                       [:admin :boolean "not null"])))
 
 (defn migrate []
       (init-db)
@@ -126,4 +135,6 @@
                                     (set-version 5)))
            (if (< db-version 6) (do (add-user-buying-for-table)
                                     (set-version 6)))
+           (if (< db-version 7) (do (add-user-event-table)
+                                    (set-version 7)))
            ))

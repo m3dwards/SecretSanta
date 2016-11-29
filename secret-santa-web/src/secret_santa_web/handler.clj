@@ -70,6 +70,7 @@
       (sql/insert! db :users [:email] [email]))
 
 (defn delete-preferences [user event]
+      (sql/execute! db ["delete from present_preference where \"user\" = ? and event = ?" user event])
       (sql/execute! db ["delete from date_preferences where \"user\" = ? and event = ?" user event])
       (sql/execute! db ["delete from venue_preference where \"user\" = ? and event = ?" user event]))
 
@@ -88,15 +89,23 @@
       ;)
       )
 
-(defn save-preferences [pref]
+(defn insert-present-preference [user event doing-presents]
+      ;(try
+      (sql/insert! db :present_preference ["\"user\"" :event :wants_presents] [user event doing-presents])
+      ; (catch Exception e (print (.getNextException e)) (flush))
+      ;)
+      )
+
+(defn save-preferences [pref event-id]
       (print pref) (print "\n") (flush)
       (print (pref "email")) (flush)
       (when (not (has-event?)) (create-event "SecretSanta"))
       (when (not (has-user? (pref "email"))) (create-user (pref "email")))
       (let [user-id (get-user-id (pref "email"))]
-           (delete-preferences user-id 1)
-           (doseq [date (pref "dates")] (insert-date-preferences user-id 1 date))
-           (insert-venue-preference user-id 1 (pref "venue")))
+           (delete-preferences user-id event-id)
+           (doseq [date (pref "dates")] (insert-date-preferences user-id event-id date))
+           (insert-venue-preference user-id event-id (pref "venue"))
+           (insert-present-preference user-id event-id (pref "doingPresents")))
       (print pref) (flush)
       "saved")
 
@@ -248,21 +257,50 @@
            )
       )
 
+
+(defn admin-delete-dates [event]
+      ;(try
+      (sql/execute! db ["delete from config_dates where event = ?" (Integer. event)])
+       ;(catch Exception e (print (.getNextException e)) (flush))
+      ;)
+      )
+
+(defn admin-insert-date-config [event date]
+      (sql/insert! db :config_dates [:event :date] [(Integer. event) (json->datetime date)]))
+
+(defn admin-save-dates [token event-id dates]
+      (admin-delete-dates event-id)
+      (doseq [date dates] (admin-insert-date-config event-id date))
+      "saved")
+
+(defn is-admin [user-id, event-id]
+  (-> (sql/query db ["select 1 from user_event where \"user\" = ? and event = ?" user-id event-id]) first :count pos?))
+
+(defn admin-create-event [token name]
+      (let [user_id (get-user-id-from-token token)]
+        (if user_id
+          (do
+             (sql/insert! db :events [:name] [name])
+             (let [event_id  (-> (sql/query db ["select id from events where name = ?" name]) first :id)]
+               (sql/insert! db :user_event [:event "\"user\"" :admin] [event_id user_id true])
+               (content-type {:body {:event_id event_id}} "text/json"))))))
+
 (defroutes app-routes
            (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
            (GET "/backend" [] "Hello backend")
            (GET "/broken" [] (/ 1 0))
 
            (GET "/event/:event_id" [event_id] "{venueSelected: true, venue: 'The Red Lion', dateSelected: true, date: '01/02/2015 19:00', namesAvailable: false}")
+           (POST "/event" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {name "name"} :body} (admin-create-event token name))
 
            (GET "/event/:event_id/dates" [event_id] (get-dates event_id))
-           (POST "/event/:specific/dates" [specific] ("saved dates")) ;; admin, save dates
+           (POST "/event/:event_id/dates" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {dates "dates"} :body} (admin-save-dates event_id dates)) ;; admin, save dates
 
            (GET "/event/:event_id/venues" [event_id] (get-venues event_id))
            (POST "/event/:event_id/venues" [event_id] ("saved venues")) ;; admin, save venues
 
            (GET "/event/:event_id/preferences" {{{token :value} "session_id"} :cookies {event_id :event_id} :params} "{selectedDates: [], venue: 'The Red Lion', attending: true, doingPresents: true}")
-           (POST "event/:event_id/preferences" pref (save-preferences (pref :body)))
+           (POST "event/:event_id/preferences" {{{token :value} "session_id"} :cookies {event_id :event_id} :params pref :body} (save-preferences pref event_id))
 
            (GET "/user" {{{token :value} "session_id"} :cookies} (user-info token))
            (POST "/login" {{email "email"} :body} (send-auth-token email))
