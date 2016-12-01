@@ -285,12 +285,15 @@
                (sql/insert! db :user_event [:event "\"user\"" :admin] [event_id user_id true])
                (content-type {:body {:event_id event_id}} "text/json"))))))
 
+(defn get-event-info [token event-id]
+  (content-type {:body {:preferencesAvailable true :venue "The Red Lion" :date "01/02/2015 19:00" :namesAvailable false}} "text/json"))
+
 (defroutes app-routes
            (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
            (GET "/backend" [] "Hello backend")
            (GET "/broken" [] (/ 1 0))
 
-           (GET "/event/:event_id" [event_id] "[{preferencesAvailable: true, venue: 'The Red Lion', date: '01/02/2015 19:00', namesAvailable: false}]")
+           (GET "/event/:event_id" [event_id] (get-event-info "" event_id))
            (POST "/event" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {name "name"} :body} (admin-create-event token name))
 
            (GET "/event/:event_id/dates" [event_id] (get-dates event_id))
