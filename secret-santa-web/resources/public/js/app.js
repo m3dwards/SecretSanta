@@ -267,8 +267,8 @@ app.controller('eventController', ['event', 'santa', '$timeout', '$location', 'u
     self.fail = false;
     self.success = false;
 
-    self.event = null;
-    self.preferences = null;
+    self.event = { preferencesAvailable: false, venue : null, namesAvailable : false };
+    self.preferences = {};
 
     self.santaVisible = false;
     self.santaSaysNo = false;
@@ -333,6 +333,7 @@ app.controller('eventController', ['event', 'santa', '$timeout', '$location', 'u
         }, 1000);
     }
 }]);
+
 app.controller('homeController', ['authentication', '$location', function(authentication, $location){
     var self = this;
 
