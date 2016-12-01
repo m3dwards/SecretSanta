@@ -2,12 +2,11 @@ app.controller('appController', ['$rootScope', '$scope', '$route', '$location', 
 	function ($rootScope, $scope, $route, $location, user){
 		var self = this;
 
-		user.get(function (data) {
-				$rootScope.email = data.email;
-				$rootScope.name = data.name;
-			}, function (error) {
-				$location.path('/login');
-			});
+        user.get(function (data) {
+            self.name = data.name;
+        }, function (error) {
+			$location.path('/login');
+		});
 
 		self.routes = [];
 		self.routeIsActive = function(route){

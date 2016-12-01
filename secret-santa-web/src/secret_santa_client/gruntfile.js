@@ -12,7 +12,7 @@ module.exports = function (grunt) {
 		uglify: {
 			app: {
 				files: {
-					'../../resources/public/js//app.min.js': ['js/app.js', 'js/models.js', 'js/appController.js', 'js/preferencesController.js', 'js/loginController.js']
+					'../../resources/public/js//app.min.js': ['js/app.js', 'js/models.js', 'js/appController.js', 'js/preferencesController.js', 'js/loginController.js', 'js/editEventController']
 				}
 			}
 		},

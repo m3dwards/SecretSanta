@@ -62,26 +62,26 @@
                     <h4>Your summary</h4>
                 </div>
                 <ul>
-                    <li class="" ng-class="{ todo : event.event.attending == null, 'todo-done' : event.event.attending != null }">
+                    <li class="" ng-class="{ todo : event.preferences.attending == null, 'todo-done' : event.preferences.attending != null }">
                         <div class="todo-icon fui-user"></div>
                         <div class="todo-content">
                             <h4 class="todo-name">
-                                <span ng-show="event.event.attending == null">You have not confirmed whether you are attending this event yet :(</span>
-                                <span ng-show="event.event.attending">You are <strong>attending</strong> this event!</span>
-                                <span ng-show="event.event.attending === false">You are <strong>not attending</strong> this event.</span>
+                                <span ng-show="event.preferences.attending == null">You have not confirmed whether you are attending this event yet <span class="emoji">😞</span></span>
+                                <span ng-show="event.preferences.attending">You are <strong>attending</strong> this event!</span>
+                                <span ng-show="event.preferences.attending === false">You are <strong>not attending</strong> this event.</span>
                             </h4>
                             <span ng-show="event.event.preferencesAvailable">You can edit your settings in <a href="#/preferences">preferences</a>!</span>
-                            <span ng-show="!event.event.preferencesAvailable && event.event.attending">Woohoo!</span>
-                            <span ng-show="!event.event.preferencesAvailable && !event.event.attending">Booo!</span>
+                            <span ng-show="!event.event.preferencesAvailable && event.preferences.attending">Woohoo!</span>
+                            <span ng-show="!event.event.preferencesAvailable && !event.preferences.attending">Booo!</span>
                         </div>
                     </li>
-                    <li class="" ng-class="{ todo : event.event.doingPresents == null, 'todo-done' : event.event.doingPresents != null }">
+                    <li class="" ng-class="{ todo : event.preferences.doingPresents == null, 'todo-done' : event.preferences.doingPresents != null }">
                         <div class="todo-icon fui-tag"></div>
                         <div class="todo-content">
                             <h4 class="todo-name">
-                                <span ng-show="event.event.doingPresents == null">You have not confirmed whether you are doing present yet.</span>
-                                <span ng-show="event.event.doingPresents">You are doing presents!</span>
-                                <span ng-show="event.event.doingPresents === false">You are <strong>not</strong> doing presents</span>
+                                <span ng-show="event.preferences.doingPresents == null">You have not confirmed whether you are doing presents yet.</span>
+                                <span ng-show="event.preferences.doingPresents">You are doing presents!</span>
+                                <span ng-show="event.preferences.doingPresents === false">You are <strong>not</strong> doing presents</span>
                             </h4>
                             <span ng-show="event.event.preferencesAvailable">You can edit your settings in <a href="#/preferences">preferences</a>!</span>
                             <span ng-show="!event.event.preferencesAvailable">You can no longer edit your preferences</span>
