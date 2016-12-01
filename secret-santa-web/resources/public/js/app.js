@@ -291,6 +291,16 @@ app.controller('eventController', ['event', 'santa', '$timeout', '$location', 'u
         self.event = data;
         self.event.venueSelected = data.venue != null;
         self.event.dateSelected = data.date != null;
+
+        if (data.date)
+        {
+            var parsed = data.date.substring(6,10) + '-' +
+                data.date.substring(3,5) + '-' +
+                data.date.substring(0,2) + ' ' +
+                data.date.substring(11,16);
+
+            self.event.date = moment(parsed);
+        }
     });
 
     if (self.event.namesAvailable) {
