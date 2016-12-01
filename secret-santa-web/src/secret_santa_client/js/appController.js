@@ -11,7 +11,11 @@ app.controller('appController', ['$rootScope', '$scope', '$route', '$location', 
 
 		self.routes = [];
 		self.routeIsActive = function(route){
-			return route.regexp.test($location.path());
+			var path = $location.path();
+
+			// todo replace :artifacts with query string params
+
+			return route.regexp.test(path);
 		};
 		
 		angular.forEach($route.routes, function (config,route){			

@@ -35,6 +35,13 @@ app.config(['$routeProvider', '$locationProvider',
         name: 'Event',
         includeInNav: false
       })
+        .when('/event/:id/edit', {
+            templateUrl: 'edit-event.html',
+            controller: 'editEventController',
+            controllerAs: 'event',
+            name: 'Edit Event',
+            includeInNav: false
+        })
         .when('/admin/', {
             templateUrl: 'admin.html',
             controller: 'adminController',
@@ -109,7 +116,11 @@ app.config(['$routeProvider', '$locationProvider',
 
 		self.routes = [];
 		self.routeIsActive = function(route){
-			return route.regexp.test($location.path());
+			var path = $location.path();
+
+			// todo replace :artifacts with query string params
+
+			return route.regexp.test(path);
 		};
 		
 		angular.forEach($route.routes, function (config,route){			
