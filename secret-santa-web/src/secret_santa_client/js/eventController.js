@@ -1,4 +1,4 @@
-app.controller('eventController', ['event', 'santa', '$timeout', '$location', 'user', function(event, santa, $timeout, $location, user){
+app.controller('eventController', ['event', 'santa', '$timeout', '$location', 'user', 'preferences', function(event, santa, $timeout, $location, user, preferences){
     var self = this;
 
     var eventId = 1;
@@ -6,23 +6,31 @@ app.controller('eventController', ['event', 'santa', '$timeout', '$location', 'u
     self.fail = false;
     self.success = false;
 
-    self.event = { attending: null, doingPresents: null, preferencesAvailable: true, venueSelected: false, venue: null, dateSelected: false, date: null, namesAvailable: false };
+    self.event = null;
+    self.preferences = null;
 
     self.santaVisible = false;
     self.santaSaysNo = false;
 
     self.name = null;
+
+    self.santa = "Uh oh, something is wrong here..";
+    self.timeout = 0;
+
     user.get(function (data) {
         self.name = data.name;
     });
 
-    self.santa = "Uh oh, something is wrong here..";
+    preferences.get({ id: eventId }, function(data){
+        self.preferences.attending = data.attending;
+        self.preferences.doingPresents = data.doingPresents;
+    });
 
-    self.timeout = 0;
-
-    /*event.query({ id: eventId }, function (data) {
+    event.query({ id: eventId }, function (data) {
         self.event = data;
-    });*/
+        self.event.venueSelected = data.venue != null;
+        self.event.dateSelected = data.date != null;
+    });
 
     if (self.event.namesAvailable) {
         santa.save({id: eventId}, {},

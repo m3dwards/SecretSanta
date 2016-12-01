@@ -1,0 +1,93 @@
+<div class="container">
+    <script>
+        $(document).ready(function(){
+            if ($('[data-toggle="switch"]').length) {
+                $('[data-toggle="switch"]').bootstrapSwitch();
+            }
+        });
+    </script>
+
+    <div class="row">
+        <div class="page-header">
+            <h1>Secret Santa
+                <small ng-if="!event.creating">Event administration</small>
+                <small ng-if="event.creating">Create event</small>
+            </h1>
+        </div>
+
+        <!-- TODO fix this wording -->
+        <p class="lead" ng-if="!event.creating">Here you can administer your event</p>
+        <p class="lead" ng-if="!event.creating">Here you can create a new event</p>
+
+        <div class="alert alert-success ajax-success" ng-show="preferences.success">
+            <strong>Thanks!</strong> Your preferences have been saved
+        </div>
+
+        <div class="alert alert-danger ajax-failure" ng-show="preferences.fail">
+            <button type="button" class="close fui-cross" data-dismiss="alert"></button>
+            <h4><strong>Uh oh!</strong> There was a problem communicating with the server</h4>
+        </div>
+
+        <h3>The Basics</h3>
+        <p>First things first..</p>
+        <div>
+            <table class="option-list">
+                <tr>
+                    <td>
+                        <label class="share-label" for="share-toggle2">Are you planning on attending this event? </label></td>
+                    <td>
+                        <input type="checkbox" checked data-toggle="switch" data-on-text="YES" data-off-text="NO" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label class="share-label" for="share-toggle4">Will you be doing presents? </label>
+                    </td>
+                    <td>
+                        <input type="checkbox" checked data-toggle="switch" data-on-text="YES" data-off-text="NO" />
+                    </td>
+                </tr>
+            </table> <!-- /share -->
+        </div>
+
+        <h3>Preferred Dates</h3>
+        <p>Please leave ticked the dates that you CAN attend a secret santa event and un-tick any that you can't.</p>
+
+        <!--<ul class="checkbox-list">
+            <li ng-repeat="date in preferences.availableDates">
+                <label class="checkbox-large">
+                    <input type="checkbox" value="" ng-model="date.available">
+                    {{preferences.formatDate(date)}}
+                </label>
+            </li>
+        </ul>
+        <div class="clearfix"></div>
+
+
+        <h3>Preferred Venue</h3>
+        <ul class="radio-list">
+            <li ng-repeat="venue in preferences.availableVenues">
+                <label class="radio-large">
+                    <input type="radio" name="venuSelect" ng-model="preferences.venue" value="{{venue}}">
+                    {{venue}}
+                </label>
+            </li>
+        </ul>
+        <div class="clearfix"></div>
+
+    </div>
+
+    <div class="row">
+        <br/>
+
+        <button class="btn btn-primary" ng-click="preferences.savePreferences()" ng-show="!preferences.busy">Save preferences</button>
+
+        <div id="busy" class="progress" ng-show="preferences.busy">
+            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"
+                 style="width: 100%">
+                <span class="sr-only">Submitting...</span>
+            </div>
+        </div>
+    </div>-->
+
+</div>

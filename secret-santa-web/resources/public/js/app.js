@@ -35,6 +35,20 @@ app.config(['$routeProvider', '$locationProvider',
         name: 'Event',
         includeInNav: false
       })
+        .when('/event/:id/edit', {
+            templateUrl: 'edit-event.html',
+            controller: 'editEventController',
+            controllerAs: 'event',
+            name: 'Edit Event',
+            includeInNav: false
+        })
+        .when('/event/create', {
+            templateUrl: 'edit-event.html',
+            controller: 'editEventController',
+            controllerAs: 'event',
+            name: 'Edit Event',
+            includeInNav: false
+        })
         .when('/admin/', {
             templateUrl: 'admin.html',
             controller: 'adminController',
@@ -100,16 +114,19 @@ app.config(['$routeProvider', '$locationProvider',
 	function ($rootScope, $scope, $route, $location, user){
 		var self = this;
 
-		user.get(function (data) {
-				$rootScope.email = data.email;
-				$rootScope.name = data.name;
-			}, function (error) {
-				$location.path('/login');
-			});
+        user.get(function (data) {
+            self.name = data.name;
+        }, function (error) {
+			$location.path('/login');
+		});
 
 		self.routes = [];
 		self.routeIsActive = function(route){
-			return route.regexp.test($location.path());
+			var path = $location.path();
+
+			// todo replace :artifacts with query string params
+
+			return route.regexp.test(path);
 		};
 		
 		angular.forEach($route.routes, function (config,route){			
@@ -237,7 +254,7 @@ app.config(['$routeProvider', '$locationProvider',
 			self.success = false;
 		});
 	};
-}]);;app.controller('eventController', ['event', 'santa', '$timeout', '$location', 'user', function(event, santa, $timeout, $location, user){
+}]);;app.controller('eventController', ['event', 'santa', '$timeout', '$location', 'user', 'preferences', function(event, santa, $timeout, $location, user, preferences){
     var self = this;
 
     var eventId = 1;
@@ -245,23 +262,31 @@ app.config(['$routeProvider', '$locationProvider',
     self.fail = false;
     self.success = false;
 
-    self.event = { attending: null, doingPresents: null, preferencesAvailable: true, venueSelected: false, venue: null, dateSelected: false, date: null, namesAvailable: false };
+    self.event = null;
+    self.preferences = null;
 
     self.santaVisible = false;
     self.santaSaysNo = false;
 
     self.name = null;
+
+    self.santa = "Uh oh, something is wrong here..";
+    self.timeout = 0;
+
     user.get(function (data) {
         self.name = data.name;
     });
 
-    self.santa = "Uh oh, something is wrong here..";
+    preferences.get({ id: eventId }, function(data){
+        self.preferences.attending = data.attending;
+        self.preferences.doingPresents = data.doingPresents;
+    });
 
-    self.timeout = 0;
-
-    /*event.query({ id: eventId }, function (data) {
+    event.query({ id: eventId }, function (data) {
         self.event = data;
-    });*/
+        self.event.venueSelected = data.venue != null;
+        self.event.dateSelected = data.date != null;
+    });
 
     if (self.event.namesAvailable) {
         santa.save({id: eventId}, {},

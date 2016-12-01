@@ -35,6 +35,20 @@ app.config(['$routeProvider', '$locationProvider',
         name: 'Event',
         includeInNav: false
       })
+        .when('/event/:id/edit', {
+            templateUrl: 'edit-event.html',
+            controller: 'editEventController',
+            controllerAs: 'event',
+            name: 'Edit Event',
+            includeInNav: false
+        })
+        .when('/event/create', {
+            templateUrl: 'edit-event.html',
+            controller: 'editEventController',
+            controllerAs: 'event',
+            name: 'Edit Event',
+            includeInNav: false
+        })
         .when('/admin/', {
             templateUrl: 'admin.html',
             controller: 'adminController',

@@ -1,46 +1,87 @@
 <div class="container">
 
     <div class="row">
-        <div class="page-header">
+        <div class="page-header col-lg-12 col-xs-12 col-md-12">
             <h1>Secret Santa <small>Details</small></h1>
         </div>
 
-        <div class="alert alert-success ajax-success" ng-show="event.success">
+        <div class="alert alert-success ajax-success col-lg-12 col-xs-12 col-md-12" ng-show="event.success">
             <strong>Thanks!</strong> Your preferences have been saved
         </div>
 
-        <div class="alert alert-danger ajax-failure" ng-show="event.fail">
+        <div class="alert alert-danger ajax-failure col-lg-12 col-xs-12 col-md-12" ng-show="event.fail">
             <button type="button" class="close fui-cross" data-dismiss="alert"></button>
             <h4><strong>Uh oh!</strong> There was a problem communicating with the server</h4>
         </div>
     </div>
     <div class="row">
-        <div class="col-xs-12 col-md-5 col-lg-5">
+        <div class="col-xs-12 col-md-7 col-lg-7" ng-show="event.name != null">
+            <h4>Hi {{event.name}}!</h4>
+        </div>
+
+        <div class="col-xs-12 col-md-7 col-lg-7 pull-right">
+            <div>
+                <div class="tile" ng-show="!event.santaVisible && !event.santaSaysNo">
+                    <img src="img/icons/svg/retina.svg" alt="Retina" class="tile-image big-illustration">
+                    <h3 class="tile-title">Voting and preferences available!</h3>
+                    <p>Let us know if you're attending, doing presents and any preferences you have on venues dates.</p>
+                    <a type="button" class="btn btn-primary btn-large btn-block" href="#/preferences">Take me to it!</a>
+                </div>
+
+                <div class="tile" ng-show="!event.event.paymentDue && !event.event.paymentDue">
+                    <img src="img/icons/svg/money.svg" alt="Retina" class="tile-image big-illustration">
+                    <h3 class="tile-title">Pay da man!</h3>
+                    <p>We need your deposit contribution before we can confirm numbers. Hit the button below to make a quick PayPal payment.</p>
+                    <a type="button" class="btn btn-primary btn-large btn-block" href="#/preferences">Make it rain!</a>
+                </div>
+
+                <div class="tile error" ng-show="event.santaSaysNo">
+                    <img src="img/icons/svg/gift-box.svg" alt="Gift-Box" class="tile-image big-illustration">
+                    <h3 class="tile-title">No santa name for you</h3>
+                    <p>You are not doing presents this year. If this isn't right, let us know ASAP!</p>
+                </div>
+                <div class="tile" ng-show="event.event.namesAvailable && !event.santaVisible && !event.santaSaysNo">
+                    <img src="img/icons/svg/gift-box.svg" alt="Gift-Box" class="tile-image big-illustration">
+                    <h3 class="tile-title">Get your secret santa!</h3>
+                    <p>Click the button to reveal your secret santa name for a few seconds</p>
+                    <button type="button" class="btn btn-primary btn-large btn-block" ng-click="event.showSanta()">Reveal</button>
+                </div>
+                <div class="tile important" ng-show="event.event.namesAvailable && event.santaVisible && !event.santaSaysNo">
+                    <img src="img/icons/svg/girl.svg" alt="Girl" class="tile-image big-illustration">
+                    <p class="no-margin">*drumroll* Your secret santa is..</p>
+                    <h3 class="tile-title">{{event.santa}}!</h3>
+                    <p>This message will self destruct in {{event.timeout}} seconds</p>
+                    <button type="button" class="btn btn-primary btn-large btn-block" ng-click="event.santaVisible=false">Quick, shoo!</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-md-5 col-lg-5 pull-left">
             <div class="todo">
                 <div class="todo-search">
                     <h4>Your summary</h4>
                 </div>
                 <ul>
-                    <li class="" ng-class="{ todo : event.event.attending == null, 'todo-done' : event.event.attending != null }">
+                    <li class="" ng-class="{ todo : event.preferences.attending == null, 'todo-done' : event.preferences.attending != null }">
                         <div class="todo-icon fui-user"></div>
                         <div class="todo-content">
                             <h4 class="todo-name">
-                                <span ng-show="event.event.attending == null">You have not confirmed whether you are attending this event yet :(</span>
-                                <span ng-show="event.event.attending">You are <strong>attending</strong> this event!</span>
-                                <span ng-show="event.event.attending === false">You are <strong>not attending</strong> this event.</span>
+                                <span ng-show="event.preferences.attending == null">You have not confirmed whether you are attending this event yet <span class="emoji">😞</span></span>
+                                <span ng-show="event.preferences.attending">You are <strong>attending</strong> this event!</span>
+                                <span ng-show="event.preferences.attending === false">You are <strong>not attending</strong> this event.</span>
                             </h4>
                             <span ng-show="event.event.preferencesAvailable">You can edit your settings in <a href="#/preferences">preferences</a>!</span>
-                            <span ng-show="!event.event.preferencesAvailable && event.event.attending">Woohoo!</span>
-                            <span ng-show="!event.event.preferencesAvailable && !event.event.attending">Booo!</span>
+                            <span ng-show="!event.event.preferencesAvailable && event.preferences.attending">Woohoo!</span>
+                            <span ng-show="!event.event.preferencesAvailable && !event.preferences.attending">Booo!</span>
                         </div>
                     </li>
-                    <li class="" ng-class="{ todo : event.event.doingPresents == null, 'todo-done' : event.event.doingPresents != null }">
+                    <li class="" ng-class="{ todo : event.preferences.doingPresents == null, 'todo-done' : event.preferences.doingPresents != null }">
                         <div class="todo-icon fui-tag"></div>
                         <div class="todo-content">
                             <h4 class="todo-name">
-                                <span ng-show="event.event.doingPresents == null">You have not confirmed whether you are doing present yet.</span>
-                                <span ng-show="event.event.doingPresents">You are doing presents!</span>
-                                <span ng-show="event.event.doingPresents === false">You are <strong>not</strong> doing presents</span>
+                                <span ng-show="event.preferences.doingPresents == null">You have not confirmed whether you are doing presents yet.</span>
+                                <span ng-show="event.preferences.doingPresents">You are doing presents!</span>
+                                <span ng-show="event.preferences.doingPresents === false">You are <strong>not</strong> doing presents</span>
                             </h4>
                             <span ng-show="event.event.preferencesAvailable">You can edit your settings in <a href="#/preferences">preferences</a>!</span>
                             <span ng-show="!event.event.preferencesAvailable">You can no longer edit your preferences</span>
@@ -79,47 +120,6 @@
                     </li>
                 </ul>
             </div><!-- /.todo -->
-        </div>
-
-        <div class="col-xs-12 col-md-7 col-lg-7" ng-show="event.name != null">
-            <h4>Hi {{event.name}}!</h4>
-        </div>
-
-        <div class="col-xs-12 col-md-7 col-lg-7">
-            <div>
-                <div class="tile" ng-show="!event.santaVisible && !event.santaSaysNo">
-                    <img src="img/icons/svg/retina.svg" alt="Retina" class="tile-image big-illustration">
-                    <h3 class="tile-title">Voting and preferences available!</h3>
-                    <p>Let us know if you're attending, doing presents and any preferences you have on venues dates.</p>
-                    <a type="button" class="btn btn-primary btn-large btn-block" href="#/preferences">Take me to it!</a>
-                </div>
-
-                <div class="tile" ng-show="!event.event.paymentDue && !event.event.paymentDue">
-                    <img src="img/icons/svg/money.svg" alt="Retina" class="tile-image big-illustration">
-                    <h3 class="tile-title">Pay da man!</h3>
-                    <p>We need your deposit contribution before we can confirm numbers. Hit the button below to make a quick PayPal payment.</p>
-                    <a type="button" class="btn btn-primary btn-large btn-block" href="#/preferences">Make it rain!</a>
-                </div>
-
-                <div class="tile error" ng-show="event.santaSaysNo">
-                    <img src="img/icons/svg/gift-box.svg" alt="Gift-Box" class="tile-image big-illustration">
-                    <h3 class="tile-title">No santa name for you</h3>
-                    <p>You are not doing presents this year. If this isn't right, let us know ASAP!</p>
-                </div>
-                <div class="tile" ng-show="event.event.namesAvailable && !event.santaVisible && !event.santaSaysNo">
-                    <img src="img/icons/svg/gift-box.svg" alt="Gift-Box" class="tile-image big-illustration">
-                    <h3 class="tile-title">Get your secret santa!</h3>
-                    <p>Click the button to reveal your secret santa name for a few seconds</p>
-                    <button type="button" class="btn btn-primary btn-large btn-block" ng-click="event.showSanta()">Reveal</button>
-                </div>
-                <div class="tile important" ng-show="event.event.namesAvailable && event.santaVisible && !event.santaSaysNo">
-                    <img src="img/icons/svg/girl.svg" alt="Girl" class="tile-image big-illustration">
-                    <p class="no-margin">*drumroll* Your secret santa is..</p>
-                    <h3 class="tile-title">{{event.santa}}!</h3>
-                    <p>This message will self destruct in {{event.timeout}} seconds</p>
-                    <button type="button" class="btn btn-primary btn-large btn-block" ng-click="event.santaVisible=false">Quick, shoo!</button>
-                </div>
-            </div>
         </div>
     </div>
 
