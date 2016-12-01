@@ -288,6 +288,9 @@
 (defn get-event-info [token event-id]
   (content-type {:body {:preferencesAvailable true :venue "The Red Lion" :date "01/02/2015 19:00" :namesAvailable false}} "text/json"))
 
+(defn get-user-preferences [token event-id]
+  (content-type {:body {:selectedDates [] :venue "The Red Lion" :attending true :doingPresents true}} "text/json"))
+
 (defroutes app-routes
            (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
            (GET "/backend" [] "Hello backend")
@@ -302,7 +305,7 @@
            (GET "/event/:event_id/venues" [event_id] (get-venues event_id))
            (POST "/event/:event_id/venues" [event_id] ("saved venues")) ;; admin, save venues
 
-           (GET "/event/:event_id/preferences" {{{token :value} "session_id"} :cookies {event_id :event_id} :params} "{selectedDates: [], venue: 'The Red Lion', attending: true, doingPresents: true}")
+           (GET "/event/:event_id/preferences" {{{token :value} "session_id"} :cookies {event_id :event_id} :params} (get-user-preferences "" event_id))
            (POST "event/:event_id/preferences" {{{token :value} "session_id"} :cookies {event_id :event_id} :params pref :body} (save-preferences pref event_id))
 
            (GET "/user" {{{token :value} "session_id"} :cookies} (user-info token))

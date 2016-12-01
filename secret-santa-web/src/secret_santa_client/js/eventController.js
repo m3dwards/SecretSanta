@@ -26,7 +26,7 @@ app.controller('eventController', ['event', 'santa', '$timeout', '$location', 'u
         self.preferences.doingPresents = data.doingPresents;
     });
 
-    event.query({ id: eventId }, function (data) {
+    event.get({ id: eventId }, function (data) {
         self.event = data;
         self.event.venueSelected = data.venue != null;
         self.event.dateSelected = data.date != null;

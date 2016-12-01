@@ -282,7 +282,7 @@ app.config(['$routeProvider', '$locationProvider',
         self.preferences.doingPresents = data.doingPresents;
     });
 
-    event.query({ id: eventId }, function (data) {
+    event.get({ id: eventId }, function (data) {
         self.event = data;
         self.event.venueSelected = data.venue != null;
         self.event.dateSelected = data.date != null;
@@ -327,7 +327,8 @@ app.config(['$routeProvider', '$locationProvider',
             }
         }, 1000);
     }
-}]);;app.controller('homeController', ['authentication', '$location', function(authentication, $location){
+}]);
+;app.controller('homeController', ['authentication', '$location', function(authentication, $location){
     var self = this;
 
     self.fail = false;
