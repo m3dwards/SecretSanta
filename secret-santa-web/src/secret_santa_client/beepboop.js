@@ -50,7 +50,7 @@ module.exports = function (grunt) {
 		},
 		watch: {
 			all: {
-				files: ['*/**'],
+				files: [''],
 				tasks: ['concat', 'copy', 'less'],
 				options: {
 					spawn: false,
@@ -66,4 +66,4 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-less');
 
 	grunt.registerTask('default', ['concat', 'copy', 'less']);
-}
+}*/
