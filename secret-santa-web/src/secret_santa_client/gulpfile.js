@@ -4,12 +4,18 @@ var copy = require('gulp-copy');
 var clean = require('gulp-clean');
 var merge = require('merge-stream');
 var less = require('gulp-less');
+var rename = require('gulp-rename');
 
 var buildPath = '../../resources/public/';
 
-gulp.task('default', ['build', 'merge-base', 'less']);
+gulp.task('default', ['clean', 'build', 'merge-base', 'less']);
 
-gulp.task('build', function(){
+gulp.task('clean', function(){
+   return gulp.src(buildPath, {read:false})
+       .pipe(clean({force:true}));
+});
+
+gulp.task('build', ['clean'], function(){
     return gulp.src(['js/app.js',
                 'js/models.js',
                 'js/appController.js',
@@ -21,7 +27,7 @@ gulp.task('build', function(){
         .pipe(gulp.dest(buildPath + 'js'));
 });
 
-gulp.task('merge-base', function(){
+gulp.task('merge-base', ['clean'], function(){
     return merge(
         gulp.src('lib/flatui/fonts/**/*')
             .pipe(gulp.dest(buildPath + 'fonts')),
@@ -40,13 +46,14 @@ gulp.task('merge-base', function(){
     );
 });
 
-gulp.task('less', function(){
+gulp.task('less', ['clean'], function(){
     return merge(
         gulp.src('bower_components/bootstrap/less/bootstrap.less')
             .pipe(less('bootstrap.css'))
             .pipe(gulp.dest(buildPath + 'css')),
         gulp.src('lib/flatui/less/flat-ui-pro.less')
-            .pipe(less('ui.css'))
+            .pipe(less())
+            .pipe(rename('ui.css'))
             .pipe(gulp.dest(buildPath + 'css')),
         gulp.src('less/site.less')
             .pipe(less('site.css'))
