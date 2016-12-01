@@ -290,7 +290,7 @@
            (GET "/backend" [] "Hello backend")
            (GET "/broken" [] (/ 1 0))
 
-           (GET "/event/:event_id" [event_id] "{venueSelected: true, venue: 'The Red Lion', dateSelected: true, date: '01/02/2015 19:00', namesAvailable: false}")
+           (GET "/event/:event_id" [event_id] "[{preferencesAvailable: true, venue: 'The Red Lion', date: '01/02/2015 19:00', namesAvailable: false}]")
            (POST "/event" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {name "name"} :body} (admin-create-event token name))
 
            (GET "/event/:event_id/dates" [event_id] (get-dates event_id))

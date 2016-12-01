@@ -116,6 +116,9 @@
                        ["\"user\"" :int "references users (id) not null"]
                        [:admin :boolean "not null"])))
 
+(defn add-event-data []
+  (sql/execute! db ["alter table events add column preferences_available boolean null, add column names_available boolean null, add column venue varchar(255) null, add column date timestamp null;"]))
+
 (defn migrate []
       (init-db)
       (let [db-version (get-version)]
@@ -137,4 +140,6 @@
                                     (set-version 6)))
            (if (< db-version 7) (do (add-user-event-table)
                                     (set-version 7)))
+           (if (< db-version 8) (do (add-event-data)
+                                    (set-version 8)))
            ))
