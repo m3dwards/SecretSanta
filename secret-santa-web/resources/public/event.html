@@ -90,9 +90,9 @@
                     <li class="" ng-class="{ todo : !event.event.venueSelected, 'todo-done' : event.event.venueSelected }">
                         <div class="todo-icon fui-eye"></div>
                         <div class="todo-content">
-                            <h4 class="todo-name">
-                                The venue for this event has not been selected yet. <a href="#/preferences">Submit your vote!</a>
-                            </h4>
+                            <h4 class="todo-name" ng-show="!event.event.venueSelected">The venue for this event has not been selected yet. <a href="#/preferences">Submit your vote!</a></h4>
+                            <h4 class="todo-name" ng-show="event.event.venueSelected">The event will be held at <strong>{{event.event.venue}}</strong></h4>
+
                             <span ng-show="event.event.preferencesAvailable">You can edit your settings in <a href="#/preferences">preferences</a>!</span>
                             <span ng-show="!event.event.preferencesAvailable">You can no longer edit your preferences</span>
                         </div>
@@ -100,9 +100,9 @@
                     <li class="" ng-class="{ todo : !event.event.dateSelected, 'todo-done' : event.event.dateSelected }">
                         <div class="todo-icon fui-time"></div>
                         <div class="todo-content">
-                            <h4 class="todo-name">
-                                The date has not yet been confirmed for this even. <a href="#/preferences">Submit your vote!</a>
-                            </h4>
+                            <h4 class="todo-name" ng-show="!event.event.dateSelected">The date has not yet been confirmed for this even. <a href="#/preferences">Submit your vote!</a></h4>
+                            <h4 class="todo-name" ng-show="event.event.dateSelected">The event is on <strong>{{event.event.date}}</strong> at <strong>7 PM</strong></h4>
+
                             <span ng-show="event.event.preferencesAvailable">You can edit your settings in <a href="#/preferences">preferences</a>!</span>
                             <span ng-show="!event.event.preferencesAvailable">You can no longer edit your preferences</span>
                         </div>
