@@ -104,13 +104,15 @@ app.config(['$routeProvider', '$locationProvider',
     }])
   .config(['$httpProvider', '$rootScope', function ($httpProvider) {
     $httpProvider.interceptors.push('ajaxInterceptor');
-  }]);*/;function date(date, available)
+  }]);*/
+function date(date, available)
 {
 	var self = this;
 	
 	self.date = date;
 	self.available = available != null ? available : true;
-};app.controller('appController', ['$rootScope', '$scope', '$route', '$location', 'user',
+}
+app.controller('appController', ['$rootScope', '$scope', '$route', '$location', 'user',
 	function ($rootScope, $scope, $route, $location, user){
 		var self = this;
 
@@ -138,7 +140,8 @@ app.config(['$routeProvider', '$locationProvider',
 			console.log(self.routes);
 		}
 	}
-]);;app.controller('preferencesController', ['$scope', '$routeParams', 'preferences', 'dates', 'venues', '$rootScope', 'user',
+]);
+app.controller('preferencesController', ['$scope', '$routeParams', 'preferences', 'dates', 'venues', '$rootScope', 'user',
 	function ($scope, $routeParams, preferences, dates, venues, $rootScope, user) {
 		var self = this;
 
@@ -228,7 +231,8 @@ app.config(['$routeProvider', '$locationProvider',
 			}
 		});*/
 	}
-]);;app.controller('loginController', ['authentication', '$routeParams', function(authentication, $routeParams){
+]);
+app.controller('loginController', ['authentication', '$routeParams', function(authentication, $routeParams){
 	var self = this;
 	
 	self.email = $routeParams.email;
@@ -254,7 +258,8 @@ app.config(['$routeProvider', '$locationProvider',
 			self.success = false;
 		});
 	};
-}]);;app.controller('eventController', ['event', 'santa', '$timeout', '$location', 'user', 'preferences', function(event, santa, $timeout, $location, user, preferences){
+}]);
+app.controller('eventController', ['event', 'santa', '$timeout', '$location', 'user', 'preferences', function(event, santa, $timeout, $location, user, preferences){
     var self = this;
 
     var eventId = 1;
@@ -328,7 +333,7 @@ app.config(['$routeProvider', '$locationProvider',
         }, 1000);
     }
 }]);
-;app.controller('homeController', ['authentication', '$location', function(authentication, $location){
+app.controller('homeController', ['authentication', '$location', function(authentication, $location){
     var self = this;
 
     self.fail = false;
