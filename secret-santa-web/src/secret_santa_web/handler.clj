@@ -292,9 +292,10 @@
                (sql/insert! db :user_event [:event "\"user\"" :admin] [event_id user_id true])
                (content-type {:body {:event_id event_id}} "text/json"))))))
 
+
 (defn get-event-info [token event-id]
   (let [event (-> (sql/query db ["select * from events where id = ?" (read-string event-id)]) first)]
-  (content-type {:body {:preferencesAvailable (:preferences_available event)  :venue (:venue event) :date (.toDate (:date event)) :namesAvailable (:names_available event)}} "text/json")))
+  (content-type {:body {:name (:name event) :preferencesAvailable (:preferences_available event)  :venue (:venue event) :date (if (:date event) (.toDate (:date event))) :namesAvailable (:names_available event)}} "text/json")))
 
 (defn get-user-preferences [token event-id]
   (let [user_id (get-user-id-from-token token)]
