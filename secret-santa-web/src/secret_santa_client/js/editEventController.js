@@ -5,19 +5,22 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
     self.fail = false;
     self.success = false;
 
+
+    self.formatDate = function (date) {
+        return date.format('Do MMMM YYYY');
+    };
+
     self.creating = false;
     self.event = { name:null, date:null };
     self.addedDates = [moment('2016-12-01 19:30:00')];
-    self.newDate = moment();
+
+    self.newDate = self.formatDate(moment());
 
     if (!$routeParams.id)
     {
         self.creating = true;
     }
 
-    self.formatDate = function (date) {
-        return date.format('Do MMMM YYYY');
-    };
 
     self.removeDate = function(date){
         self.addedDates.pop(date);

@@ -25,8 +25,11 @@ app.controller('eventController', function(event, santa, $timeout, $location, us
     });
 
     preferences.get({ id: eventId }, function(data){
-        self.preferences.attending = data.attending;
-        self.preferences.doingPresents = data.doingPresents;
+        if (data.venue != null) {
+            self.attending = true;
+            self.preferences.attending = data.attending;
+            self.preferences.doingPresents = data.doingPresents;
+        }
     });
 
     event.get({ id: eventId }, function (data) {

@@ -17,8 +17,10 @@ app.controller('preferencesController', ['$scope', '$routeParams', 'preferences'
 		self.availableDates = [];
 
 		preferences.get({ id: eventId }, function(data){
-			self.attending = data.attending;
-			self.doingPresents = data.doingPresents;
+            if (data.venue != null) {
+                self.attending = data.attending;
+                self.doingPresents = data.doingPresents;
+            }
 		});
 
 		venues.query({ id: eventId }, function (data) {

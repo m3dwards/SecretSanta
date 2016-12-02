@@ -90,8 +90,8 @@ app.config(['$routeProvider', '$locationProvider',
                 element.datepicker({
                     showOtherMonths: true,
                     selectOtherMonths: true,
-                    dateFormat: 'd MM, yy',
-                    yearRange: '+1'
+                    dateFormat: 'Do MMMM YYYY', //'d MM, yy',
+                    yearRange: '-0:+1'
                 }).prev('.input-group-btn').on('click', function (e) {
                     e && e.preventDefault();
                     element.focus();
@@ -196,8 +196,10 @@ app.controller('preferencesController', ['$scope', '$routeParams', 'preferences'
 		self.availableDates = [];
 
 		preferences.get({ id: eventId }, function(data){
-			self.attending = data.attending;
-			self.doingPresents = data.doingPresents;
+            if (data.venue != null) {
+                self.attending = data.attending;
+                self.doingPresents = data.doingPresents;
+            }
 		});
 
 		venues.query({ id: eventId }, function (data) {
@@ -322,8 +324,11 @@ app.controller('eventController', function(event, santa, $timeout, $location, us
     });
 
     preferences.get({ id: eventId }, function(data){
-        self.preferences.attending = data.attending;
-        self.preferences.doingPresents = data.doingPresents;
+        if (data.venue != null) {
+            self.attending = true;
+            self.preferences.attending = data.attending;
+            self.preferences.doingPresents = data.doingPresents;
+        }
     });
 
     event.get({ id: eventId }, function (data) {
@@ -401,19 +406,22 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
     self.fail = false;
     self.success = false;
 
+
+    self.formatDate = function (date) {
+        return date.format('Do MMMM YYYY');
+    };
+
     self.creating = false;
     self.event = { name:null, date:null };
     self.addedDates = [moment('2016-12-01 19:30:00')];
-    self.newDate = moment();
+
+    self.newDate = self.formatDate(moment());
 
     if (!$routeParams.id)
     {
         self.creating = true;
     }
 
-    self.formatDate = function (date) {
-        return date.format('Do MMMM YYYY');
-    };
 
     self.removeDate = function(date){
         self.addedDates.pop(date);
