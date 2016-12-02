@@ -96,17 +96,13 @@
       ;)
       )
 
-(defn save-preferences [pref event-id]
-      (print pref) (print "\n") (flush)
-      (print (pref "email")) (flush)
-      (when (not (has-event?)) (create-event "SecretSanta"))
-      (when (not (has-user? (pref "email"))) (create-user (pref "email")))
-      (let [user-id (get-user-id (pref "email"))]
+(defn save-preferences [token body event-id]
+      ;; (print (pref "email")) (flush)
+      (let [user-id (get-user-id-from-token token)]
            (delete-preferences user-id event-id)
-           (doseq [date (pref "dates")] (insert-date-preferences user-id event-id date))
-           (insert-venue-preference user-id event-id (pref "venue"))
-           (insert-present-preference user-id event-id (pref "doingPresents")))
-      (print pref) (flush)
+           (doseq [date (body "dates")] (insert-date-preferences user-id event-id date))
+           (insert-venue-preference user-id event-id (body "venue"))
+           (insert-present-preference user-id event-id (body "doingPresents")))
       "saved")
 
 ;;attending
@@ -290,7 +286,13 @@
   (content-type {:body {:preferencesAvailable (:preferences_available event)  :venue (:venue event) :date (.toDate (:date event)) :namesAvailable (:names_available event)}} "text/json")))
 
 (defn get-user-preferences [token event-id]
-  (content-type {:body {:selectedDates [] :venue "The Red Lion" :attending true :doingPresents true}} "text/json"))
+  (let [user_id (get-user-id-from-token token)]
+    (if user_id
+      (do
+        (let [dates (sql/query db ["select * from date_preferences where available = true and \"user\" = ? and event = ?" user_id (read-string event-id)])]
+          (let [venue (-> (sql/query db ["select * from venue_preference where \"user\" = ? and event = ?" user_id (read-string event-id)]) first)]
+            (let [present-pref (-> (sql/query db ["select * from present_preference where \"user\" = ? and event = ?" user_id (read-string event-id)]) first)]
+              (content-type {:body {:selectedDates (map #((.toDate (:date %))) dates) :venue (:venue venue) :doingPresents (:wants_presents present-pref)}} "text/json"))))))))
 
 (defroutes app-routes
            (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
@@ -306,8 +308,8 @@
            (GET "/event/:event_id/venues" [event_id] (get-venues event_id))
            (POST "/event/:event_id/venues" [event_id] ("saved venues")) ;; admin, save venues
 
-           (GET "/event/:event_id/preferences" {{{token :value} "session_id"} :cookies {event_id :event_id} :params} (get-user-preferences "" event_id))
-           (POST "event/:event_id/preferences" {{{token :value} "session_id"} :cookies {event_id :event_id} :params pref :body} (save-preferences pref event_id))
+           (GET "/event/:event_id/preferences" {{{token :value} "session_id"} :cookies {event_id :event_id} :params} (get-user-preferences token event_id))
+           (POST "/event/:event_id/preferences" {{{token :value} "session_id"} :cookies {event_id :event_id} :params body :body} (save-preferences token body (Integer. event_id)))
 
            (GET "/user" {{{token :value} "session_id"} :cookies} (user-info token))
            (POST "/login" {{email "email"} :body} (send-auth-token email))
