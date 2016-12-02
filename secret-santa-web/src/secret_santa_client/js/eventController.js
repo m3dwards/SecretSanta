@@ -18,6 +18,8 @@ app.controller('eventController', function(event, santa, $timeout, $location, us
     self.santa = "Uh oh, something is wrong here..";
     self.timeout = 0;
 
+    self.newDate = null;
+
     user.get(function (data) {
         self.name = data.name;
     });

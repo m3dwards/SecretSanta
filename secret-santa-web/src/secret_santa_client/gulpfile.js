@@ -42,7 +42,8 @@ gulp.task('merge-base', ['clean'], function(){
                     'bower_components/angular-resource/angular-resource.*',
                     'bower_components/angular-route/angular-route.*',
                     'bower_components/bootstrap/dist/js/bootstrap.min.js',
-                    'bower_components/moment/min/moment.min.js'])
+                    'bower_components/moment/min/moment.min.js',
+                    'bower_components/jquery-ui/jquery-ui.js'])
             .pipe(gulp.dest(buildPath + 'js'))
     );
 });

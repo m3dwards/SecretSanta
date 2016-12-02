@@ -1,6 +1,6 @@
 <div class="container">
     <script>
-        $(document).ready(function(){
+        $(document).ready(function () {
             if ($('[data-toggle="switch"]').length) {
                 $('[data-toggle="switch"]').bootstrapSwitch();
             }
@@ -8,40 +8,76 @@
     </script>
 
     <div class="row">
-        <div class="page-header">
-            <h1>Secret Santa
-                <small ng-if="!event.creating">Event administration</small>
-                <small ng-if="event.creating">Create event</small>
-            </h1>
-        </div>
+        <div class="col-lg-12">
+            <div class="page-header">
+                <h1>Secret Santa
+                    <small ng-if="!event.creating">Event administration</small>
+                    <small ng-if="event.creating">Create event</small>
+                </h1>
+            </div>
 
-        <!-- TODO fix this wording -->
-        <p class="lead" ng-if="!event.creating">Here you can administer your event</p>
-        <p class="lead" ng-if="!event.creating">Here you can create a new event</p>
+            <!-- TODO fix this wording -->
+            <p class="lead" ng-if="!event.creating">Here you can administer your event</p>
+            <p class="lead" ng-if="event.creating">Here you can create a new event</p>
 
-        <div class="alert alert-success ajax-success" ng-show="preferences.success">
-            <strong>Thanks!</strong> Your preferences have been saved
-        </div>
+            <div class="alert alert-success ajax-success" ng-show="preferences.success">
+                <strong>Thanks!</strong> Your preferences have been saved
+            </div>
 
-        <div class="alert alert-danger ajax-failure" ng-show="preferences.fail">
-            <button type="button" class="close fui-cross" data-dismiss="alert"></button>
-            <h4><strong>Uh oh!</strong> There was a problem communicating with the server</h4>
-        </div>
-
-        <h3>Potential Dates</h3>
-        <p>Offer up a list of </p>
-        <div>
-            <div class="form-group">
-                <input type="text" value="" placeholder="Event name" class="form-control input-hg">
+            <div class="alert alert-danger ajax-failure" ng-show="preferences.fail">
+                <button type="button" class="close fui-cross" data-dismiss="alert"></button>
+                <h4><strong>Uh oh!</strong> There was a problem communicating with the server</h4>
             </div>
         </div>
-
-        <h3>Event name</h3>
-        <p>Give your event a nice, descriptive name for everyone to see.</p>
-        <div>
-            <div class="form-group">
-                <input type="text" value="" placeholder="Event name" class="form-control input-hg">
+    </div>
+    <div class-="row">
+        <div class="col-lg-12">
+            <h3>Event name</h3>
+            <p>Give your event a nice, descriptive name for everyone to see.</p>
+            <div>
+                <div class="form-group">
+                    <input type="text" value="" placeholder="Event name" class="form-control input-hg">
+                </div>
             </div>
         </div>
+    </div>
+    <div class-="row">
+        <div class="col-lg-12">
+            <h3>Potential Dates</h3>
+            <p>Enter the list of possible dates to poll your attendees with. They can then select their preference when
+                you
+                send your invitations out.</p>
 
+            <ul class="checkbox-list">
+                <li ng-repeat="date in event.addedDates">
+                    <label class="checkbox-large">
+                        {{event.formatDate(date)}}  <span class="fui-cross text-danger link" ng-click="event.removeDate(date)"></span>
+                    </label>
+                </li>
+            </ul>
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+            <div class="form-group">
+                <div class="input-group">
+                    <span class="input-group-btn">
+                        <button class="btn" type="button"><span class="fui-calendar"></span></button>
+                    </span>
+                    <input type="text" class="form-control" value="14 March, 2013" ng-model="event.newDate"
+                           jqdatepicker/>
+                </div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class-="row">
+        <div class="col-lg-12">
+            <h3>Potential Venues</h3>
+            <p>Give your event a nice, descriptive name for everyone to see.</p>
+            <div>
+                <div class="form-group">
+                    <input type="text" value="" placeholder="Event name" class="form-control input-hg">
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

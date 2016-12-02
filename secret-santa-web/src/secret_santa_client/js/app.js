@@ -79,7 +79,33 @@ app.config(['$routeProvider', '$locationProvider',
     }])
     .factory('santa', ['$resource', function ($resource) {
         return $resource(root + '/event/:id/reveal-name');
-    }]);
+    }])
+
+
+    .directive('jqdatepicker', function () {
+        return {
+            restrict: 'A',
+            require: 'ngModel',
+            link: function (scope, element, attrs, ngModelCtrl) {
+                element.datepicker({
+                    dateFormat: 'DD, d  MM, yy',
+                    onSelect: function (date) {
+                        scope.date = date;
+                        scope.$apply();
+                    }
+                });
+            }
+        };
+    })
+    .directive('bstoggle', function () {
+        return {
+            restrict: 'A',
+            require: 'ngModel',
+            link: function (scope, element, attrs, ngModelCtrl) {
+                element.bootstrapSwitch();
+            }
+        };
+    });
 /*.factory('ajaxInterceptor', ['$q', '$rootScope', '$injector',
  function ($q, $rootScope, $injector) {
  return {

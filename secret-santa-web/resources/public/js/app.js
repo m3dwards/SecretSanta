@@ -79,7 +79,33 @@ app.config(['$routeProvider', '$locationProvider',
     }])
     .factory('santa', ['$resource', function ($resource) {
         return $resource(root + '/event/:id/reveal-name');
-    }]);
+    }])
+
+
+    .directive('jqdatepicker', function () {
+        return {
+            restrict: 'A',
+            require: 'ngModel',
+            link: function (scope, element, attrs, ngModelCtrl) {
+                element.datepicker({
+                    dateFormat: 'DD, d  MM, yy',
+                    onSelect: function (date) {
+                        scope.date = date;
+                        scope.$apply();
+                    }
+                });
+            }
+        };
+    })
+    .directive('bstoggle', function () {
+        return {
+            restrict: 'A',
+            require: 'ngModel',
+            link: function (scope, element, attrs, ngModelCtrl) {
+                element.bootstrapSwitch();
+            }
+        };
+    });
 /*.factory('ajaxInterceptor', ['$q', '$rootScope', '$injector',
  function ($q, $rootScope, $injector) {
  return {
@@ -279,6 +305,8 @@ app.controller('eventController', function(event, santa, $timeout, $location, us
     self.santa = "Uh oh, something is wrong here..";
     self.timeout = 0;
 
+    self.newDate = null;
+
     user.get(function (data) {
         self.name = data.name;
     });
@@ -365,10 +393,22 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
 
     self.creating = false;
     self.event = { name:null, date:null };
+    self.addedDates = [moment('2016-12-01 19:30:00')];
+    self.newDate = moment();
 
     if (!$routeParams.id)
     {
         self.creating = true;
+    }
+
+    self.formatDate = function (date) {
+        return date.format('Do MMMM YYYY');
+    };
+
+    self.removeDate = function(date){
+        self.addedDates.pop(date);
+
+        return false;
     }
 
 

@@ -1,12 +1,4 @@
 <div class="container">
-	<script>
-		$(document).ready(function(){
-			if ($('[data-toggle="switch"]').length) {
-				$('[data-toggle="switch"]').bootstrapSwitch();
-			}
-		});
-	</script>
-
 	<div class="row">
 		<div class="page-header">
 			<h1>Secret Santa <small>Event preferences</small></h1>
@@ -21,7 +13,8 @@
 			<button type="button" class="close fui-cross" data-dismiss="alert"></button>
 			<h4><strong>Uh oh!</strong> There was a problem communicating with the server</h4>
 		</div>
-
+	</div>
+	<div class="row">
 		<h3>The Basics</h3>
 		<p>First things first..</p>
 		<div>
@@ -30,7 +23,7 @@
 					<td>
 						<label class="share-label" for="share-toggle2">Are you planning on attending this event? </label></td>
 					<td>
-						<input type="checkbox" checked data-toggle="switch" data-on-text="YES" data-off-text="NO" />
+						<input type="checkbox" checked data-toggle="switch" data-on-text="YES" data-off-text="NO" ng-model="preferences.attending" bstoggle />
 					</td>
 				</tr>
 				<tr>
@@ -38,12 +31,13 @@
 						<label class="share-label" for="share-toggle4">Will you be doing presents? </label>
 					</td>
 					<td>
-						<input type="checkbox" checked data-toggle="switch" data-on-text="YES" data-off-text="NO" />
+						<input type="checkbox" checked data-toggle="switch" data-on-text="YES" data-off-text="NO" ng-model="preferences.doingPresents" bstoggle />
 					</td>
 				</tr>
 			</table> <!-- /share -->
 		</div>
-
+	</div>
+	<div class-="row">
 		<div ng-show="preferences.availableDates != null && preferences.availableDates.length > 0">
 			<h3>Preferred Dates</h3>
 			<p>Please leave ticked the dates that you CAN attend a secret santa event and un-tick any that you can't.</p>
@@ -58,7 +52,8 @@
 			</ul>
 			<div class="clearfix"></div>
 		</div>
-
+	</div>
+	<div class-="row">
 		<div ng-show="preferences.availableVenues != null && preferences.availableVenues.length > 0">
 			<h3>Preferred Venue</h3>
 			<ul class="radio-list">
