@@ -12,15 +12,22 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
 
     self.creating = false;
     self.event = { name:null, date:null };
-    self.addedDates = [moment('2016-12-01 19:30:00')];
+    self.addedDates = [];
+    self.name = null;
 
-    self.newDate = self.formatDate(moment());
+    self.newDate = moment().format('d MMMM YYYY');
 
     if (!$routeParams.id)
     {
         self.creating = true;
     }
 
+
+    self.addDate = function(date){
+        self.addedDates.push(moment(date));
+
+        return false;
+    }
 
     self.removeDate = function(date){
         self.addedDates.pop(date);
@@ -29,9 +36,21 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
     }
 
 
-    self.save = function(){
+    self.saveEvent = function(){
         if (self.creating){
-            event.save({})
+            event.save({
+                name: self.name
+            }, function(response){
+                var eventId = response.event_id;
+
+                var converted = [];
+                for (var i = 0; i < self.addedDates.length; i++)
+                {
+                    converted.push(self.addedDates[i].format('YYYY-MM-DD 00:00:00'));
+                }
+
+                dates.save({id: eventId}, {dates: converted});
+            });
         }
     }
 

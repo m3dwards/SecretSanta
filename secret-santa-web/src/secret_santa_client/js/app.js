@@ -90,7 +90,7 @@ app.config(['$routeProvider', '$locationProvider',
                 element.datepicker({
                     showOtherMonths: true,
                     selectOtherMonths: true,
-                    dateFormat: 'Do MMMM YYYY', //'d MM, yy',
+                    dateFormat: 'dd MM yy', //'d MM, yy',
                     yearRange: '-0:+1'
                 }).prev('.input-group-btn').on('click', function (e) {
                     e && e.preventDefault();
