@@ -286,7 +286,8 @@
                (content-type {:body {:event_id event_id}} "text/json"))))))
 
 (defn get-event-info [token event-id]
-  (content-type {:body {:preferencesAvailable true :venue "The Red Lion" :date "01/02/2015 19:00" :namesAvailable false}} "text/json"))
+  (let [event (-> (sql/query db ["select * from events where id = ?" (read-string event-id)]) first)]
+  (content-type {:body {:preferencesAvailable (:preferences_available event)  :venue (:venue event) :date (.toDate (:date event)) :namesAvailable (:names_available event)}} "text/json")))
 
 (defn get-user-preferences [token event-id]
   (content-type {:body {:selectedDates [] :venue "The Red Lion" :attending true :doingPresents true}} "text/json"))
