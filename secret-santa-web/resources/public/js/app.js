@@ -325,8 +325,7 @@ app.controller('eventController', function(event, santa, $timeout, $location, us
 
     preferences.get({ id: eventId }, function(data){
         if (data.venue != null) {
-            self.attending = true;
-            self.preferences.attending = data.attending;
+            self.preferences.attending = true;
             self.preferences.doingPresents = data.doingPresents;
         }
     });
