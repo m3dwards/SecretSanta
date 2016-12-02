@@ -148,10 +148,10 @@
 (defn check-token [token]
       (-> (sql/query db ["select count(*) from user_tokens where token = ?" (java.util.UUID/fromString token)]) first :count pos?))
 
-(defn reply-with-cookie [token]
+(defn reply-with-cookie [token event-id]
       (if (check-token token)
         {:status  303
-         :headers {"Location" "/"}
+         :headers {"Location" (str "/#/event/" event-id)}
          :cookies {"session_id" {:value token :http-only true :path "/" :expires "Sun, 20 Dec 2099 13:53:30 GMT"}}
          :body    "Redirect"}
         "Bad token"
@@ -269,6 +269,17 @@
       (doseq [date dates] (admin-insert-date-config event-id date))
       "saved")
 
+(defn admin-delete-venues [event]
+  (sql/execute! db ["delete from config_venues where event = ?" (Integer. event)]))
+
+(defn admin-insert-venue-config [event venue]
+  (sql/insert! db :config_venues [:event :venue] [(Integer. event) venue]))
+
+(defn admin-save-venues [token event-id venues]
+  (admin-delete-venues event-id)
+  (doseq [venue venues] (admin-insert-venue-config event-id venue))
+  "saved")
+
 (defn is-admin [user-id, event-id]
   (-> (sql/query db ["select 1 from user_event where \"user\" = ? and event = ?" user-id event-id]) first :count pos?))
 
@@ -292,7 +303,7 @@
         (let [dates (sql/query db ["select * from date_preferences where available = true and \"user\" = ? and event = ?" user_id (read-string event-id)])]
           (let [venue (-> (sql/query db ["select * from venue_preference where \"user\" = ? and event = ?" user_id (read-string event-id)]) first)]
             (let [present-pref (-> (sql/query db ["select * from present_preference where \"user\" = ? and event = ?" user_id (read-string event-id)]) first)]
-              (content-type {:body {:selectedDates (map #((.toDate (:date %))) dates) :venue (:venue venue) :doingPresents (:wants_presents present-pref)}} "text/json"))))))))
+              (content-type {:body {:selectedDates (map #(.toDate (:date %)) dates) :venue (:venue venue) :doingPresents (:wants_presents present-pref)}} "text/json"))))))))
 
 (defroutes app-routes
            (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
@@ -306,7 +317,7 @@
            (POST "/event/:event_id/dates" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {dates "dates"} :body} (admin-save-dates event_id dates)) ;; admin, save dates
 
            (GET "/event/:event_id/venues" [event_id] (get-venues event_id))
-           (POST "/event/:event_id/venues" [event_id] ("saved venues")) ;; admin, save venues
+           (POST "/event/:event_id/venues" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {venues "venues"} :body} (admin-save-venues token event_id venues)) ;; admin, save venues
 
            (GET "/event/:event_id/preferences" {{{token :value} "session_id"} :cookies {event_id :event_id} :params} (get-user-preferences token event_id))
            (POST "/event/:event_id/preferences" {{{token :value} "session_id"} :cookies {event_id :event_id} :params body :body} (save-preferences token body (Integer. event_id)))
@@ -315,7 +326,7 @@
            (POST "/login" {{email "email"} :body} (send-auth-token email))
 
            (POST "/event/:event_id/reveal-name" {{{token :value} "session_id"} :cookies {event_id :event_id} :params} (get-buying-for event_id token))
-           (GET "/token/:token" [token] (reply-with-cookie token))
+           (GET "/event/:event_id/token/:token" [event_id token] (reply-with-cookie token event_id))
 
            (route/not-found "<html><body><img src='/img/404.png' style='max-width:100%'/></body></html>")
            )
