@@ -35,12 +35,14 @@ app.controller('eventController', function(event, santa, $timeout, $location, us
         if (data.date)
         {
             // TODO needs to be made UTC/correct timezone?
-            var parsed = data.date.substring(6,10) + '-' +
+            /*var parsed = data.date.substring(6,10) + '-' +
                 data.date.substring(3,5) + '-' +
                 data.date.substring(0,2) + ' ' +
                 data.date.substring(11,16);
 
-            self.event.date = moment(parsed);
+            self.event.date = moment(parsed);*/
+
+            self.event.date = moment(data.date);
         }
     });
 
