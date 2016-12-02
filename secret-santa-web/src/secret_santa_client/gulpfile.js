@@ -22,7 +22,8 @@ gulp.task('build', ['clean'], function(){
                 'js/preferencesController.js',
                 'js/loginController.js',
                 'js/eventController.js',
-                'js/homeController.js'])
+                'js/homeController.js',
+                'js/editEventController.js'])
         .pipe(concat('app.js'))
         .pipe(gulp.dest(buildPath + 'js'));
 });

@@ -28,7 +28,7 @@ app.config(['$routeProvider', '$locationProvider',
         path: '#/preferences',
         includeInNav: false
       })
-      .when('/event/', {
+      .when('/event/:id?', {
         templateUrl: 'event.html',
         controller: 'eventController',
         controllerAs: 'event',
@@ -259,10 +259,11 @@ app.controller('loginController', ['authentication', '$routeParams', function(au
 		});
 	};
 }]);
-app.controller('eventController', ['event', 'santa', '$timeout', '$location', 'user', 'preferences', function(event, santa, $timeout, $location, user, preferences){
+app.controller('eventController', function(event, santa, $timeout, $location, user, preferences, $routeParams){
     var self = this;
 
-    var eventId = 1;
+    var eventIdRaw = $routeParams.id || '1';
+    var eventId = parseInt(eventIdRaw);
 
     self.fail = false;
     self.success = false;
@@ -343,7 +344,7 @@ app.controller('eventController', ['event', 'santa', '$timeout', '$location', 'u
             }
         }, 1000);
     }
-}]);
+});
 
 app.controller('homeController', ['authentication', '$location', function(authentication, $location){
     var self = this;
@@ -353,3 +354,28 @@ app.controller('homeController', ['authentication', '$location', function(authen
 
     $location.path( "/event" );
 }]);
+app.controller('editEventController', function ($scope, $routeParams, event, preferences, dates, venues, $location) {
+
+    var self = this;
+
+    self.fail = false;
+    self.success = false;
+
+    self.creating = false;
+    self.event = { name:null, date:null };
+
+    if (!$routeParams.id)
+    {
+        self.creating = true;
+    }
+
+
+    self.save = function(){
+        if (self.creating){
+            event.save({})
+        }
+    }
+
+
+    //$location.path( "/event/:id/edit" );
+});

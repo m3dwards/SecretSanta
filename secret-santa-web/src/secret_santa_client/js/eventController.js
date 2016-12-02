@@ -1,7 +1,8 @@
-app.controller('eventController', ['event', 'santa', '$timeout', '$location', 'user', 'preferences', function(event, santa, $timeout, $location, user, preferences){
+app.controller('eventController', function(event, santa, $timeout, $location, user, preferences, $routeParams){
     var self = this;
 
-    var eventId = 1;
+    var eventIdRaw = $routeParams.id || '1';
+    var eventId = parseInt(eventIdRaw);
 
     self.fail = false;
     self.success = false;
@@ -82,4 +83,4 @@ app.controller('eventController', ['event', 'santa', '$timeout', '$location', 'u
             }
         }, 1000);
     }
-}]);
+});

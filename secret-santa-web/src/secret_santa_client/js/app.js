@@ -28,7 +28,7 @@ app.config(['$routeProvider', '$locationProvider',
         path: '#/preferences',
         includeInNav: false
       })
-      .when('/event/', {
+      .when('/event/:id?', {
         templateUrl: 'event.html',
         controller: 'eventController',
         controllerAs: 'event',

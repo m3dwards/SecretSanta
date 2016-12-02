@@ -1,5 +1,4 @@
-app.controller('editEventController', ['$scope', '$routeParams', 'event', 'preferences', 'dates', 'venues', '$rootScope',
-    function ($scope, $routeParams, event, preferences, dates, venues, $rootScope) {
+app.controller('editEventController', function ($scope, $routeParams, event, preferences, dates, venues, $location) {
 
     var self = this;
 
@@ -22,5 +21,5 @@ app.controller('editEventController', ['$scope', '$routeParams', 'event', 'prefe
     }
 
 
-    $location.path( "/event/:id/edit" );
-}]);
+    //$location.path( "/event/:id/edit" );
+});
