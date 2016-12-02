@@ -36,7 +36,8 @@
             <p>Give your event a nice, descriptive name for everyone to see.</p>
             <div>
                 <div class="form-group">
-                    <input type="text" value="" placeholder="Event name" class="form-control input-hg" ng-model="event.name">
+                    <input type="text" value="" placeholder="Event name" class="form-control input-hg"
+                           ng-model="event.name">
                 </div>
             </div>
         </div>
@@ -45,13 +46,13 @@
         <div class="col-lg-12">
             <h3>Potential Dates</h3>
             <p>Enter the list of possible dates to poll your attendees with. They can then select their preference when
-                you
-                send your invitations out.</p>
+                you send your invitations out.</p>
 
             <ul class="checkbox-list">
                 <li ng-repeat="date in event.addedDates">
                     <label class="checkbox-large">
-                        {{event.formatDate(date)}}  <span class="fui-cross text-danger link" ng-click="event.removeDate(date)"></span>
+                        {{event.formatDate(date)}} <span class="fui-cross text-danger link"
+                                                         ng-click="event.removeDate(date)"></span>
                     </label>
                 </li>
             </ul>
@@ -68,20 +69,36 @@
             </div>
         </div>
         <div class="col-lg-1">
-            <button class="btn" type="button" ng-click="event.addDate(event.newDate)"><span class="fui-plus"></span></button>
+            <button class="btn" type="button" ng-click="event.addDate(event.newDate)"><span class="fui-plus"></span>
+            </button>
         </div>
         <div class="clearfix"></div>
     </div>
     <div class-="row">
         <div class="col-lg-12">
             <h3>Potential Venues</h3>
-            <p>Give your event a nice, descriptive name for everyone to see.</p>
-            <div>
-                <div class="form-group">
-                    <input type="text" value="" placeholder="Event name" class="form-control input-hg">
-                </div>
+            <p>Enter the list of possible venues to poll your attendees with. They can then select their preference when
+                you send your invitations out.</p>
+
+            <ul class="checkbox-list">
+                <li ng-repeat="venue in event.addedVenues">
+                    <label class="checkbox-large">
+                        {{venue}} <span class="fui-cross text-danger link" ng-click="event.removeVenue(venue)"></span>
+                    </label>
+                </li>
+            </ul>
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-11 col-xs-11">
+            <div class="form-group">
+                <input type="text" value="" placeholder="Venue name" class="form-control input-hg"
+                       ng-model="event.newVenue">
             </div>
         </div>
+        <div class="col-lg-1">
+            <button class="btn" type="button" ng-click="event.addVenue(event.newVenue)"><span class="fui-plus"></span>
+            </button>
+        </div>
+        <div class="clearfix"></div>
     </div>
 
     <div class="row">
@@ -90,7 +107,8 @@
         <button class="btn btn-primary" ng-click="event.saveEvent()" ng-show="!event.busy">Save event</button>
 
         <div id="busy" class="progress" ng-show="event.busy">
-            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"
+            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100"
+                 aria-valuemin="0" aria-valuemax="100"
                  style="width: 100%">
                 <span class="sr-only">Submitting...</span>
             </div>

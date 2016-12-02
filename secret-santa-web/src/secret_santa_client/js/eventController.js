@@ -2,7 +2,7 @@ app.controller('eventController', function(event, santa, $timeout, $location, us
     var self = this;
 
     var eventIdRaw = $routeParams.id || '1';
-    var eventId = parseInt(eventIdRaw);
+    self.eventId = parseInt(eventIdRaw);
 
     self.fail = false;
     self.success = false;
@@ -24,14 +24,14 @@ app.controller('eventController', function(event, santa, $timeout, $location, us
         self.name = data.name;
     });
 
-    preferences.get({ id: eventId }, function(data){
+    preferences.get({ id: self.eventId }, function(data){
         if (data.venue != null) {
             self.preferences.attending = true;
             self.preferences.doingPresents = data.doingPresents;
         }
     });
 
-    event.get({ id: eventId }, function (data) {
+    event.get({ id: self.eventId }, function (data) {
         self.event = data;
         self.event.venueSelected = data.venue != null;
         self.event.dateSelected = data.date != null;
@@ -51,7 +51,7 @@ app.controller('eventController', function(event, santa, $timeout, $location, us
     });
 
     if (self.event.namesAvailable) {
-        santa.save({id: eventId}, {},
+        santa.save({id: self.eventId}, {},
             function (data) {
                 if (data.allowed == false) {
                     self.santaSaysNo = true;

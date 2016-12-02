@@ -13,9 +13,11 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
     self.creating = false;
     self.event = { name:null, date:null };
     self.addedDates = [];
+    self.addedVenues = [];
     self.name = null;
 
     self.newDate = moment().format('d MMMM YYYY');
+    self.newVenue = null;
 
     if (!$routeParams.id)
     {
@@ -35,6 +37,17 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
         return false;
     }
 
+    self.addVenue = function(venue){
+        self.addedVenues.push(venue);
+
+        return false;
+    }
+
+    self.removeVenue = function(venue){
+        self.addedVenues.pop(venue);
+
+        return false;
+    }
 
     self.saveEvent = function(){
         if (self.creating){
@@ -50,6 +63,8 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
                 }
 
                 dates.save({id: eventId}, {dates: converted});
+
+                venues.save({id:eventId}, {venues:self.addedVenues});
             });
         }
     }

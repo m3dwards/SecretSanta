@@ -20,7 +20,7 @@ app.config(['$routeProvider', '$locationProvider',
                 path: '#/login',
                 includeInNav: false
             })
-            .when('/preferences/:email?', {
+            .when('/event/:id/preferences', {
                 templateUrl: 'preferences.html',
                 controller: 'preferencesController',
                 controllerAs: 'preferences',
@@ -180,7 +180,7 @@ app.controller('appController', ['$rootScope', '$scope', '$route', '$location', 
 app.controller('preferencesController', function ($scope, $routeParams, preferences, dates, venues, $rootScope, user, $q) {
         var self = this;
 
-        var eventId = 1;
+        var eventId = $routeParams.id || 1;
 
         self.name = null;
 
@@ -314,7 +314,7 @@ app.controller('eventController', function(event, santa, $timeout, $location, us
     var self = this;
 
     var eventIdRaw = $routeParams.id || '1';
-    var eventId = parseInt(eventIdRaw);
+    self.eventId = parseInt(eventIdRaw);
 
     self.fail = false;
     self.success = false;
@@ -336,14 +336,14 @@ app.controller('eventController', function(event, santa, $timeout, $location, us
         self.name = data.name;
     });
 
-    preferences.get({ id: eventId }, function(data){
+    preferences.get({ id: self.eventId }, function(data){
         if (data.venue != null) {
             self.preferences.attending = true;
             self.preferences.doingPresents = data.doingPresents;
         }
     });
 
-    event.get({ id: eventId }, function (data) {
+    event.get({ id: self.eventId }, function (data) {
         self.event = data;
         self.event.venueSelected = data.venue != null;
         self.event.dateSelected = data.date != null;
@@ -363,7 +363,7 @@ app.controller('eventController', function(event, santa, $timeout, $location, us
     });
 
     if (self.event.namesAvailable) {
-        santa.save({id: eventId}, {},
+        santa.save({id: self.eventId}, {},
             function (data) {
                 if (data.allowed == false) {
                     self.santaSaysNo = true;
@@ -426,9 +426,11 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
     self.creating = false;
     self.event = { name:null, date:null };
     self.addedDates = [];
+    self.addedVenues = [];
     self.name = null;
 
     self.newDate = moment().format('d MMMM YYYY');
+    self.newVenue = null;
 
     if (!$routeParams.id)
     {
@@ -448,6 +450,17 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
         return false;
     }
 
+    self.addVenue = function(venue){
+        self.addedVenues.push(venue);
+
+        return false;
+    }
+
+    self.removeVenue = function(venue){
+        self.addedVenues.pop(venue);
+
+        return false;
+    }
 
     self.saveEvent = function(){
         if (self.creating){
@@ -463,6 +476,8 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
                 }
 
                 dates.save({id: eventId}, {dates: converted});
+
+                venues.save({id:eventId}, {venues:self.addedVenues});
             });
         }
     }

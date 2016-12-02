@@ -20,7 +20,7 @@ app.config(['$routeProvider', '$locationProvider',
                 path: '#/login',
                 includeInNav: false
             })
-            .when('/preferences/:email?', {
+            .when('/event/:id/preferences', {
                 templateUrl: 'preferences.html',
                 controller: 'preferencesController',
                 controllerAs: 'preferences',

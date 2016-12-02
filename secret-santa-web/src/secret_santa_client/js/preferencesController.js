@@ -1,7 +1,7 @@
 app.controller('preferencesController', function ($scope, $routeParams, preferences, dates, venues, $rootScope, user, $q) {
         var self = this;
 
-        var eventId = 1;
+        var eventId = $routeParams.id || 1;
 
         self.name = null;
 
