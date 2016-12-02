@@ -88,12 +88,17 @@ app.config(['$routeProvider', '$locationProvider',
             require: 'ngModel',
             link: function (scope, element, attrs, ngModelCtrl) {
                 element.datepicker({
-                    dateFormat: 'DD, d  MM, yy',
-                    onSelect: function (date) {
-                        scope.date = date;
-                        scope.$apply();
-                    }
+                    showOtherMonths: true,
+                    selectOtherMonths: true,
+                    dateFormat: 'd MM, yy',
+                    yearRange: '+1'
+                }).prev('.input-group-btn').on('click', function (e) {
+                    e && e.preventDefault();
+                    element.focus();
                 });
+                $.extend($.datepicker, { _checkOffset: function (inst,offset,isFixed) { return offset; } });
+
+                element.datepicker('widget').css({ 'margin-left': -element.prev('.input-group-btn').find('.btn').outerWidth() + 3 });
             }
         };
     })
@@ -101,8 +106,13 @@ app.config(['$routeProvider', '$locationProvider',
         return {
             restrict: 'A',
             require: 'ngModel',
-            link: function (scope, element, attrs, ngModelCtrl) {
-                element.bootstrapSwitch();
+            link: function (scope, element, attrs, ngModel) {
+                element.bootstrapSwitch('state', ngModel.$$rawModelValue || false)
+                    .on('switchChange.bootstrapSwitch', function (event, state) { ngModel.$setViewValue(state); });
+
+                scope.$watch(attrs['ngModel'], function (v) {
+                    element.bootstrapSwitch('state', v || false);
+                });
             }
         };
     });
