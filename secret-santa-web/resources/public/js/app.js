@@ -294,6 +294,7 @@ app.controller('eventController', ['event', 'santa', '$timeout', '$location', 'u
 
         if (data.date)
         {
+            // TODO needs to be made UTC/correct timezone?
             var parsed = data.date.substring(6,10) + '-' +
                 data.date.substring(3,5) + '-' +
                 data.date.substring(0,2) + ' ' +
