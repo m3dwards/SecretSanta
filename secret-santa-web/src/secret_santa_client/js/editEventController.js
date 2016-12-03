@@ -1,6 +1,7 @@
 app.controller('editEventController', function ($scope, $routeParams, event, preferences, dates, venues, $location) {
 
     var self = this;
+    self.eventId = $routeParams.id;
 
     self.fail = false;
     self.success = false;
@@ -19,9 +20,27 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
     self.newDate = moment().format('d MMMM YYYY');
     self.newVenue = null;
 
-    if (!$routeParams.id)
+    if (!self.eventId)
     {
         self.creating = true;
+    }
+    else
+    {
+        event.get({id:self.eventId}, function(data){
+            self.name = data.name;
+        });
+
+        venues.query({id: self.eventId}, function (data) {
+            self.addedVenues = data;
+        });
+
+        dates.query({id: self.eventId}, function (data) {
+            self.addedDates = [];
+
+            angular.forEach(data, function (item) {
+                self.addedDates.push(moment(item));
+            });
+        });
     }
 
 
@@ -54,19 +73,24 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
             event.save({
                 name: self.name
             }, function(response){
-                var eventId = response.event_id;
-
-                var converted = [];
-                for (var i = 0; i < self.addedDates.length; i++)
-                {
-                    converted.push(self.addedDates[i].format('YYYY-MM-DD 00:00:00'));
-                }
-
-                dates.save({id: eventId}, {dates: converted});
-
-                venues.save({id:eventId}, {venues:self.addedVenues});
+                saveDatesAndVenues(response.event_id);
             });
         }
+        else{
+            saveDatesAndVenues(self.eventId);
+        }
+    }
+
+    function saveDatesAndVenues(eventId){
+        var converted = [];
+        for (var i = 0; i < self.addedDates.length; i++)
+        {
+            converted.push(self.addedDates[i].format('YYYY-MM-DD 00:00:00'));
+        }
+
+        dates.save({id: eventId}, {dates: converted});
+
+        venues.save({id:eventId}, {venues:self.addedVenues});
     }
 
 

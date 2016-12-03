@@ -36,15 +36,17 @@ app.controller('preferencesController', function ($scope, $routeParams, preferen
             })
         ).then(function () {
             if (self.venue != null) {
-                angular.forEach(self.availableDates, function (item) {
-                    item.available = false;
+                if (self.selectedDates.length > 0) {
+                    angular.forEach(self.availableDates, function (item) {
+                        item.available = false;
 
-                    angular.forEach(self.selectedDates, function (selected) {
-                        if (item.date.diff(moment(selected)) === 0) {
-                            item.available = true;
-                        }
+                        angular.forEach(self.selectedDates, function (selected) {
+                            if (item.date.diff(moment(selected)) === 0) {
+                                item.available = true;
+                            }
+                        });
                     });
-                });
+                }
             }
         });
 
