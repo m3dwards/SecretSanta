@@ -249,7 +249,7 @@
                       (update-collected event_id user_id buying_for)
                       (allocate-random-user user_id event_id)))
                (content-type {:body {:allowed false}} "text/json"))
-             (content-type {:code 401} "text/json"))
+             (content-type {:status 401} "text/json"))
            )
       )
 
@@ -264,10 +264,17 @@
 (defn admin-insert-date-config [event date]
       (sql/insert! db :config_dates [:event :date] [(Integer. event) (json->datetime date)]))
 
+(defn is-admin [user-id, event-id]
+  (-> (sql/query db ["select count(*) from user_event where \"user\" = ? and event = ?" user-id (read-string event-id)]) first :count pos?))
+
 (defn admin-save-dates [token event-id dates]
-      (admin-delete-dates event-id)
-      (doseq [date dates] (admin-insert-date-config event-id date))
-      "saved")
+  (let [user_id (get-user-id-from-token token)]
+    (if (is-admin user_id event-id)
+      (do
+        (admin-delete-dates event-id)
+        (doseq [date dates] (admin-insert-date-config event-id date))
+        (content-type {:body "Saved"} "text/json"))
+      (content-type {:status 401} "text/json"))))
 
 (defn admin-delete-venues [event]
   (sql/execute! db ["delete from config_venues where event = ?" (Integer. event)]))
@@ -276,21 +283,23 @@
   (sql/insert! db :config_venues [:event :venue] [(Integer. event) venue]))
 
 (defn admin-save-venues [token event-id venues]
-  (admin-delete-venues event-id)
-  (doseq [venue venues] (admin-insert-venue-config event-id venue))
-  "saved")
-
-(defn is-admin [user-id, event-id]
-  (-> (sql/query db ["select 1 from user_event where \"user\" = ? and event = ?" user-id event-id]) first :count pos?))
+  (let [user_id (get-user-id-from-token token)]
+    (if (is-admin user_id event-id)
+      (do
+        (admin-delete-venues event-id)
+        (doseq [venue venues] (admin-insert-venue-config event-id venue))
+        (content-type {:body "Saved"} "text/json"))
+      (content-type {:status 401} "text/json"))))
 
 (defn admin-create-event [token name]
       (let [user_id (get-user-id-from-token token)]
         (if user_id
           (do
-             (sql/insert! db :events [:name] [name])
+             (sql/insert! db :events [:name :preferences_available :names_available] [name true false])
              (let [event_id  (-> (sql/query db ["select id from events where name = ?" name]) first :id)]
                (sql/insert! db :user_event [:event "\"user\"" :admin] [event_id user_id true])
-               (content-type {:body {:event_id event_id}} "text/json"))))))
+               (content-type {:body {:event_id event_id}} "text/json")))
+        (content-type {:status 401} "text/json"))))
 
 
 (defn get-event-info [token event-id]
@@ -306,6 +315,13 @@
             (let [present-pref (-> (sql/query db ["select * from present_preference where \"user\" = ? and event = ?" user_id (read-string event-id)]) first)]
               (content-type {:body {:selectedDates (map #(.toDate (:date %)) dates) :venue (:venue venue) :doingPresents (:wants_presents present-pref)}} "text/json"))))))))
 
+(defn get-no-go-dates [token event-id]
+  (let [user_id (get-user-id-from-token token)]
+    (if (is-admin user_id event-id)
+      (let [user-dates (sql/query db ["select name, date from users u join date_preferences d on d.user = u.id where d.available = false and d.event = ?" (read-string event-id)])]
+        (content-type {:body (map #(hash-map :name (:name %) :date (.toDate (:date %))) user-dates)} "text/json"))
+      (content-type {:status 401} "text/json"))))
+
 (defroutes app-routes
            (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
            (GET "/backend" [] "Hello backend")
@@ -315,7 +331,7 @@
            (POST "/event" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {name "name"} :body} (admin-create-event token name))
 
            (GET "/event/:event_id/dates" [event_id] (get-dates event_id))
-           (POST "/event/:event_id/dates" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {dates "dates"} :body} (admin-save-dates event_id dates)) ;; admin, save dates
+           (POST "/event/:event_id/dates" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {dates "dates"} :body} (admin-save-dates token event_id dates)) ;; admin, save dates
 
            (GET "/event/:event_id/venues" [event_id] (get-venues event_id))
            (POST "/event/:event_id/venues" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {venues "venues"} :body} (admin-save-venues token event_id venues)) ;; admin, save venues
@@ -328,6 +344,8 @@
 
            (POST "/event/:event_id/reveal-name" {{{token :value} "session_id"} :cookies {event_id :event_id} :params} (get-buying-for event_id token))
            (GET "/event/:event_id/token/:token" [event_id token] (reply-with-cookie token event_id))
+
+           (GET "/event/:event_id/no-go-dates" {{{token :value} "session_id"} :cookies {event_id :event_id} :params} (get-no-go-dates token event_id))
 
            (route/not-found "<html><body><img src='/img/404.png' style='max-width:100%'/></body></html>")
            )
