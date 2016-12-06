@@ -48,6 +48,9 @@
 (defn has-user? [email]
       (-> (sql/query db ["select count(*) from users where email = ?" email]) first :count pos?))
 
+(defn get-token-for-email [email]
+  (-> (sql/query db ["select token from user_tokens ut join users u on u.id = ut.user where email = ?" email]) first :token))
+
 (defn get-user-id [email]
       (-> (sql/query db ["select id from users where email = ?" email]) first :id))
 
@@ -151,10 +154,11 @@
 (defn email-all-users [event-id message]
   (let [emails (map #(:email %) (sql/query db ["select email from users u join user_event e on e.user = u.id and e.event = ?" event-id]))]
     (doseq [email emails]
-      (->> (make-token)
-           (save-token email)
-           ;;(email-token-event email event-id message)
-           )))
+      (let [existing-token (get-token-for-email email)]
+        (if existing-token (email-token-event email event-id message existing-token)
+            (->> (make-token)
+                 (save-token email)
+                 (email-token-event email event-id message))))))
   (content-type {:body "Message sent"} "text/json"))
 
 (defn check-token [token]
@@ -377,8 +381,7 @@ left join user_buying_for c on c.user = u.id and c.event = e.event" event-id])} 
   (let [user_id (get-user-id-from-token token)]
     (if (is-admin user_id event-id)
       (email-all-users event-id message)
-      (content-type {:status 401} "text/json"))
-  (content-type {:body "Message sent"} "text/json")))
+      (content-type {:status 401} "text/json"))))
 
 (defroutes app-routes
   (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
