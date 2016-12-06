@@ -390,8 +390,10 @@ left join user_buying_for c on c.user = u.id and c.event = e.event" event-id])} 
   (let [user_id (get-user-id-from-token token)]
     (if (is-admin user_id event-id)
       (content-type {:body
-                     (sql/execute! db ["update events set preferences_available = ?, names_available = ?, venue = ?, date = ? where id = ?"
-                                       (event-data "preferencesAvailable") (event-data "namesAvailable") (event-data "venue") (json->datetime (event-data "date")) event-id])
+                     (sql/execute! db ["update events set name = ?, preferences_available = ?, names_available = ?, venue = ?, date = ? where id = ?"
+                                       (event-data "name")
+                                       (event-data "preferencesAvailable") (event-data "namesAvailable")
+                                       (event-data "venue") (json->datetime (event-data "date")) event-id])
                      } "text/json")
       (content-type {:status 401} "text/json"))))
 
