@@ -106,6 +106,8 @@
 
         <button class="btn btn-primary" ng-click="event.saveEvent()" ng-show="!event.busy">Save event</button>
 
+        <a href="#/event/{{event.eventId}}" class="pull-right">Return to event</a>
+
         <div id="busy" class="progress" ng-show="event.busy">
             <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100"
                  aria-valuemin="0" aria-valuemax="100"
