@@ -386,6 +386,16 @@ left join user_buying_for c on c.user = u.id and c.event = e.event" event-id])} 
       (email-all-users event-id message)
       (content-type {:status 401} "text/json"))))
 
+(defn update-event-info [token event-id event-data]
+  (let [user_id (get-user-id-from-token token)]
+    (if (is-admin user_id event-id)
+      (content-type {:body
+                     (sql/execute! db ["update events set preferences_available = ?, names_available = ?, venue = ?, date = ? where id = ?"
+                                       (event-data "preferencesAvailable") (event-data "namesAvailable") (event-data "venue") (json->datetime (event-data "date")) event-id])
+                     } "text/json")
+      (content-type {:status 401} "text/json"))))
+
+
 (defroutes app-routes
   (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
   (GET "/backend" [] "Hello backend")
@@ -394,6 +404,8 @@ left join user_buying_for c on c.user = u.id and c.event = e.event" event-id])} 
   (GET "/event/:event_id" [event_id] (get-event-info "" event_id))
   (POST "/event" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {name "name"} :body} (admin-create-event token name))
   (GET "/events" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {name "name"} :body} (get-user-events token))
+
+  (POST "/event/:event_id" {{{token :value} "session_id"} :cookies {event_id :event_id} :params body :body} (update-event-info token (Integer. event_id) body))
 
   (GET "/event/:event_id/dates" [event_id] (get-dates event_id))
   (POST "/event/:event_id/dates" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {dates "dates"} :body} (admin-save-dates token event_id dates)) ;; admin, save dates
