@@ -28,6 +28,13 @@ app.config(['$routeProvider', '$locationProvider',
                 path: '#/preferences',
                 includeInNav: false
             })
+            .when('/events', {
+                templateUrl: 'events.html',
+                controller: 'eventsController',
+                controllerAs: 'events',
+                name: 'My Events',
+                includeInNav: true
+            })
             .when('/event/create', {
                 templateUrl: 'edit-event.html',
                 controller: 'editEventController',
@@ -79,6 +86,9 @@ app.config(['$routeProvider', '$locationProvider',
     }])
     .factory('santa', ['$resource', function ($resource) {
         return $resource(root + '/event/:id/reveal-name');
+    }])
+    .factory('events', ['$resource', function ($resource) {
+        return $resource(root + '/events');
     }])
 
 

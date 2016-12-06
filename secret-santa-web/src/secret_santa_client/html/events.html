@@ -1,0 +1,23 @@
+<div class="container">
+
+    <div class="row">
+        <div class="page-header">
+            <h1>Secret Santa <small>My events</small></h1>
+        </div>
+        <p class="lead">Hey {{events.name}}, you can see all the events you are a member of here.</p>
+
+        <div class="alert alert-success ajax-success col-lg-12 col-xs-12 col-md-12" ng-show="event.success">
+            <strong>Thanks!</strong> Your preferences have been saved
+        </div>
+
+        <div class="alert alert-danger ajax-failure col-lg-12 col-xs-12 col-md-12" ng-show="event.fail">
+            <button type="button" class="close fui-cross" data-dismiss="alert"></button>
+            <h4><strong>Uh oh!</strong> There was a problem communicating with the server</h4>
+        </div>
+    </div>
+    <div class="row">
+        <ul class="list-unstyled">
+            <li ng-repeat="event in events.events"><a href="#/event/{{event.id}}"{{event.name}}">{{event.name}}</a></li>
+        </ul>
+    </div>
+</div>

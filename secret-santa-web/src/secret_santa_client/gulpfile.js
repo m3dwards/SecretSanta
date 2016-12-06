@@ -19,11 +19,7 @@ gulp.task('build', ['clean'], function(){
     return gulp.src(['js/app.js',
                 'js/models.js',
                 'js/appController.js',
-                'js/preferencesController.js',
-                'js/loginController.js',
-                'js/eventController.js',
-                'js/homeController.js',
-                'js/editEventController.js'])
+                'js/*'])
         .pipe(concat('app.js'))
         .pipe(gulp.dest(buildPath + 'js'));
 });

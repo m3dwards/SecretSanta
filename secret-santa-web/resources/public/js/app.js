@@ -28,6 +28,13 @@ app.config(['$routeProvider', '$locationProvider',
                 path: '#/preferences',
                 includeInNav: false
             })
+            .when('/events', {
+                templateUrl: 'events.html',
+                controller: 'eventsController',
+                controllerAs: 'events',
+                name: 'My Events',
+                includeInNav: true
+            })
             .when('/event/create', {
                 templateUrl: 'edit-event.html',
                 controller: 'editEventController',
@@ -79,6 +86,9 @@ app.config(['$routeProvider', '$locationProvider',
     }])
     .factory('santa', ['$resource', function ($resource) {
         return $resource(root + '/event/:id/reveal-name');
+    }])
+    .factory('events', ['$resource', function ($resource) {
+        return $resource(root + '/events');
     }])
 
 
@@ -177,6 +187,246 @@ app.controller('appController', ['$rootScope', '$scope', '$route', '$location', 
 		}
 	}
 ]);
+app.controller('editEventController', function ($scope, $routeParams, event, preferences, dates, venues, $location) {
+
+    var self = this;
+    self.eventId = $routeParams.id;
+
+    self.fail = false;
+    self.success = false;
+
+
+    self.formatDate = function (date) {
+        return date.format('Do MMMM YYYY');
+    };
+
+    self.creating = false;
+    self.event = { name:null, date:null };
+    self.addedDates = [];
+    self.addedVenues = [];
+    self.name = null;
+
+    self.newDate = moment().format('d MMMM YYYY');
+    self.newVenue = null;
+
+    if (!self.eventId)
+    {
+        self.creating = true;
+    }
+    else
+    {
+        event.get({id:self.eventId}, function(data){
+            self.name = data.name;
+        });
+
+        venues.query({id: self.eventId}, function (data) {
+            self.addedVenues = data;
+        });
+
+        dates.query({id: self.eventId}, function (data) {
+            self.addedDates = [];
+
+            angular.forEach(data, function (item) {
+                self.addedDates.push(moment(item));
+            });
+        });
+    }
+
+
+    self.addDate = function(date){
+        self.addedDates.push(moment(date));
+
+        return false;
+    }
+
+    self.removeDate = function(date){
+        self.addedDates.pop(date);
+
+        return false;
+    }
+
+    self.addVenue = function(venue){
+        self.addedVenues.push(venue);
+
+        return false;
+    }
+
+    self.removeVenue = function(venue){
+        self.addedVenues.pop(venue);
+
+        return false;
+    }
+
+    self.saveEvent = function(){
+        if (self.creating){
+            event.save({
+                name: self.name
+            }, function(response){
+                saveDatesAndVenues(response.event_id);
+            });
+        }
+        else{
+            saveDatesAndVenues(self.eventId);
+        }
+    }
+
+    function saveDatesAndVenues(eventId){
+        var converted = [];
+        for (var i = 0; i < self.addedDates.length; i++)
+        {
+            converted.push(self.addedDates[i].format('YYYY-MM-DD 00:00:00'));
+        }
+
+        dates.save({id: eventId}, {dates: converted});
+
+        venues.save({id:eventId}, {venues:self.addedVenues});
+    }
+
+
+    //$location.path( "/event/:id/edit" );
+});
+app.controller('eventController', function(event, santa, $timeout, $location, user, preferences, $routeParams){
+    var self = this;
+
+    var eventIdRaw = $routeParams.id || '1';
+    self.eventId = parseInt(eventIdRaw);
+
+    self.fail = false;
+    self.success = false;
+
+    self.event = { preferencesAvailable: false, venue : null, namesAvailable : false };
+    self.preferences = {};
+
+    self.santaVisible = false;
+    self.santaSaysNo = false;
+
+    self.name = null;
+
+    self.santa = "Uh oh, something is wrong here..";
+    self.timeout = 0;
+
+    self.newDate = null;
+
+    user.get(function (data) {
+        self.name = data.name;
+    });
+
+    preferences.get({ id: self.eventId }, function(data){
+        if (data.venue != null) {
+            self.preferences.attending = true;
+            self.preferences.doingPresents = data.doingPresents;
+        }
+    });
+
+    event.get({ id: self.eventId }, function (data) {
+        self.event = data;
+        self.event.venueSelected = data.venue != null;
+        self.event.dateSelected = data.date != null;
+
+        if (data.date)
+        {
+            // TODO needs to be made UTC/correct timezone?
+            /*var parsed = data.date.substring(6,10) + '-' +
+                data.date.substring(3,5) + '-' +
+                data.date.substring(0,2) + ' ' +
+                data.date.substring(11,16);
+
+            self.event.date = moment(parsed);*/
+
+            self.event.date = moment(data.date);
+        }
+    });
+
+    if (self.event.namesAvailable) {
+        santa.save({id: self.eventId}, {},
+            function (data) {
+                if (data.allowed == false) {
+                    self.santaSaysNo = true;
+                }
+                else {
+                    self.santa = data.name;
+                }
+
+                self.fail = false;
+                self.success = true;
+            }, function (error) {
+                $location.path('/login')
+            }
+        );
+    }
+
+    self.showSanta = function(){
+        self.santaVisible = true;
+
+        self.timeout = 3;
+
+        timeoutLoop();
+
+        return false;
+    };
+
+    function timeoutLoop(){
+        $timeout(function(){
+            if (self.timeout == 1) {
+                self.santaVisible = false;
+            }
+            else {
+                self.timeout = self.timeout - 1;
+                timeoutLoop();
+            }
+        }, 1000);
+    }
+});
+
+app.controller('eventsController', function(events, $timeout, $location, user) {
+    var self = this;
+
+    self.events = [];
+    self.name = null;
+
+    user.get(function (data) {
+        self.name = data.name;
+    });
+
+    events.query({}, function(data){
+        self.events = data;
+    })
+});
+app.controller('homeController', ['authentication', '$location', function(authentication, $location){
+    var self = this;
+
+    self.fail = false;
+    self.success = false;
+
+    $location.path( "/event" );
+}]);
+app.controller('loginController', ['authentication', '$routeParams', function(authentication, $routeParams){
+	var self = this;
+	
+	self.email = $routeParams.email;
+	self.fail = false;
+	self.success = false;
+	
+	self.login = function(){
+		authentication.save({ email : self.email.toLowerCase() },
+		function(data){
+			if (data.valid)
+			{
+				self.success = true;
+				self.invalid = false;
+			}
+			else
+			{
+				self.success = false;
+				self.invalid = true;
+			}
+			self.fail = false;
+		}, function(error){
+			self.fail = true;
+			self.success = false;
+		});
+	};
+}]);
 app.controller('preferencesController', function ($scope, $routeParams, preferences, dates, venues, $rootScope, user, $q) {
         var self = this;
 
@@ -285,229 +535,3 @@ app.controller('preferencesController', function ($scope, $routeParams, preferen
          });*/
     }
 );
-app.controller('loginController', ['authentication', '$routeParams', function(authentication, $routeParams){
-	var self = this;
-	
-	self.email = $routeParams.email;
-	self.fail = false;
-	self.success = false;
-	
-	self.login = function(){
-		authentication.save({ email : self.email.toLowerCase() },
-		function(data){
-			if (data.valid)
-			{
-				self.success = true;
-				self.invalid = false;
-			}
-			else
-			{
-				self.success = false;
-				self.invalid = true;
-			}
-			self.fail = false;
-		}, function(error){
-			self.fail = true;
-			self.success = false;
-		});
-	};
-}]);
-app.controller('eventController', function(event, santa, $timeout, $location, user, preferences, $routeParams){
-    var self = this;
-
-    var eventIdRaw = $routeParams.id || '1';
-    self.eventId = parseInt(eventIdRaw);
-
-    self.fail = false;
-    self.success = false;
-
-    self.event = { preferencesAvailable: false, venue : null, namesAvailable : false };
-    self.preferences = {};
-
-    self.santaVisible = false;
-    self.santaSaysNo = false;
-
-    self.name = null;
-
-    self.santa = "Uh oh, something is wrong here..";
-    self.timeout = 0;
-
-    self.newDate = null;
-
-    user.get(function (data) {
-        self.name = data.name;
-    });
-
-    preferences.get({ id: self.eventId }, function(data){
-        if (data.venue != null) {
-            self.preferences.attending = true;
-            self.preferences.doingPresents = data.doingPresents;
-        }
-    });
-
-    event.get({ id: self.eventId }, function (data) {
-        self.event = data;
-        self.event.venueSelected = data.venue != null;
-        self.event.dateSelected = data.date != null;
-
-        if (data.date)
-        {
-            // TODO needs to be made UTC/correct timezone?
-            /*var parsed = data.date.substring(6,10) + '-' +
-                data.date.substring(3,5) + '-' +
-                data.date.substring(0,2) + ' ' +
-                data.date.substring(11,16);
-
-            self.event.date = moment(parsed);*/
-
-            self.event.date = moment(data.date);
-        }
-    });
-
-    if (self.event.namesAvailable) {
-        santa.save({id: self.eventId}, {},
-            function (data) {
-                if (data.allowed == false) {
-                    self.santaSaysNo = true;
-                }
-                else {
-                    self.santa = data.name;
-                }
-
-                self.fail = false;
-                self.success = true;
-            }, function (error) {
-                $location.path('/login')
-            }
-        );
-    }
-
-    self.showSanta = function(){
-        self.santaVisible = true;
-
-        self.timeout = 3;
-
-        timeoutLoop();
-
-        return false;
-    };
-
-    function timeoutLoop(){
-        $timeout(function(){
-            if (self.timeout == 1) {
-                self.santaVisible = false;
-            }
-            else {
-                self.timeout = self.timeout - 1;
-                timeoutLoop();
-            }
-        }, 1000);
-    }
-});
-
-app.controller('homeController', ['authentication', '$location', function(authentication, $location){
-    var self = this;
-
-    self.fail = false;
-    self.success = false;
-
-    $location.path( "/event" );
-}]);
-app.controller('editEventController', function ($scope, $routeParams, event, preferences, dates, venues, $location) {
-
-    var self = this;
-    self.eventId = $routeParams.id;
-
-    self.fail = false;
-    self.success = false;
-
-
-    self.formatDate = function (date) {
-        return date.format('Do MMMM YYYY');
-    };
-
-    self.creating = false;
-    self.event = { name:null, date:null };
-    self.addedDates = [];
-    self.addedVenues = [];
-    self.name = null;
-
-    self.newDate = moment().format('d MMMM YYYY');
-    self.newVenue = null;
-
-    if (!self.eventId)
-    {
-        self.creating = true;
-    }
-    else
-    {
-        event.get({id:self.eventId}, function(data){
-            self.name = data.name;
-        });
-
-        venues.query({id: self.eventId}, function (data) {
-            self.addedVenues = data;
-        });
-
-        dates.query({id: self.eventId}, function (data) {
-            self.addedDates = [];
-
-            angular.forEach(data, function (item) {
-                self.addedDates.push(moment(item));
-            });
-        });
-    }
-
-
-    self.addDate = function(date){
-        self.addedDates.push(moment(date));
-
-        return false;
-    }
-
-    self.removeDate = function(date){
-        self.addedDates.pop(date);
-
-        return false;
-    }
-
-    self.addVenue = function(venue){
-        self.addedVenues.push(venue);
-
-        return false;
-    }
-
-    self.removeVenue = function(venue){
-        self.addedVenues.pop(venue);
-
-        return false;
-    }
-
-    self.saveEvent = function(){
-        if (self.creating){
-            event.save({
-                name: self.name
-            }, function(response){
-                saveDatesAndVenues(response.event_id);
-            });
-        }
-        else{
-            saveDatesAndVenues(self.eventId);
-        }
-    }
-
-    function saveDatesAndVenues(eventId){
-        var converted = [];
-        for (var i = 0; i < self.addedDates.length; i++)
-        {
-            converted.push(self.addedDates[i].format('YYYY-MM-DD 00:00:00'));
-        }
-
-        dates.save({id: eventId}, {dates: converted});
-
-        venues.save({id:eventId}, {venues:self.addedVenues});
-    }
-
-
-    //$location.path( "/event/:id/edit" );
-});
