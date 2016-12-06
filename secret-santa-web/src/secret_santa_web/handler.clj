@@ -347,13 +347,16 @@
         (content-type {:body (map #(hash-map :name (:name %) :date (.toDate (:date %))) user-dates)} "text/json"))
       (content-type {:status 401} "text/json"))))
 
+(defn user-belongs-to-event [user-id event-id]
+  (-> (sql/query db ["select count(*) from user_event where \"user\" = ? and event = ?" user-id event-id]) first :count pos?))
+
 (defn add-user [token event-id body]
   (let [user_id (get-user-id-from-token token)]
     (if (is-admin user_id event-id)
       (do
         (if (not (has-user? (body "email"))) (sql/query db ["Insert into users (name, email) values (?, ?) returning id" (body "name") (body "email")]))
         (let [inserted-user-id (get-user-id (body "email"))]
-          (sql/insert! db :user_event [:event "\"user\"" :admin] [event-id inserted-user-id (body "admin")])
+          (if (not (user-belongs-to-event inserted-user-id event-id)) (sql/insert! db :user_event [:event "\"user\"" :admin] [event-id inserted-user-id (body "admin")]))
           (content-type {:body "saved"} "text/json")))
       (content-type {:status 401} "text/json"))))
 
