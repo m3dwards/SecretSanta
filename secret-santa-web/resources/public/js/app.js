@@ -32,6 +32,7 @@ app.config(['$routeProvider', '$locationProvider',
                 templateUrl: 'events.html',
                 controller: 'eventsController',
                 controllerAs: 'events',
+                path: '#/events',
                 name: 'My Events',
                 includeInNav: true
             })
@@ -89,6 +90,9 @@ app.config(['$routeProvider', '$locationProvider',
     }])
     .factory('events', ['$resource', function ($resource) {
         return $resource(root + '/events');
+    }])
+    .factory('eventUsers', ['$resource', function ($resource) {
+        return $resource(root + '/event/:id/users');
     }])
 
 
@@ -285,7 +289,7 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
 
     //$location.path( "/event/:id/edit" );
 });
-app.controller('eventController', function(event, santa, $timeout, $location, user, preferences, $routeParams){
+app.controller('eventController', function(event, santa, $timeout, $location, user, preferences, $routeParams, eventUsers, $q){
     var self = this;
 
     var eventIdRaw = $routeParams.id || '1';
@@ -301,15 +305,35 @@ app.controller('eventController', function(event, santa, $timeout, $location, us
     self.santaSaysNo = false;
 
     self.name = null;
+    self.email = null;
+    self.admin = false;
+
+    self.eventUsers = [];
 
     self.santa = "Uh oh, something is wrong here..";
     self.timeout = 0;
 
     self.newDate = null;
 
-    user.get(function (data) {
-        self.name = data.name;
+    $q.all(
+        user.get(function (data) {
+            self.name = data.name;
+            self.email = data.email;
+        })
+    ).then(function(){
+        eventUsers.query({ id: self.eventId },function(data){
+            self.eventUsers = data;
+
+            angular.forEach(data, function(item){
+                if (item.email = self.email)
+                {
+                    self.admin = item.admin;
+                }
+            })
+        });
     });
+
+
 
     preferences.get({ id: self.eventId }, function(data){
         if (data.venue != null) {

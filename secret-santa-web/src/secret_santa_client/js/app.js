@@ -32,6 +32,7 @@ app.config(['$routeProvider', '$locationProvider',
                 templateUrl: 'events.html',
                 controller: 'eventsController',
                 controllerAs: 'events',
+                path: '#/events',
                 name: 'My Events',
                 includeInNav: true
             })
@@ -89,6 +90,9 @@ app.config(['$routeProvider', '$locationProvider',
     }])
     .factory('events', ['$resource', function ($resource) {
         return $resource(root + '/events');
+    }])
+    .factory('eventUsers', ['$resource', function ($resource) {
+        return $resource(root + '/event/:id/users');
     }])
 
 
