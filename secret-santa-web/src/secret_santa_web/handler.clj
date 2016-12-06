@@ -105,36 +105,40 @@
            (insert-present-preference user-id event-id (body "doingPresents")))
       "saved")
 
-;;attending
-;;doingPresents
-
 (defn save-token [email token]
-      (when (not (has-user? email)) (create-user email))
-      (let [user_id (get-user-id email)]
-           ;;(sql/execute! db ["delete from user_tokens where \"user\" = ?" user_id])
-           (try
-             (sql/insert! db :user_tokens ["\"user\"" :token] [user_id token])
-             (catch Exception e
-               (prn "caught" (.getNextException e))))
-           )
-      token)
+  (let [user_id (get-user-id email)]
+    (sql/execute! db ["delete from user_tokens where \"user\" = ?" user_id])
+    (sql/insert! db :user_tokens ["\"user\"" :token] [user_id token]))
+  token)
 
 (defn make-token []
       (java.util.UUID/randomUUID))
 
+(defn email-user [email message]
+  (send-message {:host "smtp.sendgrid.net"
+                 :user (System/getenv "SENDGRID_USERNAME")
+                 :pass (System/getenv "SENDGRID_PASSWORD")
+                 :port 587}
+                {:from    "santa@secretsanta.lol"
+                 :to      email
+                 :subject "Log in to Secret Santa"
+                 :body    [{:type "text/html" :content message}]}))
+
+(defn email-token-event [email event-id message token]
+  (email-user email (str "Your special login link is <a href='http://www.secretsanta.lol/event/" event-id "/token/"
+                         (str token)
+                         "'>http://www.secretsanta.lol/event/" event-id "/token/"
+                         (str token)
+                         "</a> <br> <br>"
+                         message
+                         "<br> <br> Santa")))
+
 (defn email-token [email token]
-      (send-message {:host "smtp.sendgrid.net"
-                     :user (System/getenv "SENDGRID_USERNAME")
-                     :pass (System/getenv "SENDGRID_PASSWORD")
-                     :port 587}
-                    {:from    "santa@secretsanta.lol"
-                     :to      email
-                     :subject "Log in to Secret Santa"
-                     :body    [{:type "text/html" :content (str "Your special login link is <a href='http://www.secretsanta.lol/token/"
-                                                                (str token)
-                                                                "'>http://www.secretsanta.lol/token/"
-                                                                (str token)
-                                                                "</a> <br> <br> Santa")}]}))
+  (email-user email (str "Your special login link is <a href='http://www.secretsanta.lol/token/"
+                          (str token)
+                          "'>http://www.secretsanta.lol/token/"
+                          (str token)
+                          "</a> <br> <br> Santa")))
 
 (defn send-auth-token [email]
       (if (has-user? email)
@@ -142,13 +146,21 @@
                  (save-token email)
                  (email-token email))
             (content-type {:body {:valid true}} "text/json"))
-        (content-type {:body {:valid false}} "text/json")
-        ))
+        (content-type {:body {:valid false}} "text/json")))
+
+(defn email-all-users [event-id message]
+  (let [emails (map #(:email %) (sql/query db ["select email from users u join user_event e on e.user = u.id and e.event = ?" event-id]))]
+    (doseq [email emails]
+      (->> (make-token)
+           (save-token email)
+           ;;(email-token-event email event-id message)
+           )))
+  (content-type {:body "Message sent"} "text/json"))
 
 (defn check-token [token]
       (-> (sql/query db ["select count(*) from user_tokens where token = ?" (java.util.UUID/fromString token)]) first :count pos?))
 
-(defn reply-with-cookie [token event-id]
+(defn reply-with-cookie-event [token event-id]
       (if (check-token token)
         {:status  303
          :headers {"Location" (str "/#/event/" event-id)}
@@ -156,6 +168,15 @@
          :body    "Redirect"}
         "Bad token"
         ))
+
+(defn reply-with-cookie [token]
+  (if (check-token token)
+    {:status  303
+     :headers {"Location" (str "/#/events")}
+     :cookies {"session_id" {:value token :http-only true :path "/" :expires "Sun, 20 Dec 2099 13:53:30 GMT"}}
+     :body    "Redirect"}
+    "Bad token"
+    ))
 
 (defn user-info [token]
       (if token
@@ -265,7 +286,7 @@
       (sql/insert! db :config_dates [:event :date] [(Integer. event) (json->datetime date)]))
 
 (defn is-admin [user-id, event-id]
-  (-> (sql/query db ["select count(*) from user_event where \"user\" = ? and event = ?" user-id (read-string event-id)]) first :count pos?))
+  (-> (sql/query db ["select count(*) from user_event where \"user\" = ? and event = ?" user-id (Integer. event-id)]) first :count pos?))
 
 (defn admin-save-dates [token event-id dates]
   (let [user_id (get-user-id-from-token token)]
@@ -322,32 +343,77 @@
         (content-type {:body (map #(hash-map :name (:name %) :date (.toDate (:date %))) user-dates)} "text/json"))
       (content-type {:status 401} "text/json"))))
 
+(defn add-user [token event-id body]
+  (let [user_id (get-user-id-from-token token)]
+    (if (is-admin user_id event-id)
+      (do
+        (if (not (has-user? (body "email"))) (sql/query db ["Insert into users (name, email) values (?, ?) returning id" (body "name") (body "email")]))
+        (let [inserted-user-id (get-user-id (body "email"))]
+          (sql/insert! db :user_event [:event "\"user\"" :admin] [event-id inserted-user-id (body "admin")])
+          (content-type {:body "saved"} "text/json")))
+      (content-type {:status 401} "text/json"))))
+
+(defn get-users-for-event [token event-id]
+  (let [user_id (get-user-id-from-token token)]
+    (print token) (flush)
+    (if (is-admin user_id event-id)
+      (content-type {:body (sql/query db ["select u.*, e.admin, c.collected_on as \"collected_name_on\"
+from users u 
+join user_event e on e.user = u.id and e.event = ? 
+left join user_buying_for c on c.user = u.id and c.event = e.event" event-id])} "text/json")
+      (content-type {:status 401} "text/json"))))
+
+(defn delete-user [token event-id email]
+  (let [user_id (get-user-id-from-token token)]
+    (if (or (is-admin user_id event-id) (= user_id (get-user-id email))) ;; you can delete a user if admin or yourself from any event
+      (content-type {:body (sql/execute! db ["delete from user_event where event = ? and \"user\" = ?" event-id (get-user-id email)])} "text/json")
+      (content-type {:status 401} "text/json"))))
+
+(defn get-user-events [token]
+  (let [user-id (get-user-id-from-token token)]
+    (content-type {:body (sql/query db ["select e.id, e.name from events e join user_event u on u.user = ? and u.event = e.id" user-id])} "text/json")))
+
+(defn email-all-for-event [token event-id message]
+  (let [user_id (get-user-id-from-token token)]
+    (if (is-admin user_id event-id)
+      (email-all-users event-id message)
+      (content-type {:status 401} "text/json"))
+  (content-type {:body "Message sent"} "text/json")))
+
 (defroutes app-routes
-           (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
-           (GET "/backend" [] "Hello backend")
-           (GET "/broken" [] (/ 1 0))
+  (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
+  (GET "/backend" [] "Hello backend")
+  (GET "/broken" [] (/ 1 0))
 
-           (GET "/event/:event_id" [event_id] (get-event-info "" event_id))
-           (POST "/event" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {name "name"} :body} (admin-create-event token name))
+  (GET "/event/:event_id" [event_id] (get-event-info "" event_id))
+  (POST "/event" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {name "name"} :body} (admin-create-event token name))
+  (GET "/events" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {name "name"} :body} (get-user-events token))
 
-           (GET "/event/:event_id/dates" [event_id] (get-dates event_id))
-           (POST "/event/:event_id/dates" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {dates "dates"} :body} (admin-save-dates token event_id dates)) ;; admin, save dates
+  (GET "/event/:event_id/dates" [event_id] (get-dates event_id))
+  (POST "/event/:event_id/dates" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {dates "dates"} :body} (admin-save-dates token event_id dates)) ;; admin, save dates
 
-           (GET "/event/:event_id/venues" [event_id] (get-venues event_id))
-           (POST "/event/:event_id/venues" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {venues "venues"} :body} (admin-save-venues token event_id venues)) ;; admin, save venues
+  (GET "/event/:event_id/venues" [event_id] (get-venues event_id))
+  (POST "/event/:event_id/venues" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {venues "venues"} :body} (admin-save-venues token event_id venues)) ;; admin, save venues
 
-           (GET "/event/:event_id/preferences" {{{token :value} "session_id"} :cookies {event_id :event_id} :params} (get-user-preferences token event_id))
-           (POST "/event/:event_id/preferences" {{{token :value} "session_id"} :cookies {event_id :event_id} :params body :body} (save-preferences token body (Integer. event_id)))
+  (GET "/event/:event_id/preferences" {{{token :value} "session_id"} :cookies {event_id :event_id} :params} (get-user-preferences token event_id))
+  (POST "/event/:event_id/preferences" {{{token :value} "session_id"} :cookies {event_id :event_id} :params body :body} (save-preferences token body (Integer. event_id)))
 
-           (GET "/user" {{{token :value} "session_id"} :cookies} (user-info token))
-           (POST "/login" {{email "email"} :body} (send-auth-token email))
+  (DELETE "/event/:event_id/user" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {email "email"} :body} (delete-user token (Integer. event_id) email))
+  (POST "/event/:event_id/user" {{{token :value} "session_id"} :cookies {event_id :event_id} :params body :body} (add-user token (Integer. event_id) body))
+  (GET "/event/:event_id/users" {{{token :value} "session_id"} :cookies {event_id :event_id} :params body :body} (get-users-for-event token (Integer. event_id)))
 
-           (POST "/event/:event_id/reveal-name" {{{token :value} "session_id"} :cookies {event_id :event_id} :params} (get-buying-for event_id token))
-           (GET "/event/:event_id/token/:token" [event_id token] (reply-with-cookie token event_id))
+  (POST "/event/:event_id/email-all-users" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {message "message"} :body} (email-all-for-event token (Integer. event_id) message))
 
-           (GET "/event/:event_id/no-go-dates" {{{token :value} "session_id"} :cookies {event_id :event_id} :params} (get-no-go-dates token event_id))
+  (GET "/user" {{{token :value} "session_id"} :cookies} (user-info token))
+  (POST "/login" {{email "email"} :body} (send-auth-token email))
 
-           (route/not-found "<html><body><img src='/img/404.png' style='max-width:100%'/></body></html>")
+  (POST "/event/:event_id/reveal-name" {{{token :value} "session_id"} :cookies {event_id :event_id} :params} (get-buying-for event_id token))
+  (GET "/event/:event_id/token/:token" [event_id token] (reply-with-cookie-event token event_id))
+  (GET "/token/:token" [token] (reply-with-cookie token))
+
+  (GET "/event/:event_id/no-go-dates" {{{token :value} "session_id"} :cookies {event_id :event_id} :params} (get-no-go-dates token event_id))
+
+  (route/not-found "<html><body><img src='/img/404.png' style='max-width:100%'/></body></html>")
            )
 
 (defn wrap-exception [f]
