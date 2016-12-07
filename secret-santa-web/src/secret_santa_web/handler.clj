@@ -362,7 +362,6 @@
 
 (defn get-users-for-event [token event-id]
   (let [user_id (get-user-id-from-token token)]
-    (print token) (flush)
     (if (is-admin user_id event-id)
       (content-type {:body (sql/query db ["select u.*, e.admin, c.collected_on as \"collected_name_on\"
 from users u 
@@ -370,11 +369,19 @@ join user_event e on e.user = u.id and e.event = ?
 left join user_buying_for c on c.user = u.id and c.event = e.event" event-id])} "text/json")
       (content-type {:status 401} "text/json"))))
 
+(defn names-available? [event-id]
+  (-> (sql/query db ["select names_available from events where id = ?" event-id]) first :names_available))
+
+;;can delete a user if admin or yourself from any event as long as names are not released
 (defn delete-user [token event-id email]
   (let [user_id (get-user-id-from-token token)]
-    (if (or (is-admin user_id event-id) (= user_id (get-user-id email))) ;; you can delete a user if admin or yourself from any event
-      (content-type {:body (sql/execute! db ["delete from user_event where event = ? and \"user\" = ?" event-id (get-user-id email)])} "text/json")
-      (content-type {:status 401} "text/json"))))
+    (if (and (or (is-admin user_id event-id) (= user_id (get-user-id email))) (not (names-available? event-id)))
+      (do
+        (content-type {:body (sql/execute! db ["delete from user_event where event = ? and \"user\" = ?" event-id (get-user-id email)])} "text/json")
+        (content-type {:body (sql/execute! db ["delete from date_preferences where event = ? and \"user\" = ?" event-id (get-user-id email)])} "text/json")
+        (content-type {:body (sql/execute! db ["delete from venue_preference where event = ? and \"user\" = ?" event-id (get-user-id email)])} "text/json")
+        (content-type {:body (sql/execute! db ["delete from present_preference where event = ? and \"user\" = ?" event-id (get-user-id email)])} "text/json"))
+      (content-type {:status 401 :body "you must be admin or the user yourself and the event must not have names released"} "text/json"))))
 
 (defn get-user-events [token]
   (let [user-id (get-user-id-from-token token)]
