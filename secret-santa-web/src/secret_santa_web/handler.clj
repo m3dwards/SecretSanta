@@ -48,6 +48,9 @@
 (defn has-user? [email]
       (-> (sql/query db ["select count(*) from users where email = ?" email]) first :count pos?))
 
+(defn get-token-for-email [email]
+  (-> (sql/query db ["select token from user_tokens ut join users u on u.id = ut.user where email = ?" email]) first :token))
+
 (defn get-user-id [email]
       (-> (sql/query db ["select id from users where email = ?" email]) first :id))
 
@@ -151,10 +154,11 @@
 (defn email-all-users [event-id message]
   (let [emails (map #(:email %) (sql/query db ["select email from users u join user_event e on e.user = u.id and e.event = ?" event-id]))]
     (doseq [email emails]
-      (->> (make-token)
-           (save-token email)
-           ;;(email-token-event email event-id message)
-           )))
+      (let [existing-token (get-token-for-email email)]
+        (if existing-token (email-token-event email event-id message existing-token)
+            (->> (make-token)
+                 (save-token email)
+                 (email-token-event email event-id message))))))
   (content-type {:body "Message sent"} "text/json"))
 
 (defn check-token [token]
@@ -343,13 +347,16 @@
         (content-type {:body (map #(hash-map :name (:name %) :date (.toDate (:date %))) user-dates)} "text/json"))
       (content-type {:status 401} "text/json"))))
 
+(defn user-belongs-to-event [user-id event-id]
+  (-> (sql/query db ["select count(*) from user_event where \"user\" = ? and event = ?" user-id event-id]) first :count pos?))
+
 (defn add-user [token event-id body]
   (let [user_id (get-user-id-from-token token)]
     (if (is-admin user_id event-id)
       (do
         (if (not (has-user? (body "email"))) (sql/query db ["Insert into users (name, email) values (?, ?) returning id" (body "name") (body "email")]))
         (let [inserted-user-id (get-user-id (body "email"))]
-          (sql/insert! db :user_event [:event "\"user\"" :admin] [event-id inserted-user-id (body "admin")])
+          (if (not (user-belongs-to-event inserted-user-id event-id)) (sql/insert! db :user_event [:event "\"user\"" :admin] [event-id inserted-user-id (body "admin")]))
           (content-type {:body "saved"} "text/json")))
       (content-type {:status 401} "text/json"))))
 
@@ -377,8 +384,19 @@ left join user_buying_for c on c.user = u.id and c.event = e.event" event-id])} 
   (let [user_id (get-user-id-from-token token)]
     (if (is-admin user_id event-id)
       (email-all-users event-id message)
-      (content-type {:status 401} "text/json"))
-  (content-type {:body "Message sent"} "text/json")))
+      (content-type {:status 401} "text/json"))))
+
+(defn update-event-info [token event-id event-data]
+  (let [user_id (get-user-id-from-token token)]
+    (if (is-admin user_id event-id)
+      (content-type {:body
+                     (sql/execute! db ["update events set name = ?, preferences_available = ?, names_available = ?, venue = ?, date = ? where id = ?"
+                                       (event-data "name")
+                                       (event-data "preferencesAvailable") (event-data "namesAvailable")
+                                       (event-data "venue") (json->datetime (event-data "date")) event-id])
+                     } "text/json")
+      (content-type {:status 401} "text/json"))))
+
 
 (defroutes app-routes
   (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
@@ -388,6 +406,8 @@ left join user_buying_for c on c.user = u.id and c.event = e.event" event-id])} 
   (GET "/event/:event_id" [event_id] (get-event-info "" event_id))
   (POST "/event" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {name "name"} :body} (admin-create-event token name))
   (GET "/events" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {name "name"} :body} (get-user-events token))
+
+  (POST "/event/:event_id" {{{token :value} "session_id"} :cookies {event_id :event_id} :params body :body} (update-event-info token (Integer. event_id) body))
 
   (GET "/event/:event_id/dates" [event_id] (get-dates event_id))
   (POST "/event/:event_id/dates" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {dates "dates"} :body} (admin-save-dates token event_id dates)) ;; admin, save dates
