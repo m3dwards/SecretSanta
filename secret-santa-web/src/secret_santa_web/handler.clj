@@ -363,10 +363,16 @@
 (defn get-users-for-event [token event-id]
   (let [user_id (get-user-id-from-token token)]
     (if (is-admin user_id event-id)
-      (content-type {:body (sql/query db ["select u.*, e.admin, c.collected_on as \"collected_name_on\"
+      (content-type {:body (->> (sql/query db ["select u.*, e.admin, c.collected_on as \"collected_name_on\", u2.name as \"buying_for\"
 from users u 
 join user_event e on e.user = u.id and e.event = ? 
-left join user_buying_for c on c.user = u.id and c.event = e.event" event-id])} "text/json")
+left join user_buying_for c on c.user = u.id and c.event = e.event 
+left join users u2 on u2.id = c.buyingfor" event-id]) (map #(hash-map :id (:id %)
+                                                                      :name (:name %)
+                                                                      :email (:email %)
+                                                                      :admin (:admin %)
+                                                                      :collected_name_on (if (:collected_name_on %) (.toDate (:collected_name_on %)))
+                                                                      :buying_for (:buying_for %) )) )} "text/json")
       (content-type {:status 401} "text/json"))))
 
 (defn names-available? [event-id]
@@ -404,6 +410,11 @@ left join user_buying_for c on c.user = u.id and c.event = e.event" event-id])} 
                      } "text/json")
       (content-type {:status 401} "text/json"))))
 
+(defn get-selected-venues [token event-id]
+  (let [user_id (get-user-id-from-token token)]
+    (if (is-admin user_id event-id)
+      (->> (sql/query db ["select venue from venue_preference where event = ?" event-id]) (map :venue))
+      (content-type {:status 401} "text/json"))))
 
 (defroutes app-routes
   (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
@@ -439,6 +450,7 @@ left join user_buying_for c on c.user = u.id and c.event = e.event" event-id])} 
   (GET "/token/:token" [token] (reply-with-cookie token))
 
   (GET "/event/:event_id/no-go-dates" {{{token :value} "session_id"} :cookies {event_id :event_id} :params} (get-no-go-dates token event_id))
+  (GET "/event/:event_id/selected-venues" {{{token :value} "session_id"} :cookies {event_id :event_id} :params} (get-selected-venues token (Integer. event_id)))
 
   (route/not-found "<html><body><img src='/img/404.png' style='max-width:100%'/></body></html>")
            )
