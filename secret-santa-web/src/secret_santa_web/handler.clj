@@ -132,12 +132,13 @@
                  :body    [{:type "text/html" :content message}]}))
 
 (defn email-token-event [email event-id message token]
-  (email-user email (str "Your special login link is <a href='http://www.secretsanta.lol/event/" event-id "/token/"
+  (email-user email (str message
+                         "<br><br>"
+                         "Your special login link is <a href='http://www.secretsanta.lol/event/" event-id "/token/"
                          (str token)
                          "'>http://www.secretsanta.lol/event/" event-id "/token/"
                          (str token)
-                         "</a> <br> <br>"
-                         message
+                         "</a>"
                          "<br> <br> Santa")))
 
 (defn email-token [email token]
