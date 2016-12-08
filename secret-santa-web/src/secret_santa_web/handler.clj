@@ -132,12 +132,13 @@
                  :body    [{:type "text/html" :content message}]}))
 
 (defn email-token-event [email event-id message token]
-  (email-user email (str "Your special login link is <a href='http://www.secretsanta.lol/event/" event-id "/token/"
+  (email-user email (str message
+                         "<br><br>"
+                         "Your special login link is <a href='http://www.secretsanta.lol/event/" event-id "/token/"
                          (str token)
                          "'>http://www.secretsanta.lol/event/" event-id "/token/"
                          (str token)
-                         "</a> <br> <br>"
-                         message
+                         "</a>"
                          "<br> <br> Santa")))
 
 (defn email-token [email token]
@@ -420,6 +421,11 @@ left join users u2 on u2.id = c.buyingfor" event-id]) (map #(hash-map :id (:id %
       (->> (sql/query db ["select venue from venue_preference where event = ?" event-id]) (map :venue))
       (content-type {:status 401} "text/json"))))
 
+(defn update-user [token event-id email admin]
+  (let [user_id (get-user-id-from-token token)]
+    (if (is-admin user_id event-id)
+      (sql/execute! db ["update user_event set admin = ? where \"user\" = (select id from users where email = ?)" admin email]))))
+
 (defroutes app-routes
   (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
   (GET "/backend" [] "Hello backend")
@@ -446,6 +452,7 @@ left join users u2 on u2.id = c.buyingfor" event-id]) (map #(hash-map :id (:id %
   (DELETE "/event/:event_id/user" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {email "email"} :body} (delete-user token (Integer. event_id) email))
   (POST "/event/:event_id/user" {{{token :value} "session_id"} :cookies {event_id :event_id} :params body :body} (add-user token (Integer. event_id) body))
   (GET "/event/:event_id/users" {{{token :value} "session_id"} :cookies {event_id :event_id} :params body :body} (get-users-for-event token (Integer. event_id)))
+  (PUT "/event/:event_id/user" {{{token :value} "session_id"} :cookies {event_id :event_id} :params body :body} (update-user token (Integer. event_id) (body "email") (body "admin")))
 
   (POST "/event/:event_id/email-all-users" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {message "message"} :body} (email-all-for-event token (Integer. event_id) message))
 
