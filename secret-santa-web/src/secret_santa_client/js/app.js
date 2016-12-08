@@ -102,7 +102,7 @@ app.config(['$routeProvider', '$locationProvider',
         return $resource(root + '/event/:id/users');
     }])
     .factory('eventUser', ['$resource', function ($resource) {
-        return $resource(root + '/event/:id/user', null,
+        return $resource(root + '/event/:id/user/:userId?', null,
             {
                 'update': {method: 'PUT'}
             });

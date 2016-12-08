@@ -193,7 +193,7 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
                 }
 
                 if (!found) {
-                    eventUser.delete({id: self.eventId}, serverAttendees[i].email);
+                    eventUser.delete({id: self.eventId, userId: serverAttendees[i].id});
                 }
             }
 
