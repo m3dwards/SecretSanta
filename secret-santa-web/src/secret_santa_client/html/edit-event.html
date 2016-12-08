@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container" ng-if="!event.namesAvailable && event.preferencesAvailable">
     <script>
         $(document).ready(function () {
             if ($('[data-toggle="switch"]').length) {
@@ -104,19 +104,32 @@
     <div class-="row">
         <div class="col-lg-12">
             <h3>Attendees</h3>
-            <p>Add your attendees to the list using the box below. You can enter single values or multiples, separated by a comma or semi-colon.</p>
+            <p>
+                Add your attendees to the list using the box below. You can enter single values or multiples, separated by a comma or semi-colon.
+                You can enter a name for any attendees you add. Note that all attendees must have a name entered before you can allocate secret santas!
+            </p>
 
-            <ul class="checkbox-list">
-                <li ng-repeat="attendee in event.addedAttendees">
-                    <label class="checkbox-large">
-                        {{attendee}} <span class="fui-cross text-danger link" ng-click="event.removeAttendee(attendee)"></span>
-                    </label>
-                </li>
-            </ul>
+            <table class="table">
+                <thead>
+                    <td>Email</td>
+                    <td>Name</td>
+                    <td>Admin</td>
+                    <td>Remove</td>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="attendee in event.addedAttendees">
+                        <td class="checkbox-large">{{attendee.email}}</td>
+                        <td ng-if="!attendee.name"><input type="text" ng-model="attendee.name" /></td>
+                        <td ng-if="attendee.name">{{attendee.name}}</td>
+                        <td><input type="checkbox" ng-value="attendee.admin"/></td>
+                        <td><span class="fui-cross text-danger link" ng-click="event.removeAttendee(attendee)"></span></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         <div class="col-lg-4 col-md-4 col-sm-11 col-xs-11">
             <div class="form-group" ng-class="{ 'has-error' : !event.newAttendeeValid }">
-                <input type="text" value="" placeholder="Venue name" class="form-control input-hg"
+                <input type="text" value="" placeholder="Email address(es)" class="form-control input-hg"
                        ng-model="event.newAttendee" ng-keyup="event.validateNewAttendee()">
             </div>
         </div>
@@ -125,6 +138,14 @@
             </button>
         </div>
         <div class="clearfix"></div>
+    </div>
+
+    <p>&nbsp;</p>
+
+    <div class="alert alert-info">
+        <h4>Release the hounds!</h4>
+        <p>When you are ready to issue secret santa names to your attendees, use this button to lock your event and being the process. Don't forget to send an email to remind everyone to check!</p>
+        <button class="btn btn-primary">Issue the secret santa names!</button>
     </div>
 
     <div class="row">

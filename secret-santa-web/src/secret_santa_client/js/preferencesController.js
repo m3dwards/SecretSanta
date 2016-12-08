@@ -1,12 +1,14 @@
-app.controller('preferencesController', function ($scope, $routeParams, preferences, dates, venues, $rootScope, user, $q) {
+app.controller('preferencesController', function ($scope, $routeParams, preferences, dates, venues, $rootScope, user, $q, eventUsers) {
         var self = this;
 
         var eventId = $routeParams.id || 1;
 
         self.name = null;
+        self.email = null;
 
         user.get(function (data) {
             self.name = data.name;
+            self.email = data.email;
         });
 
         self.attending = false;
@@ -49,6 +51,16 @@ app.controller('preferencesController', function ($scope, $routeParams, preferen
                 }
             }
         });
+
+        self.deleteUserPrompt = false;
+
+        self.promptDeleteUser = function(){
+            self.deleteUserPrompt = true;
+        }
+
+        self.deleteUserFromEvent = function(){
+            eventUsers.delete({id: eventId}, self.email);
+        };
 
         self.venue = null;
 

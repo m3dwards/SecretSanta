@@ -1,4 +1,4 @@
-app.controller('editEventController', function ($scope, $routeParams, event, preferences, dates, venues, eventUsers, $location) {
+app.controller('editEventController', function ($scope, $routeParams, event, preferences, dates, venues, eventUsers, $location, eventUser) {
 
     var self = this;
     self.eventId = $routeParams.id;
@@ -17,6 +17,8 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
     self.addedVenues = [];
     self.addedAttendees = [];
     self.name = null;
+    self.namesAvailable = false;
+    self.preferencesAvailable = false;
 
     self.newDate = moment().format('d MMMM YYYY');
     self.newVenue = null;
@@ -31,6 +33,8 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
     {
         event.get({id:self.eventId}, function(data){
             self.name = data.name;
+            self.namesAvailable = data.namesAvailable;
+            self.preferencesAvailable = data.preferencesAvailable;
         });
 
         venues.query({id: self.eventId}, function (data) {
@@ -43,6 +47,10 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
             angular.forEach(data, function (item) {
                 self.addedDates.push(moment(item));
             });
+        });
+
+        eventUsers.query({id: self.eventId}, function(data){
+           self.addedAttendees = data;
         });
     }
 
@@ -87,7 +95,7 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
 
             for (var i = 0; i < splits.length; i++)
             {
-                self.addedAttendees.push(attendee.trim());
+                self.addedAttendees.push({ email: splits[i].trim(), name : null, admin: false });
             }
 
             return false;
@@ -105,7 +113,7 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
 
             for (var i = 0; i < splits.length; i++)
             {
-                self.addedAttendees.push(attendee.trim());
+                self.addedAttendees.push({ email: splits[i].trim(), name : null, admin: false });
             }
 
             return false;
@@ -116,7 +124,7 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
             return false;
         }
 
-        self.addedAttendees.push(attendee);
+        self.addedAttendees.push({ email: attendee.trim(), name : null, admin: false });
 
         return false;
     }
@@ -139,15 +147,15 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
             event.save({
                 name: self.name
             }, function(response){
-                saveDatesAndVenues(response.event_id);
+                saveDatesVenuesAttendees(response.event_id);
             });
         }
         else{
-            saveDatesAndVenues(self.eventId);
+            saveDatesVenuesAttendees(self.eventId);
         }
     }
 
-    function saveDatesAndVenues(eventId){
+    function saveDatesVenuesAttendees(eventId){
         var converted = [];
         for (var i = 0; i < self.addedDates.length; i++)
         {
@@ -158,7 +166,19 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
 
         venues.save({id:eventId}, {venues:self.addedVenues});
 
-        eventUsers.save({id:eventId}, self.addedAttendees)
+        var serverAttendees = eventUsers.query({id: self.eventId});
+
+        for (var i = 0; i < serverAttendees.length; i++) {
+            if (self.addedAttendees.indexOf(serverAttendees[i]) === -1)
+            {
+                // need to delete this person
+                eventUser.delete({id: self.eventId}, serverAttendees[i].email);
+            }
+        }
+
+        for (var i = 0; i < self.addedAttendees.length; i++) {
+            eventUser.save({id: eventId}, self.addedAttendees[i]);
+        }
     }
 
     function validateEmail(email) {
