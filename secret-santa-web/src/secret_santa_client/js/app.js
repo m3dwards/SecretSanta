@@ -97,6 +97,9 @@ app.config(['$routeProvider', '$locationProvider',
     .factory('eventUser', ['$resource', function ($resource) {
         return $resource(root + '/event/:id/user');
     }])
+    .factory('emailUsers', ['$resource', function ($resource) {
+        return $resource(root + '/event/:id/email-all-users');
+    }])
 
 
     .directive('jqdatepicker', function () {

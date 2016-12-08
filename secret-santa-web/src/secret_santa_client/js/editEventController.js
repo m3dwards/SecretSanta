@@ -1,4 +1,4 @@
-app.controller('editEventController', function ($scope, $routeParams, event, preferences, dates, venues, eventUsers, $location, eventUser) {
+app.controller('editEventController', function ($scope, $routeParams, event, preferences, dates, venues, eventUsers, $location, eventUser, emailUsers) {
 
     var self = this;
     self.eventId = $routeParams.id;
@@ -24,6 +24,8 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
     self.newVenue = null;
     self.newAttendee = null;
     self.newAttendeeValid = true;
+
+    self.emailContent = null;
 
     if (!self.eventId)
     {
@@ -66,13 +68,13 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
         self.newDate = moment().format('d MMMM YYYY');
 
         return false;
-    }
+    };
 
     self.removeDate = function(date){
         self.addedDates.pop(date);
 
         return false;
-    }
+    };
 
     self.addVenue = function(venue){
         self.addedVenues.push(venue);
@@ -80,13 +82,13 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
         self.newVenue = null;
 
         return false;
-    }
+    };
 
     self.removeVenue = function(venue){
         self.addedVenues.pop(venue);
 
         return false;
-    }
+    };
 
     self.addAttendee = function(attendee){
         self.newAttendeeValid = true;
@@ -142,20 +144,20 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
         self.newAttendee = null;
 
         return false;
-    }
+    };
 
     self.validateNewAttendee = function(){
         if (validateEmail(self.newAttendee))
         {
             self.newAttendeeValid = true;
         }
-    }
+    };
 
     self.removeAttendee = function(attendee){
         self.addedAttendees.pop(attendee);
 
         return false;
-    }
+    };
 
     self.saveEvent = function(){
         if (self.creating){
@@ -170,7 +172,11 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
         }
 
         $location.path('/event/' + self.eventId)
-    }
+    };
+
+    self.emailAttendees = function(message){
+        emailUsers.save({ id: self.eventId }, { message: message });
+    };
 
     function saveDatesVenuesAttendees(eventId){
         var converted = [];
