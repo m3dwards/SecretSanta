@@ -169,7 +169,7 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
             saveDatesVenuesAttendees(self.eventId);
         }
 
-        $location.path('#/event/' + self.eventId)
+        $location.path('/event/' + self.eventId)
     }
 
     function saveDatesVenuesAttendees(eventId){
