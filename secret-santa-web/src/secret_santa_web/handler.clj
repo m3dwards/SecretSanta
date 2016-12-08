@@ -391,7 +391,8 @@ left join users u2 on u2.id = c.buyingfor" event-id]) (map #(hash-map :id (:id %
         (content-type {:body (sql/execute! db ["delete from user_event where event = ? and \"user\" = ?" event-id (get-user-id email)])} "text/json")
         (content-type {:body (sql/execute! db ["delete from date_preferences where event = ? and \"user\" = ?" event-id (get-user-id email)])} "text/json")
         (content-type {:body (sql/execute! db ["delete from venue_preference where event = ? and \"user\" = ?" event-id (get-user-id email)])} "text/json")
-        (content-type {:body (sql/execute! db ["delete from present_preference where event = ? and \"user\" = ?" event-id (get-user-id email)])} "text/json"))
+        (content-type {:body (sql/execute! db ["delete from present_preference where event = ? and \"user\" = ?" event-id (get-user-id email)])} "text/json")
+        (content-type {:body {:angular "is dumb"} "text/json"} ))
       (content-type {:status 401 :body "you must be admin or the user yourself and the event must not have names released"} "text/json"))))
 
 (defn get-user-events [token]
