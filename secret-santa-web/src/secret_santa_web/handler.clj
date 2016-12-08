@@ -69,8 +69,12 @@
 (defn create-event [name]
       (sql/insert! db :events [:name] [name]))
 
-(defn create-user [email]
-      (sql/insert! db :users [:email] [email]))
+(defn create-user [name email]
+  (if (not (has-user? email))
+    (sql/insert! db :users [:name :email] [name email])))
+
+(defn update-user [token name email]
+    (sql/execute! db ["update users set name = ?, email = ? where id = ?" name email (get-user-id-from-token token)]))
 
 (defn delete-preferences [user event]
       (sql/execute! db ["delete from present_preference where \"user\" = ? and event = ?" user event])
@@ -362,19 +366,32 @@
 
 (defn get-users-for-event [token event-id]
   (let [user_id (get-user-id-from-token token)]
-    (print token) (flush)
     (if (is-admin user_id event-id)
-      (content-type {:body (sql/query db ["select u.*, e.admin, c.collected_on as \"collected_name_on\"
+      (content-type {:body (->> (sql/query db ["select u.*, e.admin, c.collected_on as \"collected_name_on\", u2.name as \"buying_for\"
 from users u 
 join user_event e on e.user = u.id and e.event = ? 
-left join user_buying_for c on c.user = u.id and c.event = e.event" event-id])} "text/json")
+left join user_buying_for c on c.user = u.id and c.event = e.event 
+left join users u2 on u2.id = c.buyingfor" event-id]) (map #(hash-map :id (:id %)
+                                                                      :name (:name %)
+                                                                      :email (:email %)
+                                                                      :admin (:admin %)
+                                                                      :collected_name_on (if (:collected_name_on %) (.toDate (:collected_name_on %)))
+                                                                      :buying_for (:buying_for %) )) )} "text/json")
       (content-type {:status 401} "text/json"))))
 
+(defn names-available? [event-id]
+  (-> (sql/query db ["select names_available from events where id = ?" event-id]) first :names_available))
+
+;;can delete a user if admin or yourself from any event as long as names are not released
 (defn delete-user [token event-id email]
   (let [user_id (get-user-id-from-token token)]
-    (if (or (is-admin user_id event-id) (= user_id (get-user-id email))) ;; you can delete a user if admin or yourself from any event
-      (content-type {:body (sql/execute! db ["delete from user_event where event = ? and \"user\" = ?" event-id (get-user-id email)])} "text/json")
-      (content-type {:status 401} "text/json"))))
+    (if (and (or (is-admin user_id event-id) (= user_id (get-user-id email))) (not (names-available? event-id)))
+      (do
+        (content-type {:body (sql/execute! db ["delete from user_event where event = ? and \"user\" = ?" event-id (get-user-id email)])} "text/json")
+        (content-type {:body (sql/execute! db ["delete from date_preferences where event = ? and \"user\" = ?" event-id (get-user-id email)])} "text/json")
+        (content-type {:body (sql/execute! db ["delete from venue_preference where event = ? and \"user\" = ?" event-id (get-user-id email)])} "text/json")
+        (content-type {:body (sql/execute! db ["delete from present_preference where event = ? and \"user\" = ?" event-id (get-user-id email)])} "text/json"))
+      (content-type {:status 401 :body "you must be admin or the user yourself and the event must not have names released"} "text/json"))))
 
 (defn get-user-events [token]
   (let [user-id (get-user-id-from-token token)]
@@ -397,11 +414,19 @@ left join user_buying_for c on c.user = u.id and c.event = e.event" event-id])} 
                      } "text/json")
       (content-type {:status 401} "text/json"))))
 
+(defn get-selected-venues [token event-id]
+  (let [user_id (get-user-id-from-token token)]
+    (if (is-admin user_id event-id)
+      (->> (sql/query db ["select venue from venue_preference where event = ?" event-id]) (map :venue))
+      (content-type {:status 401} "text/json"))))
 
 (defroutes app-routes
   (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
   (GET "/backend" [] "Hello backend")
   (GET "/broken" [] (/ 1 0))
+
+  (POST "/user" {user :body} (create-user (user "name") (user "email")))
+  (PUT "/user" {{{token :value} "session_id"} :cookies user :body} (update-user token (user "name") (user "email")))
 
   (GET "/event/:event_id" [event_id] (get-event-info "" event_id))
   (POST "/event" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {name "name"} :body} (admin-create-event token name))
@@ -432,6 +457,7 @@ left join user_buying_for c on c.user = u.id and c.event = e.event" event-id])} 
   (GET "/token/:token" [token] (reply-with-cookie token))
 
   (GET "/event/:event_id/no-go-dates" {{{token :value} "session_id"} :cookies {event_id :event_id} :params} (get-no-go-dates token event_id))
+  (GET "/event/:event_id/selected-venues" {{{token :value} "session_id"} :cookies {event_id :event_id} :params} (get-selected-venues token (Integer. event_id)))
 
   (route/not-found "<html><body><img src='/img/404.png' style='max-width:100%'/></body></html>")
            )
