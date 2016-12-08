@@ -435,6 +435,7 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
 
     self.emailAttendees = function (message) {
         emailUsers.save({id: self.eventId}, {message: message});
+        self.emailContent = null;
     };
 
     function saveDatesVenuesAttendees(eventId) {

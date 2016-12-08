@@ -155,9 +155,9 @@
             <div class="form-inline row">
                 <div class="form-group col-lg-7" style="float:none;">
                     <label class="sr-only" for="message">Login/E-mail</label>
-                    <input type="text" class="form-control flat" id="message" placeholder="Your message" style="width:100%;">
+                    <textarea type="text" class="form-control flat" id="message" placeholder="Your message" style="width:100%;" ng-model="event.emailContent"></textarea>
                 </div>
-                <button class="btn btn-primary btn-wide" ng-click="event.emailAttendees(event.emailContent); event.emailContent = null;">Send!</button>
+                <button class="btn btn-primary btn-wide" ng-click="event.emailAttendees(event.emailContent)">Send!</button>
             </div>
     </div>
 
