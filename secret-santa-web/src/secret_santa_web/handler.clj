@@ -69,8 +69,12 @@
 (defn create-event [name]
       (sql/insert! db :events [:name] [name]))
 
-(defn create-user [email]
-      (sql/insert! db :users [:email] [email]))
+(defn create-user [name email]
+  (if (not (has-user? email))
+    (sql/insert! db :users [:name :email] [name email])))
+
+(defn update-user [token name email]
+    (sql/execute! db ["update users set name = ?, email = ? where id = ?" name email (get-user-id-from-token token)]))
 
 (defn delete-preferences [user event]
       (sql/execute! db ["delete from present_preference where \"user\" = ? and event = ?" user event])
@@ -420,6 +424,9 @@ left join users u2 on u2.id = c.buyingfor" event-id]) (map #(hash-map :id (:id %
   (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
   (GET "/backend" [] "Hello backend")
   (GET "/broken" [] (/ 1 0))
+
+  (POST "/user" {user :body} (create-user (user "name") (user "email")))
+  (PUT "/user" {{{token :value} "session_id"} :cookies user :body} (update-user token (user "name") (user "email")))
 
   (GET "/event/:event_id" [event_id] (get-event-info "" event_id))
   (POST "/event" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {name "name"} :body} (admin-create-event token name))
