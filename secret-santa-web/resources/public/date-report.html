@@ -1,0 +1,44 @@
+<div class="container">
+    <script>
+        $(document).ready(function () {
+            if ($('[data-toggle="switch"]').length) {
+                $('[data-toggle="switch"]').bootstrapSwitch();
+            }
+        });
+    </script>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="page-header">
+                <h1>Secret Santa
+                    <small>Date report</small>
+                </h1>
+            </div>
+
+            <!-- TODO fix this wording -->
+            <p class="lead">The grid below shows all of the dates for your event, coloured from red to green for least
+                available (red) to most available (green). Hover or tap on an item to see the attendees who cannot make
+                this date.</p>
+
+            <div class="alert alert-success ajax-success" ng-show="report.success">
+                <strong>Thanks!</strong> Your preferences have been saved
+            </div>
+
+            <div class="alert alert-danger ajax-failure" ng-show="report.fail">
+                <button type="button" class="close fui-cross" data-dismiss="alert"></button>
+                <h4><strong>Uh oh!</strong> There was a problem communicating with the server</h4>
+            </div>
+        </div>
+    </div>
+    <div class-="row">
+        <div class="col-lg-12">
+            <table class="table">
+                <tr ng-repeat="row in report.dateData">
+                    <td ng-repeat="column in row">
+                        {{column.date}}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

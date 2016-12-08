@@ -63,6 +63,13 @@ app.config(['$routeProvider', '$locationProvider',
                 controllerAs: 'admin',
                 name: 'Admin',
                 includeInNav: false
+            })
+            .when('/event/:id/dates', {
+                templateUrl: 'date-report.html',
+                controller: 'dateReportController',
+                controllerAs: 'report',
+                name: 'Date Report',
+                includeInNav: false
             });
 
         //$locationProvider.html5Mode(true);
@@ -102,6 +109,12 @@ app.config(['$routeProvider', '$locationProvider',
     }])
     .factory('emailUsers', ['$resource', function ($resource) {
         return $resource(root + '/event/:id/email-all-users');
+    }])
+    .factory('dateReport', ['$resource', function ($resource) {
+        return $resource(root + '/event/:id/no-go-dates');
+    }])
+    .factory('venueReport', ['$resource', function ($resource) {
+        return $resource(root + '/event/:id/selected-venue');
     }])
 
 
@@ -206,6 +219,54 @@ app.controller('appController', ['$rootScope', '$scope', '$route', '$location', 
 		}
 	}
 ]);
+app.controller('dateReportController', function ($scope, $routeParams, $location, dateReport) {
+
+    var self = this;
+    self.eventId = $routeParams.id;
+
+    self.fail = false;
+    self.success = false;
+
+    self.dateData = [];
+
+    dateReport.query({id: self.eventId}, function(data){
+        //[{"date":"2016-12-08T00:00:00Z","name":"Aaron Rhodes"},{"date":"2016-12-06T00:00:00Z","name":"Aaron Rhodes"}]
+
+        var tempData = [];
+
+        for (var i = 0; i < data.length; i++)
+        {
+            var dateItem = null;
+
+            for (var b = 0; b < tempData.length; b++)
+            {
+                if (tempData[b].date === data[i].date)
+                {
+                    dateItem = tempData[b];
+                    break;
+                }
+            }
+
+            if (!dateItem)
+            {
+                dateItem = tempData[tempData.push({ date: data[i].date, names : [] }) - 1];
+            }
+
+            dateItem.names.push(data[i].name);
+        }
+
+        for (var i = 0; i < tempData.length; i+=4)
+        {
+            var tmp = [];
+
+            for (var b = i; (b < i + 4) && b < tempData.length; b++) {
+                tmp.push(tempData[b]);
+            }
+
+            self.dateData.push(tmp);
+        }
+    });
+});
 app.controller('editEventController', function ($scope, $routeParams, event, preferences, dates, venues, eventUsers, $location, eventUser, emailUsers) {
 
     var self = this;
@@ -276,7 +337,7 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
     };
 
     self.removeDate = function (date) {
-        self.addedDates.pop(date);
+        self.addedDates.splice(self.addedDates.indexOf(date), 1);
 
         return false;
     };
@@ -290,7 +351,7 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
     };
 
     self.removeVenue = function (venue) {
-        self.addedVenues.pop(venue);
+        self.addedVenues.splice(self.addedVenues.indexOf(venue), 1);
 
         return false;
     };
@@ -352,7 +413,7 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
     };
 
     self.removeAttendee = function (attendee) {
-        self.addedAttendees.pop(attendee);
+        self.addedAttendees.splice(self.addedAttendees.indexOf(attendee), 1);
 
         return false;
     };

@@ -63,6 +63,13 @@ app.config(['$routeProvider', '$locationProvider',
                 controllerAs: 'admin',
                 name: 'Admin',
                 includeInNav: false
+            })
+            .when('/event/:id/dates', {
+                templateUrl: 'date-report.html',
+                controller: 'dateReportController',
+                controllerAs: 'report',
+                name: 'Date Report',
+                includeInNav: false
             });
 
         //$locationProvider.html5Mode(true);
@@ -102,6 +109,12 @@ app.config(['$routeProvider', '$locationProvider',
     }])
     .factory('emailUsers', ['$resource', function ($resource) {
         return $resource(root + '/event/:id/email-all-users');
+    }])
+    .factory('dateReport', ['$resource', function ($resource) {
+        return $resource(root + '/event/:id/no-go-dates');
+    }])
+    .factory('venueReport', ['$resource', function ($resource) {
+        return $resource(root + '/event/:id/selected-venue');
     }])
 
 

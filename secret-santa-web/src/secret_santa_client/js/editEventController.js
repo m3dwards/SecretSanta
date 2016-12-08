@@ -68,7 +68,7 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
     };
 
     self.removeDate = function (date) {
-        self.addedDates.pop(date);
+        self.addedDates.splice(self.addedDates.indexOf(date), 1);
 
         return false;
     };
@@ -82,7 +82,7 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
     };
 
     self.removeVenue = function (venue) {
-        self.addedVenues.pop(venue);
+        self.addedVenues.splice(self.addedVenues.indexOf(venue), 1);
 
         return false;
     };
@@ -144,7 +144,7 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
     };
 
     self.removeAttendee = function (attendee) {
-        self.addedAttendees.pop(attendee);
+        self.addedAttendees.splice(self.addedAttendees.indexOf(attendee), 1);
 
         return false;
     };
