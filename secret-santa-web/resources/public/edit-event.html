@@ -113,13 +113,15 @@
                 <thead>
                     <td>Email</td>
                     <td>Name</td>
+                    <td>Admin</td>
                     <td>Remove</td>
                 </thead>
                 <tbody>
                     <tr ng-repeat="attendee in event.addedAttendees">
                         <td class="checkbox-large">{{attendee.email}}</td>
-                        <td ng-if="!attendee.name"><input type="text" ng-model="attendee.name" /></td>
-                        <td ng-if="attendee.name">{{attendee.name}}</td>
+                        <td ng-if="!attendee.initialName"><input type="text" ng-model="attendee.name" /></td>
+                        <td ng-if="attendee.initialName">{{attendee.name}}</td>
+                        <td><input type="checkbox" ng-model="attendee.admin"/></td>
                         <td><span class="fui-cross text-danger link" ng-click="event.removeAttendee(attendee)"></span></td>
                     </tr>
                 </tbody>
@@ -142,7 +144,7 @@
 
     <div class="alert alert-info">
         <h4>Release the hounds!</h4>
-        <p>When you are ready to issue secret santa names to your attendees, use this button to lock your event and being the process. Don't forget to send an email to remind everyone to check!</p>
+        <p>When you are ready to issue secret santa names to your attendees, use this button to lock your event and begin the process. Don't forget to send an email to remind everyone to check!</p>
         <button class="btn btn-primary">Issue the secret santa names!</button>
     </div>
 

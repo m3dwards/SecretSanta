@@ -51,12 +51,19 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
 
         eventUsers.query({id: self.eventId}, function(data){
            self.addedAttendees = data;
+
+           for (var i = 0; i < self.addedAttendees.length; i++)
+           {
+               self.addedAttendees[i].initialName = self.addedAttendees[i].name;
+           }
         });
     }
 
 
     self.addDate = function(date){
         self.addedDates.push(moment(date));
+
+        self.newDate = moment().format('d MMMM YYYY');
 
         return false;
     }
@@ -69,6 +76,8 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
 
     self.addVenue = function(venue){
         self.addedVenues.push(venue);
+
+        self.newVenue = null;
 
         return false;
     }
@@ -95,8 +104,10 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
 
             for (var i = 0; i < splits.length; i++)
             {
-                self.addedAttendees.push({ email: splits[i].trim(), name : null, admin: false });
+                self.addedAttendees.push({ email: splits[i].trim(), name : null, admin: false, initialName: null });
             }
+
+            self.newAttendee = null;
 
             return false;
         }
@@ -113,8 +124,10 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
 
             for (var i = 0; i < splits.length; i++)
             {
-                self.addedAttendees.push({ email: splits[i].trim(), name : null, admin: false });
+                self.addedAttendees.push({ email: splits[i].trim(), name : null, admin: false, initialName: null });
             }
+
+            self.newAttendee = null;
 
             return false;
         }
@@ -124,7 +137,9 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
             return false;
         }
 
-        self.addedAttendees.push({ email: attendee.trim(), name : null, admin: false });
+        self.addedAttendees.push({ email: attendee.trim(), name : null, admin: false, initialName: null });
+
+        self.newAttendee = null;
 
         return false;
     }
@@ -153,6 +168,8 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
         else{
             saveDatesVenuesAttendees(self.eventId);
         }
+
+        $location.path('#/event/' + self.eventId)
     }
 
     function saveDatesVenuesAttendees(eventId){
