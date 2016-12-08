@@ -95,7 +95,10 @@ app.config(['$routeProvider', '$locationProvider',
         return $resource(root + '/event/:id/users');
     }])
     .factory('eventUser', ['$resource', function ($resource) {
-        return $resource(root + '/event/:id/user');
+        return $resource(root + '/event/:id/user', null,
+            {
+                'update': {method: 'PUT'}
+            });
     }])
     .factory('emailUsers', ['$resource', function ($resource) {
         return $resource(root + '/event/:id/email-all-users');
@@ -116,9 +119,13 @@ app.config(['$routeProvider', '$locationProvider',
                     e && e.preventDefault();
                     element.focus();
                 });
-                $.extend($.datepicker, { _checkOffset: function (inst,offset,isFixed) { return offset; } });
+                $.extend($.datepicker, {
+                    _checkOffset: function (inst, offset, isFixed) {
+                        return offset;
+                    }
+                });
 
-                element.datepicker('widget').css({ 'margin-left': -element.prev('.input-group-btn').find('.btn').outerWidth() + 3 });
+                element.datepicker('widget').css({'margin-left': -element.prev('.input-group-btn').find('.btn').outerWidth() + 3});
             }
         };
     })
@@ -128,7 +135,9 @@ app.config(['$routeProvider', '$locationProvider',
             require: 'ngModel',
             link: function (scope, element, attrs, ngModel) {
                 element.bootstrapSwitch('state', ngModel.$$rawModelValue || false)
-                    .on('switchChange.bootstrapSwitch', function (event, state) { ngModel.$setViewValue(state); });
+                    .on('switchChange.bootstrapSwitch', function (event, state) {
+                        ngModel.$setViewValue(state);
+                    });
 
                 scope.$watch(attrs['ngModel'], function (v) {
                     element.bootstrapSwitch('state', v || false);

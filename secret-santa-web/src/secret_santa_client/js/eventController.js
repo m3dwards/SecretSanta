@@ -34,7 +34,7 @@ app.controller('eventController', function(event, santa, $timeout, $location, us
             self.eventUsers = data;
 
             angular.forEach(data, function(item){
-                if (item.email = self.email)
+                if (item.email === self.email)
                 {
                     self.admin = item.admin;
                 }

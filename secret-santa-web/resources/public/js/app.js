@@ -95,7 +95,10 @@ app.config(['$routeProvider', '$locationProvider',
         return $resource(root + '/event/:id/users');
     }])
     .factory('eventUser', ['$resource', function ($resource) {
-        return $resource(root + '/event/:id/user');
+        return $resource(root + '/event/:id/user', null,
+            {
+                'update': {method: 'PUT'}
+            });
     }])
     .factory('emailUsers', ['$resource', function ($resource) {
         return $resource(root + '/event/:id/email-all-users');
@@ -116,9 +119,13 @@ app.config(['$routeProvider', '$locationProvider',
                     e && e.preventDefault();
                     element.focus();
                 });
-                $.extend($.datepicker, { _checkOffset: function (inst,offset,isFixed) { return offset; } });
+                $.extend($.datepicker, {
+                    _checkOffset: function (inst, offset, isFixed) {
+                        return offset;
+                    }
+                });
 
-                element.datepicker('widget').css({ 'margin-left': -element.prev('.input-group-btn').find('.btn').outerWidth() + 3 });
+                element.datepicker('widget').css({'margin-left': -element.prev('.input-group-btn').find('.btn').outerWidth() + 3});
             }
         };
     })
@@ -128,7 +135,9 @@ app.config(['$routeProvider', '$locationProvider',
             require: 'ngModel',
             link: function (scope, element, attrs, ngModel) {
                 element.bootstrapSwitch('state', ngModel.$$rawModelValue || false)
-                    .on('switchChange.bootstrapSwitch', function (event, state) { ngModel.$setViewValue(state); });
+                    .on('switchChange.bootstrapSwitch', function (event, state) {
+                        ngModel.$setViewValue(state);
+                    });
 
                 scope.$watch(attrs['ngModel'], function (v) {
                     element.bootstrapSwitch('state', v || false);
@@ -211,7 +220,7 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
     };
 
     self.creating = false;
-    self.event = { name:null, date:null };
+    self.event = {name: null, date: null};
     self.addedDates = [];
     self.addedVenues = [];
     self.addedAttendees = [];
@@ -226,13 +235,11 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
 
     self.emailContent = null;
 
-    if (!self.eventId)
-    {
+    if (!self.eventId) {
         self.creating = true;
     }
-    else
-    {
-        event.get({id:self.eventId}, function(data){
+    else {
+        event.get({id: self.eventId}, function (data) {
             self.name = data.name;
             self.namesAvailable = data.namesAvailable;
             self.preferencesAvailable = data.preferencesAvailable;
@@ -250,18 +257,17 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
             });
         });
 
-        eventUsers.query({id: self.eventId}, function(data){
-           self.addedAttendees = data;
+        eventUsers.query({id: self.eventId}, function (data) {
+            self.addedAttendees = data;
 
-           for (var i = 0; i < self.addedAttendees.length; i++)
-           {
-               self.addedAttendees[i].initialName = self.addedAttendees[i].name;
-           }
+            for (var i = 0; i < self.addedAttendees.length; i++) {
+                self.addedAttendees[i].initialName = self.addedAttendees[i].name;
+            }
         });
     }
 
 
-    self.addDate = function(date){
+    self.addDate = function (date) {
         self.addedDates.push(moment(date));
 
         self.newDate = moment().format('d MMMM YYYY');
@@ -269,13 +275,13 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
         return false;
     };
 
-    self.removeDate = function(date){
+    self.removeDate = function (date) {
         self.addedDates.pop(date);
 
         return false;
     };
 
-    self.addVenue = function(venue){
+    self.addVenue = function (venue) {
         self.addedVenues.push(venue);
 
         self.newVenue = null;
@@ -283,49 +289,43 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
         return false;
     };
 
-    self.removeVenue = function(venue){
+    self.removeVenue = function (venue) {
         self.addedVenues.pop(venue);
 
         return false;
     };
 
-    self.addAttendee = function(attendee){
+    self.addAttendee = function (attendee) {
         self.newAttendeeValid = true;
 
-        if (attendee.indexOf(';') > 0)
-        {
+        if (attendee.indexOf(';') > 0) {
             var splits = attendee.split(';');
 
-            for (var i = 0; i < splits.length; i++){
-                if (!validateEmail(splits[i]))
-                {
+            for (var i = 0; i < splits.length; i++) {
+                if (!validateEmail(splits[i])) {
                     self.newAttendeeValid = false;
                 }
             }
 
-            for (var i = 0; i < splits.length; i++)
-            {
-                self.addedAttendees.push({ email: splits[i].trim(), name : null, admin: false, initialName: null });
+            for (var i = 0; i < splits.length; i++) {
+                self.addedAttendees.push({email: splits[i].trim(), name: null, admin: false, initialName: null});
             }
 
             self.newAttendee = null;
 
             return false;
         }
-        else if (attendee.indexOf(',') > 0)
-        {
+        else if (attendee.indexOf(',') > 0) {
             var splits = attendee.split(',');
 
-            for (var i = 0; i < splits.length; i++){
-                if (!validateEmail(splits[i]))
-                {
+            for (var i = 0; i < splits.length; i++) {
+                if (!validateEmail(splits[i])) {
                     self.newAttendeeValid = false;
                 }
             }
 
-            for (var i = 0; i < splits.length; i++)
-            {
-                self.addedAttendees.push({ email: splits[i].trim(), name : null, admin: false, initialName: null });
+            for (var i = 0; i < splits.length; i++) {
+                self.addedAttendees.push({email: splits[i].trim(), name: null, admin: false, initialName: null});
             }
 
             self.newAttendee = null;
@@ -338,69 +338,89 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
             return false;
         }
 
-        self.addedAttendees.push({ email: attendee.trim(), name : null, admin: false, initialName: null });
+        self.addedAttendees.push({email: attendee.trim(), name: null, admin: false, initialName: null});
 
         self.newAttendee = null;
 
         return false;
     };
 
-    self.validateNewAttendee = function(){
-        if (validateEmail(self.newAttendee))
-        {
+    self.validateNewAttendee = function () {
+        if (validateEmail(self.newAttendee)) {
             self.newAttendeeValid = true;
         }
     };
 
-    self.removeAttendee = function(attendee){
+    self.removeAttendee = function (attendee) {
         self.addedAttendees.pop(attendee);
 
         return false;
     };
 
-    self.saveEvent = function(){
-        if (self.creating){
+    self.saveEvent = function () {
+        if (self.creating) {
             event.save({
                 name: self.name
-            }, function(response){
+            }, function (response) {
                 saveDatesVenuesAttendees(response.event_id);
             });
         }
-        else{
+        else {
             saveDatesVenuesAttendees(self.eventId);
         }
 
         $location.path('/event/' + self.eventId)
     };
 
-    self.emailAttendees = function(message){
-        emailUsers.save({ id: self.eventId }, { message: message });
+    self.emailAttendees = function (message) {
+        emailUsers.save({id: self.eventId}, {message: message});
     };
 
-    function saveDatesVenuesAttendees(eventId){
+    function saveDatesVenuesAttendees(eventId) {
         var converted = [];
-        for (var i = 0; i < self.addedDates.length; i++)
-        {
+        for (var i = 0; i < self.addedDates.length; i++) {
             converted.push(self.addedDates[i].format('YYYY-MM-DD 00:00:00'));
         }
 
         dates.save({id: eventId}, {dates: converted});
 
-        venues.save({id:eventId}, {venues:self.addedVenues});
+        venues.save({id: eventId}, {venues: self.addedVenues});
 
-        var serverAttendees = eventUsers.query({id: self.eventId});
+        eventUsers.query({id: self.eventId}, function (serverAttendees) {
+            var found = false;
 
-        for (var i = 0; i < serverAttendees.length; i++) {
-            if (self.addedAttendees.indexOf(serverAttendees[i]) === -1)
-            {
-                // need to delete this person
-                eventUser.delete({id: self.eventId}, serverAttendees[i].email);
+            for (var i = 0; i < serverAttendees.length; i++) {
+                found = false;
+
+                for (var b = 0; b < self.addedAttendees.length; b++) {
+                    if (self.addedAttendees[b].email === serverAttendees[i].email) {
+                        // need to delete this person
+                        found = true;
+                    }
+                }
+
+                if (!found) {
+                    eventUser.delete({id: self.eventId}, serverAttendees[i].email);
+                }
             }
-        }
 
-        for (var i = 0; i < self.addedAttendees.length; i++) {
-            eventUser.save({id: eventId}, self.addedAttendees[i]);
-        }
+            for (var i = 0; i < self.addedAttendees.length; i++) {
+                found = false;
+
+                for (var b = 0; b < serverAttendees.length; b++) {
+                    if (self.addedAttendees[i].email === serverAttendees[b].email) {
+                        found = true;
+                    }
+                }
+
+                if (found) {
+                    eventUser.update({id: eventId}, self.addedAttendees[i]);
+                }
+                else {
+                    eventUser.save({id: eventId}, self.addedAttendees[i]);
+                }
+            }
+        });
     }
 
     function validateEmail(email) {
@@ -446,7 +466,7 @@ app.controller('eventController', function(event, santa, $timeout, $location, us
             self.eventUsers = data;
 
             angular.forEach(data, function(item){
-                if (item.email = self.email)
+                if (item.email === self.email)
                 {
                     self.admin = item.admin;
                 }
