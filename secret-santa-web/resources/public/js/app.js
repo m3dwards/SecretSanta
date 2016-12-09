@@ -288,13 +288,13 @@ app.controller('dateReportController', function ($scope, $routeParams, $location
         if (self.totalAttendees > 0) {
             var colours = [
                 '#27AE60',
-                '#27AE60',
                 '#F39C12',
                 '#F39C12',
-                '#E67E22',
-                '#E67E22',
                 '#D35400',
                 '#D35400',
+                '#E74C3C',
+                '#C0392B',
+                '#C0392B',
                 '#C0392B',
                 '#C0392B'
             ];
