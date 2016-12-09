@@ -34,7 +34,7 @@ app.controller('dateReportController', function ($scope, $routeParams, $location
 
                     for (var b = 0; b < tempData.length; b++)
                     {
-                        if (tempData[b].date === moment(data[i].date))
+                        if (tempData[b].date.diff(moment(data[i].date), 'days') === 0)
                         {
                             dateItem = tempData[b];
                             break;
