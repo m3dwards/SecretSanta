@@ -342,7 +342,7 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
     self.addedAttendees = [];
     self.name = null;
     self.namesAvailable = false;
-    self.preferencesAvailable = false;
+    self.preferencesAvailable = true;
 
     self.newDate = moment().format('d MMMM YYYY');
     self.newVenue = null;
@@ -479,13 +479,16 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
                 name: self.name
             }, function (response) {
                 saveDatesVenuesAttendees(response.event_id);
+
+                $location.path('/event/' + response.event_id)
             });
         }
         else {
             saveDatesVenuesAttendees(self.eventId);
         }
 
-        $location.path('/event/' + self.eventId)
+        if (self.eventId)
+            $location.path('/event/' + self.eventId)
     };
 
     self.emailAttendees = function (message) {
