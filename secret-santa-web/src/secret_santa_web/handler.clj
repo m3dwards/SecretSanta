@@ -421,7 +421,7 @@ left join users u2 on u2.id = c.buyingfor" event-id]) (map #(hash-map :id (:id %
       (->> (sql/query db ["select venue from venue_preference where event = ?" event-id]) (map :venue))
       (content-type {:status 401} "text/json"))))
 
-(defn update-user [token event-id email admin]
+(defn update-user-on-event [token event-id email admin]
   (let [user_id (get-user-id-from-token token)]
     (if (is-admin user_id event-id)
       (sql/execute! db ["update user_event set admin = ? where \"user\" = (select id from users where email = ?)" admin email]))))
@@ -452,7 +452,7 @@ left join users u2 on u2.id = c.buyingfor" event-id]) (map #(hash-map :id (:id %
   (DELETE "/event/:event_id/user/:user_id" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {user_id :user_id} :params} (delete-user token (Integer. event_id) (Integer. user_id)))
   (POST "/event/:event_id/user" {{{token :value} "session_id"} :cookies {event_id :event_id} :params body :body} (add-user token (Integer. event_id) body))
   (GET "/event/:event_id/users" {{{token :value} "session_id"} :cookies {event_id :event_id} :params body :body} (get-users-for-event token (Integer. event_id)))
-  (PUT "/event/:event_id/user" {{{token :value} "session_id"} :cookies {event_id :event_id} :params body :body} (update-user token (Integer. event_id) (body "email") (body "admin")))
+  (PUT "/event/:event_id/user" {{{token :value} "session_id"} :cookies {event_id :event_id} :params body :body} (update-user-on-event token (Integer. event_id) (body "email") (body "admin")))
 
   (POST "/event/:event_id/email-all-users" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {message "message"} :body} (email-all-for-event token (Integer. event_id) message))
 
