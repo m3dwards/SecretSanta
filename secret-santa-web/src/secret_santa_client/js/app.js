@@ -70,12 +70,33 @@ app.config(['$routeProvider', '$locationProvider',
                 controllerAs: 'report',
                 name: 'Date Report',
                 includeInNav: false
+            })
+            .when('/user/details', {
+                templateUrl: 'user-details.html',
+                controller: 'userDetailsController',
+                controllerAs: 'account',
+                name: 'User Details',
+                includeInNav: false
             });
-
         //$locationProvider.html5Mode(true);
     }])
+    .run(function ($rootScope, user, $location) {
+        $rootScope.$on('$routeChangeSuccess', function () {
+            user.get(function (data) {
+                self.name = data.name;
+
+                if (!self.name)
+                    $location.path('/user/details')
+            }, function (error) {
+                $location.path('/login');
+            });
+        })
+    })
     .factory('user', ['$resource', function ($resource) {
-        return $resource(root + '/user');
+        return $resource(root + '/user', null,
+            {
+                'update': {method: 'PUT'}
+            });
     }])
     .factory('preferences', ['$resource', function ($resource) {
         return $resource(root + '/event/:id/preferences');

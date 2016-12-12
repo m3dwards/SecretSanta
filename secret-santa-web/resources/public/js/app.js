@@ -70,12 +70,33 @@ app.config(['$routeProvider', '$locationProvider',
                 controllerAs: 'report',
                 name: 'Date Report',
                 includeInNav: false
+            })
+            .when('/user/details', {
+                templateUrl: 'user-details.html',
+                controller: 'userDetailsController',
+                controllerAs: 'account',
+                name: 'User Details',
+                includeInNav: false
             });
-
         //$locationProvider.html5Mode(true);
     }])
+    .run(function ($rootScope, user, $location) {
+        $rootScope.$on('$routeChangeSuccess', function () {
+            user.get(function (data) {
+                self.name = data.name;
+
+                if (!self.name)
+                    $location.path('/user/details')
+            }, function (error) {
+                $location.path('/login');
+            });
+        })
+    })
     .factory('user', ['$resource', function ($resource) {
-        return $resource(root + '/user');
+        return $resource(root + '/user', null,
+            {
+                'update': {method: 'PUT'}
+            });
     }])
     .factory('preferences', ['$resource', function ($resource) {
         return $resource(root + '/event/:id/preferences');
@@ -190,15 +211,17 @@ function date(date, available)
 	self.date = date;
 	self.available = available != null ? available : true;
 }
-app.controller('appController', ['$rootScope', '$scope', '$route', '$location', 'user',
-	function ($rootScope, $scope, $route, $location, user){
+app.controller('appController',	function ($rootScope, $scope, $route, $location, user){
 		var self = this;
 
-        user.get(function (data) {
-            self.name = data.name;
-        }, function (error) {
-			$location.path('/login');
-		});
+			user.get(function (data) {
+				self.name = data.name;
+
+				if (!self.name)
+					$location.path('/user/details')
+			}, function (error) {
+				$location.path('/login');
+			});
 
 		self.routes = [];
 		self.routeIsActive = function(route){
@@ -218,7 +241,7 @@ app.controller('appController', ['$rootScope', '$scope', '$route', '$location', 
 			console.log(self.routes);
 		}
 	}
-]);
+);
 app.controller('dateReportController', function ($scope, $routeParams, $location, dateReport, eventUsers, dates, $q) {
 
     var self = this;
@@ -683,7 +706,7 @@ app.controller('homeController', ['authentication', '$location', function(authen
     self.fail = false;
     self.success = false;
 
-    $location.path( "/event" );
+    $location.path( "/events" );
 }]);
 app.controller('loginController', ['authentication', '$routeParams', function(authentication, $routeParams){
 	var self = this;
@@ -832,3 +855,29 @@ app.controller('preferencesController', function ($scope, $routeParams, preferen
          });*/
     }
 );
+app.controller('userDetailsController', function ($scope, $routeParams, preferences, dates, venues, $rootScope, user, $q, eventUsers) {
+    var self = this;
+
+    self.busy = false;
+
+    self.name = null;
+    self.email = null;
+    self.isNewUser = false;
+    self.user = null;
+
+    user.get(function (data) {
+        self.user = data;
+        self.name = data.name;
+        self.isNewUser = !self.name;
+
+        self.email = data.email;
+    });
+
+    self.saveUser = function () {
+        self.busy = true;
+
+        user.update({ name: self.name, email: self.email }, function (response) {
+            $location.path('/events');
+        });
+    }
+});

@@ -4,5 +4,5 @@ app.controller('homeController', ['authentication', '$location', function(authen
     self.fail = false;
     self.success = false;
 
-    $location.path( "/event" );
+    $location.path( "/events" );
 }]);

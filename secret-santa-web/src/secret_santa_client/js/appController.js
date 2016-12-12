@@ -1,12 +1,14 @@
-app.controller('appController', ['$rootScope', '$scope', '$route', '$location', 'user',
-	function ($rootScope, $scope, $route, $location, user){
+app.controller('appController',	function ($rootScope, $scope, $route, $location, user){
 		var self = this;
 
-        user.get(function (data) {
-            self.name = data.name;
-        }, function (error) {
-			$location.path('/login');
-		});
+			user.get(function (data) {
+				self.name = data.name;
+
+				if (!self.name)
+					$location.path('/user/details')
+			}, function (error) {
+				$location.path('/login');
+			});
 
 		self.routes = [];
 		self.routeIsActive = function(route){
@@ -26,4 +28,4 @@ app.controller('appController', ['$rootScope', '$scope', '$route', '$location', 
 			console.log(self.routes);
 		}
 	}
-]);
+);
