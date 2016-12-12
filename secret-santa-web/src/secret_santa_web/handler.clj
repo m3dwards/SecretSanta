@@ -325,8 +325,7 @@
       (let [user_id (get-user-id-from-token token)]
         (if user_id
           (do
-             (sql/insert! db :events [:name :preferences_available :names_available] [name true false])
-             (let [event_id  (-> (sql/query db ["select id from events where name = ?" name]) first :id)]
+             (let [event_id  (-> (sql/query db ["insert into events (name, preferences_available, names_available) values (?,?,?) returning id" name true false]) first :id)]
                (sql/insert! db :user_event [:event "\"user\"" :admin] [event_id user_id true])
                (content-type {:body {:event_id event_id}} "text/json")))
         (content-type {:status 401} "text/json"))))
