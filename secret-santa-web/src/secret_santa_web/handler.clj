@@ -384,14 +384,14 @@ left join users u2 on u2.id = c.buyingfor" event-id]) (map #(hash-map :id (:id %
   (-> (sql/query db ["select names_available from events where id = ?" event-id]) first :names_available))
 
 ;;can delete a user if admin or yourself from any event as long as names are not released
-(defn delete-user [token event-id email]
+(defn delete-user [token event-id delete-id]
   (let [user_id (get-user-id-from-token token)]
-    (if (and (or (is-admin user_id event-id) (= user_id (get-user-id email))) (not (names-available? event-id)))
+    (if (and (or (is-admin user_id event-id) (= user_id delete-id)) (not (names-available? event-id)))
       (do
-        (content-type {:body (sql/execute! db ["delete from user_event where event = ? and \"user\" = ?" event-id (get-user-id email)])} "text/json")
-        (content-type {:body (sql/execute! db ["delete from date_preferences where event = ? and \"user\" = ?" event-id (get-user-id email)])} "text/json")
-        (content-type {:body (sql/execute! db ["delete from venue_preference where event = ? and \"user\" = ?" event-id (get-user-id email)])} "text/json")
-        (content-type {:body (sql/execute! db ["delete from present_preference where event = ? and \"user\" = ?" event-id (get-user-id email)])} "text/json")
+        (content-type {:body (sql/execute! db ["delete from user_event where event = ? and \"user\" = ?" event-id delete-id])} "text/json")
+        (content-type {:body (sql/execute! db ["delete from date_preferences where event = ? and \"user\" = ?" event-id delete-id])} "text/json")
+        (content-type {:body (sql/execute! db ["delete from venue_preference where event = ? and \"user\" = ?" event-id delete-id])} "text/json")
+        (content-type {:body (sql/execute! db ["delete from present_preference where event = ? and \"user\" = ?" event-id delete-id])} "text/json")
         (content-type {:body {:angular "is dumb"} }"text/json" ))
       (content-type {:status 401 :body "you must be admin or the user yourself and the event must not have names released"} "text/json"))))
 
@@ -450,7 +450,7 @@ left join users u2 on u2.id = c.buyingfor" event-id]) (map #(hash-map :id (:id %
   (GET "/event/:event_id/preferences" {{{token :value} "session_id"} :cookies {event_id :event_id} :params} (get-user-preferences token event_id))
   (POST "/event/:event_id/preferences" {{{token :value} "session_id"} :cookies {event_id :event_id} :params body :body} (save-preferences token body (Integer. event_id)))
 
-  (DELETE "/event/:event_id/user" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {email "email"} :body} (delete-user token (Integer. event_id) email))
+  (DELETE "/event/:event_id/user/:user_id" {{{token :value} "session_id"} :cookies {event_id :event_id} :params {user_id :user_id} :params} (delete-user token (Integer. event_id) (Integer. user_id)))
   (POST "/event/:event_id/user" {{{token :value} "session_id"} :cookies {event_id :event_id} :params body :body} (add-user token (Integer. event_id) body))
   (GET "/event/:event_id/users" {{{token :value} "session_id"} :cookies {event_id :event_id} :params body :body} (get-users-for-event token (Integer. event_id)))
   (PUT "/event/:event_id/user" {{{token :value} "session_id"} :cookies {event_id :event_id} :params body :body} (update-user token (Integer. event_id) (body "email") (body "admin")))

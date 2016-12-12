@@ -43,7 +43,7 @@
             <table class="table dates-table">
                 <tr ng-repeat="row in report.dateData">
                     <td ng-repeat="column in row" ng-style="report.getStyle(column)">
-                        {{column.date}}
+                        {{report.formatDate(column.date)}}
                     </td>
                 </tr>
             </table>

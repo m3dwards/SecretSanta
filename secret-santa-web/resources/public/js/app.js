@@ -219,7 +219,7 @@ app.controller('appController', ['$rootScope', '$scope', '$route', '$location', 
 		}
 	}
 ]);
-app.controller('dateReportController', function ($scope, $routeParams, $location, dateReport, eventUsers, $q) {
+app.controller('dateReportController', function ($scope, $routeParams, $location, dateReport, eventUsers, dates, $q) {
 
     var self = this;
     self.eventId = $routeParams.id;
@@ -230,6 +230,10 @@ app.controller('dateReportController', function ($scope, $routeParams, $location
 
     self.dateData = [];
 
+    self.formatDate = function (date) {
+        return date.format('Do MMMM YYYY');
+    };
+
     $q.all(
         eventUsers.query({id:self.eventId}, function(data){
           self.totalAttendees = data.length;
@@ -238,55 +242,61 @@ app.controller('dateReportController', function ($scope, $routeParams, $location
         dateReport.query({id: self.eventId}, function(data){
             //[{"date":"2016-12-08T00:00:00Z","name":"Aaron Rhodes"},{"date":"2016-12-06T00:00:00Z","name":"Aaron Rhodes"}]
 
-            var tempData = [];
+            dates.query({id:self.eventId}, function(dates){
+                var tempData = [];
 
-            for (var i = 0; i < data.length; i++)
-            {
-                var dateItem = null;
+                for (var i = 0; i < dates.length; i++){
+                    tempData.push({ date: moment(dates[i]), names:[]});
+                }
 
-                for (var b = 0; b < tempData.length; b++)
+                for (var i = 0; i < data.length; i++)
                 {
-                    if (tempData[b].date === data[i].date)
+                    var dateItem = null;
+
+                    for (var b = 0; b < tempData.length; b++)
                     {
-                        dateItem = tempData[b];
-                        break;
+                        if (tempData[b].date.diff(moment(data[i].date), 'days') === 0)
+                        {
+                            dateItem = tempData[b];
+                            break;
+                        }
                     }
+
+                    if (!dateItem)
+                    {
+                        console.log('DATE NOT FOUND');
+                    }
+                    else
+                        dateItem.names.push(data[i].name);
                 }
 
-                if (!dateItem)
+                for (var i = 0; i < tempData.length; i+=4)
                 {
-                    dateItem = tempData[tempData.push({ date: data[i].date, names : [] }) - 1];
+                    var tmp = [];
+
+                    for (var b = i; (b < i + 4) && b < tempData.length; b++) {
+                        tmp.push(tempData[b]);
+                    }
+
+                    self.dateData.push(tmp);
                 }
-
-                dateItem.names.push(data[i].name);
-            }
-
-            for (var i = 0; i < tempData.length; i+=4)
-            {
-                var tmp = [];
-
-                for (var b = i; (b < i + 4) && b < tempData.length; b++) {
-                    tmp.push(tempData[b]);
-                }
-
-                self.dateData.push(tmp);
-            }
+            });
         });
     });
 
     self.getStyle = function(column){
         if (self.totalAttendees > 0) {
             var colours = [
-                '#C0392B',
-                '#C0392B',
-                '#D35400',
-                '#D35400',
-                '#E67E22',
-                '#E67E22',
-                '#F39C12',
-                '#F39C12',
                 '#27AE60',
-                '#27AE60'
+                '#F39C12',
+                '#F39C12',
+                '#D35400',
+                '#D35400',
+                '#E74C3C',
+                '#C0392B',
+                '#C0392B',
+                '#C0392B',
+                '#C0392B'
             ];
 
             var calc = parseInt((column.names.length / self.totalAttendees) * 100);
