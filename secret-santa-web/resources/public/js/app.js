@@ -855,7 +855,7 @@ app.controller('preferencesController', function ($scope, $routeParams, preferen
          });*/
     }
 );
-app.controller('userDetailsController', function ($scope, $routeParams, preferences, dates, venues, $rootScope, user, $q, eventUsers) {
+app.controller('userDetailsController', function ($scope, $routeParams, preferences, dates, venues, $rootScope, user, $q, $location) {
     var self = this;
 
     self.busy = false;
