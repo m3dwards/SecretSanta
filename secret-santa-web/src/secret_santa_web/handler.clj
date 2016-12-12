@@ -74,7 +74,8 @@
     (sql/insert! db :users [:name :email] [name email])))
 
 (defn update-user [token name email]
-    (sql/execute! db ["update users set name = ?, email = ? where id = ?" name email (get-user-id-from-token token)]))
+  (sql/execute! db ["update users set name = ?, email = ? where id = ?" name email (get-user-id-from-token token)])
+  (content-type {:body {:angular "sucks"}} "text/json"))
 
 (defn delete-preferences [user event]
       (sql/execute! db ["delete from present_preference where \"user\" = ? and event = ?" user event])
@@ -307,7 +308,9 @@
       (content-type {:status 401} "text/json"))))
 
 (defn admin-delete-venues [event]
-  (sql/execute! db ["delete from config_venues where event = ?" (Integer. event)]))
+  (sql/execute! db ["delete from config_venues where event = ?" (Integer. event)])
+  (content-type {:body "saved"} "text/json"))
+
 
 (defn admin-insert-venue-config [event venue]
   (sql/insert! db :config_venues [:event :venue] [(Integer. event) venue]))
@@ -424,7 +427,9 @@ left join users u2 on u2.id = c.buyingfor" event-id]) (map #(hash-map :id (:id %
 (defn update-user-on-event [token event-id email admin]
   (let [user_id (get-user-id-from-token token)]
     (if (is-admin user_id event-id)
-      (sql/execute! db ["update user_event set admin = ? where \"user\" = (select id from users where email = ?)" admin email]))))
+      (do
+        (sql/execute! db ["update user_event set admin = ? where \"user\" = (select id from users where email = ?)" admin email])
+        (content-type {:body "saved"} "text/json")))))
 
 (defroutes app-routes
   (GET "/" [] (content-type (resource-response "index.html" {:root "public"}) "text/html"))
