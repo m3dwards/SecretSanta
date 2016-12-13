@@ -178,7 +178,49 @@ app.config(['$routeProvider', '$locationProvider',
                 });
             }
         };
+    })
+    .directive('listpopover', function () {
+        return {
+            link: function (scope, element, attrs, ngModel) {
+                var data = eval('(' + attrs['listpopover'] + ')');
+                var list = data.list;
+
+                var html = '<div class="popover bottom"> ' +
+                    '<div class="arrow"></div>' +
+                    '<h3 class="popover-title">' + data.title + '</h3>' +
+                    '<div class="popover-content">' +
+                    '<ul>';
+
+                for (var i = 0; i < list.length; i++){
+                    html += '<li>' + list[i] + '</li>'
+                }
+
+                html += '</ul>' +
+                    '</div>' +
+                    '</div>';
+
+                var item = $(html);
+
+                $(element).on('mouseenter touchstart', function(){
+                    html.css({ top : $(element).offset().top + $(element).outerHeight(), left : ($(element).offset().left + $(element).outerWidth()) - (html.outerWidth() / 2) })
+                    $('body').append(html);
+                }).on('mouseleave touchend', function(){
+                    $('body').remove(html);
+                });
+            }
+        };
     });
+
+/*
+ <div class="popover bottom">
+ <div class="arrow"></div>
+ <h3 class="popover-title">Smooth Title</h3>
+ <div class="popover-content">
+ Content goes here
+ </div>
+ </div>
+ */
+
 /*.factory('ajaxInterceptor', ['$q', '$rootScope', '$injector',
  function ($q, $rootScope, $injector) {
  return {

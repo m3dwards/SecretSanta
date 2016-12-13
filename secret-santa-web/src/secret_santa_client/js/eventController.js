@@ -1,7 +1,10 @@
 app.controller('eventController', function(event, santa, $timeout, $location, user, preferences, $routeParams, eventUsers, $q){
     var self = this;
 
-    var eventIdRaw = $routeParams.id || '1';
+    var eventIdRaw = $routeParams.id;
+    if (!eventIdRaw)
+        $location.path('/events');
+
     self.eventId = parseInt(eventIdRaw);
 
     self.fail = false;

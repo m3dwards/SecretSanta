@@ -178,7 +178,49 @@ app.config(['$routeProvider', '$locationProvider',
                 });
             }
         };
+    })
+    .directive('listpopover', function () {
+        return {
+            link: function (scope, element, attrs, ngModel) {
+                var data = eval('(' + attrs['listpopover'] + ')');
+                var list = data.list;
+
+                var html = '<div class="popover bottom"> ' +
+                    '<div class="arrow"></div>' +
+                    '<h3 class="popover-title">' + data.title + '</h3>' +
+                    '<div class="popover-content">' +
+                    '<ul>';
+
+                for (var i = 0; i < list.length; i++){
+                    html += '<li>' + list[i] + '</li>'
+                }
+
+                html += '</ul>' +
+                    '</div>' +
+                    '</div>';
+
+                var item = $(html);
+
+                $(element).on('mouseenter touchstart', function(){
+                    html.css({ top : $(element).offset().top + $(element).outerHeight(), left : ($(element).offset().left + $(element).outerWidth()) - (html.outerWidth() / 2) })
+                    $('body').append(html);
+                }).on('mouseleave touchend', function(){
+                    $('body').remove(html);
+                });
+            }
+        };
     });
+
+/*
+ <div class="popover bottom">
+ <div class="arrow"></div>
+ <h3 class="popover-title">Smooth Title</h3>
+ <div class="popover-content">
+ Content goes here
+ </div>
+ </div>
+ */
+
 /*.factory('ajaxInterceptor', ['$q', '$rootScope', '$injector',
  function ($q, $rootScope, $injector) {
  return {
@@ -247,6 +289,8 @@ app.controller('dateReportController', function ($scope, $routeParams, $location
     var self = this;
     self.eventId = $routeParams.id;
 
+    var columns = 3;
+
     self.fail = false;
     self.success = false;
     self.totalAttendees = 0;
@@ -293,11 +337,11 @@ app.controller('dateReportController', function ($scope, $routeParams, $location
                         dateItem.names.push(data[i].name);
                 }
 
-                for (var i = 0; i < tempData.length; i+=4)
+                for (var i = 0; i < tempData.length; i+=columns)
                 {
                     var tmp = [];
 
-                    for (var b = i; (b < i + 4) && b < tempData.length; b++) {
+                    for (var b = i; (b < i + columns) && b < tempData.length; b++) {
                         tmp.push(tempData[b]);
                     }
 
@@ -576,7 +620,10 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
 app.controller('eventController', function(event, santa, $timeout, $location, user, preferences, $routeParams, eventUsers, $q){
     var self = this;
 
-    var eventIdRaw = $routeParams.id || '1';
+    var eventIdRaw = $routeParams.id;
+    if (!eventIdRaw)
+        $location.path('/events');
+
     self.eventId = parseInt(eventIdRaw);
 
     self.fail = false;
@@ -738,7 +785,11 @@ app.controller('loginController', ['authentication', '$routeParams', function(au
 app.controller('preferencesController', function ($scope, $routeParams, preferences, dates, venues, $rootScope, user, $q, eventUsers) {
         var self = this;
 
-        var eventId = $routeParams.id || 1;
+        var eventIdRaw = $routeParams.id;
+        if (!eventIdRaw)
+            $location.path('/events');
+
+        self.eventId = parseInt(eventIdRaw);
 
         self.name = null;
         self.email = null;
@@ -819,7 +870,7 @@ app.controller('preferencesController', function ($scope, $routeParams, preferen
                 dates.push({date: date.date.utc().format('YYYY-MM-DD'), available: date.available});
             }
 
-            preferences.save({id: eventId},
+            preferences.save({id: self.eventId},
                 {
                     dates: dates,
                     venue: self.venue,

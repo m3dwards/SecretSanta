@@ -1,7 +1,11 @@
 app.controller('preferencesController', function ($scope, $routeParams, preferences, dates, venues, $rootScope, user, $q, eventUsers) {
         var self = this;
 
-        var eventId = $routeParams.id || 1;
+        var eventIdRaw = $routeParams.id;
+        if (!eventIdRaw)
+            $location.path('/events');
+
+        self.eventId = parseInt(eventIdRaw);
 
         self.name = null;
         self.email = null;
@@ -82,7 +86,7 @@ app.controller('preferencesController', function ($scope, $routeParams, preferen
                 dates.push({date: date.date.utc().format('YYYY-MM-DD'), available: date.available});
             }
 
-            preferences.save({id: eventId},
+            preferences.save({id: self.eventId},
                 {
                     dates: dates,
                     venue: self.venue,

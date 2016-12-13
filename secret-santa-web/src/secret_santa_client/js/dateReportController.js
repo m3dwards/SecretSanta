@@ -3,6 +3,8 @@ app.controller('dateReportController', function ($scope, $routeParams, $location
     var self = this;
     self.eventId = $routeParams.id;
 
+    var columns = 3;
+
     self.fail = false;
     self.success = false;
     self.totalAttendees = 0;
@@ -49,11 +51,11 @@ app.controller('dateReportController', function ($scope, $routeParams, $location
                         dateItem.names.push(data[i].name);
                 }
 
-                for (var i = 0; i < tempData.length; i+=4)
+                for (var i = 0; i < tempData.length; i+=columns)
                 {
                     var tmp = [];
 
-                    for (var b = i; (b < i + 4) && b < tempData.length; b++) {
+                    for (var b = i; (b < i + columns) && b < tempData.length; b++) {
                         tmp.push(tempData[b]);
                     }
 
