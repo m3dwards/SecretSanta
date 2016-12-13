@@ -181,17 +181,17 @@ app.config(['$routeProvider', '$locationProvider',
     })
     .directive('listpopover', function () {
         return {
+            scope: {title: '@', list: '='},
             link: function (scope, element, attrs, ngModel) {
-                var data = eval('(' + attrs['listpopover'] + ')');
-                var list = data.list;
+                var list = scope.list;
 
                 var html = '<div class="popover bottom"> ' +
                     '<div class="arrow"></div>' +
-                    '<h3 class="popover-title">' + data.title + '</h3>' +
+                    '<h3 class="popover-title">' + scope.title + '</h3>' +
                     '<div class="popover-content">' +
                     '<ul>';
 
-                for (var i = 0; i < list.length; i++){
+                for (var i = 0; i < list.length; i++) {
                     html += '<li>' + list[i] + '</li>'
                 }
 
@@ -201,11 +201,15 @@ app.config(['$routeProvider', '$locationProvider',
 
                 var item = $(html);
 
-                $(element).on('mouseenter touchstart', function(){
-                    html.css({ top : $(element).offset().top + $(element).outerHeight(), left : ($(element).offset().left + $(element).outerWidth()) - (html.outerWidth() / 2) })
-                    $('body').append(html);
-                }).on('mouseleave touchend', function(){
-                    $('body').remove(html);
+                $(element).on('mouseenter touchstart', function () {
+                    item.css({
+                        display: 'block',
+                        top: $(element).offset().top + $(element).outerHeight(),
+                        left: ($(element).offset().left + ($(element).outerWidth() / 2)) - (item.outerWidth() / 2)
+                    });
+                    $('body').append(item);
+                }).on('mouseleave touchend', function () {
+                    item.remove();
                 });
             }
         };
