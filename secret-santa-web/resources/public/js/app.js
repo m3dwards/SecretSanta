@@ -810,7 +810,7 @@ app.controller('preferencesController', function ($scope, $routeParams, preferen
         self.availableDates = [];
 
         $q.all(
-            preferences.get({id: eventId}, function (data) {
+            preferences.get({id: self.eventId}, function (data) {
                 if (data.venue != null) {
                     self.attending = true;
                     self.doingPresents = data.doingPresents;
@@ -818,10 +818,10 @@ app.controller('preferencesController', function ($scope, $routeParams, preferen
                     self.selectedDates = data.selectedDates;
                 }
             }),
-            venues.query({id: eventId}, function (data) {
+            venues.query({id: self.eventId}, function (data) {
                 self.availableVenues = data;
             }),
-            dates.query({id: eventId}, function (data) {
+            dates.query({id: self.eventId}, function (data) {
                 self.availableDates = [];
 
                 angular.forEach(data, function (item) {
@@ -851,7 +851,7 @@ app.controller('preferencesController', function ($scope, $routeParams, preferen
         }
 
         self.deleteUserFromEvent = function(){
-            eventUsers.delete({id: eventId}, self.email);
+            eventUsers.delete({id: self.eventId}, self.email);
         };
 
         self.venue = null;
