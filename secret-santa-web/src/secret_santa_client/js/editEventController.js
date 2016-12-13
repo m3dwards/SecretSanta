@@ -27,6 +27,8 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
 
     self.emailContent = null;
 
+    self.viewState = 'Data';
+
     if (!self.eventId) {
         self.creating = true;
     }

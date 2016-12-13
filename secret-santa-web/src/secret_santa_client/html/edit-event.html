@@ -30,7 +30,21 @@
             </div>
         </div>
     </div>
-    <div class-="row">
+
+    <div class="row" ng-if="!event.creating">
+        <div class="col-lg-12">
+            <ul class="nav nav-pills">
+                <li ng-class="{ 'active' : event.viewState === 'Data' }" ng-click="event.viewState = 'Data'"><a href="">Event
+                    Data</a></li>
+                <li ng-class="{ 'active' : event.viewState === 'Control' }" ng-click="event.viewState = 'Control'"><a
+                        href="">Control</a></li>
+                <li ng-class="{ 'active' : event.viewState === 'Stats' }" ng-click="event.viewState = 'Stats'"><a href="">Stats</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class-="row" ng-if="event.viewState === 'Data'">
         <div class="col-lg-12">
             <h3>Event name</h3>
             <p>Give your event a nice, descriptive name for everyone to see.</p>
@@ -42,7 +56,7 @@
             </div>
         </div>
     </div>
-    <div class-="row" ng-if="!event.creating">
+    <div class-="row" ng-if="!event.creating && event.viewState === 'Data'">
         <div class="col-lg-12">
             <h3>Potential Dates</h3>
             <p>Enter the list of possible dates to poll your attendees with. They can then select their preference when
@@ -74,7 +88,7 @@
         </div>
         <div class="clearfix"></div>
     </div>
-    <div class-="row" ng-if="!event.creating">
+    <div class-="row" ng-if="!event.creating && event.viewState === 'Data'">
         <div class="col-lg-12">
             <h3>Potential Venues</h3>
             <p>Enter the list of possible venues to poll your attendees with. They can then select their preference when
@@ -103,8 +117,9 @@
 
     <hr/>
 </div>
+
 <div class="container">
-    <div class-="row" ng-if="!event.namesAvailable && !event.creating">
+    <div class-="row" ng-if="!event.namesAvailable && !event.creating && event.viewState === 'Data'">
         <div class="col-lg-12">
             <h3>Attendees</h3>
             <p>
@@ -148,28 +163,41 @@
 
     <p>&nbsp;</p>
 
-    <div class="alert alert-info" ng-if="!event.creating">
+    <div class="alert alert-info" ng-if="!event.creating && event.viewState === 'Control'">
         <h4>Email your attendees!</h4>
         <p>Tap out a message below to send an email out to your attendees. But don't overdo it, no-one likes a
             spammer!</p>
-            <div class="form-inline row">
-                <div class="form-group col-lg-7" style="float:none;">
-                    <label class="sr-only" for="message">Login/E-mail</label>
-                    <textarea type="text" class="form-control flat" id="message" placeholder="Your message" style="width:100%;" ng-model="event.emailContent"></textarea>
-                </div>
-                <button class="btn btn-primary btn-wide" ng-click="event.emailAttendees(event.emailContent)">Send!</button>
+        <div class="form-inline row">
+            <div class="form-group col-lg-7" style="float:none;">
+                <label class="sr-only" for="message">Login/E-mail</label>
+                <textarea type="text" class="form-control flat" id="message" placeholder="Your message"
+                          style="width:100%;"
+                          ng-model="event.emailContent"></textarea>
             </div>
+            <button class="btn btn-primary btn-wide" ng-click="event.emailAttendees(event.emailContent)">Send!</button>
+        </div>
     </div>
 
     <p>&nbsp;</p>
 
-    <div class="alert alert-info" ng-if="!event.creating">
+    <div class="alert alert-info" ng-if="!event.creating && event.viewState === 'Control'">
         <h4>Release the hounds!</h4>
         <p>When you are ready to issue secret santa names to your attendees, use this button to lock your event and
             begin the process. Don't forget to send an email to remind everyone to check!</p>
         <button class="btn btn-primary">Issue the secret santa names!</button>
     </div>
+</div>
 
+<div class="container">
+    <div class="tile" ng-if="event.viewState === 'Stats'">
+        <img src="img/icons/svg/retina.svg" alt="Retina" class="tile-image big-illustration">
+        <h3 class="tile-title">Date report</h3>
+        <p>View a graphical report of your suggested event dates, colour coded to show availability.</p>
+        <a type="button" class="btn btn-primary btn-large btn-block" href="#/event/{{event.eventId}}/dates">Take me to it!</a>
+    </div>
+</div>
+
+<div class="container">
     <div class="row">
         <br/>
 
