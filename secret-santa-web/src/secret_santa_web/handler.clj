@@ -133,7 +133,7 @@
                  :body    [{:type "text/html" :content message}]}))
 
 (defn email-token-event [email event-id message token]
-  (email-user email (str message
+  (email-user email (str (clojure.string/replace message #"\n" "<br><br>")
                          "<br><br>"
                          "Your special login link is <a href='http://www.secretsanta.lol/event/" event-id "/token/"
                          (str token)
