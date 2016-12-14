@@ -70,10 +70,10 @@ app.controller('dateReportController', function ($scope, $routeParams, $location
             var colours = [
                 '#27AE60',
                 '#F39C12',
-                '#F39C12',
                 '#D35400',
                 '#D35400',
                 '#E74C3C',
+                '#C0392B',
                 '#C0392B',
                 '#C0392B',
                 '#C0392B',
@@ -81,8 +81,10 @@ app.controller('dateReportController', function ($scope, $routeParams, $location
             ];
 
             var calc = parseInt((column.names.length / self.totalAttendees) * 100);
+            var val = Math.ceil(calc / 10);
+
             return {
-                'background-color' : colours[parseInt(calc / 10)],
+                'background-color' : colours[parseInt(val)],
                 'text-align':'center',
                 'font-size':'20px',
                 'color':'white',
