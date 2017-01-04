@@ -698,25 +698,25 @@ app.controller('eventController', function(event, santa, $timeout, $location, us
 
             self.event.date = moment(data.date);
         }
+
+        if (self.event.namesAvailable) {
+            santa.save({id: self.eventId}, {},
+                function (data) {
+                    if (data.allowed == false) {
+                        self.santaSaysNo = true;
+                    }
+                    else {
+                        self.santa = data.name;
+                    }
+
+                    self.fail = false;
+                    self.success = true;
+                }, function (error) {
+                    $location.path('/login')
+                }
+            );
+        }
     });
-
-    if (self.event.namesAvailable) {
-        santa.save({id: self.eventId}, {},
-            function (data) {
-                if (data.allowed == false) {
-                    self.santaSaysNo = true;
-                }
-                else {
-                    self.santa = data.name;
-                }
-
-                self.fail = false;
-                self.success = true;
-            }, function (error) {
-                $location.path('/login')
-            }
-        );
-    }
 
     self.showSanta = function(){
         self.santaVisible = true;
