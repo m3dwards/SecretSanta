@@ -1,4 +1,4 @@
-<div class="container" ng-if="event.preferencesAvailable">
+<div class="container">
     <script>
         $(document).ready(function () {
             if ($('[data-toggle="switch"]').length) {
@@ -34,7 +34,7 @@
     <div class="row" ng-if="!event.creating">
         <div class="col-lg-12">
             <ul class="nav nav-pills">
-                <li ng-class="{ 'active' : event.viewState === 'Data' }" ng-click="event.viewState = 'Data'"><a href="">Event
+                <li ng-if="event.preferencesAvailable" ng-class="{ 'active' : event.viewState === 'Data' }" ng-click="event.viewState = 'Data'"><a href="">Event
                     Data</a></li>
                 <li ng-class="{ 'active' : event.viewState === 'Control' }" ng-click="event.viewState = 'Control'"><a
                         href="">Control</a></li>
@@ -180,7 +180,7 @@
 
     <p>&nbsp;</p>
 
-    <div class="alert alert-info" ng-if="!event.creating && event.viewState === 'Control'">
+    <div class="alert alert-info" ng-if="!event.creating && !event.namesAvailable && event.viewState === 'Control'">
         <h4>Release the hounds!</h4>
         <p>When you are ready to issue secret santa names to your attendees, use this button to lock your event and
             begin the process. Don't forget to send an email to remind everyone to check!</p>

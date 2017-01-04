@@ -37,6 +37,9 @@ app.controller('editEventController', function ($scope, $routeParams, event, pre
             self.name = data.name;
             self.namesAvailable = data.namesAvailable;
             self.preferencesAvailable = data.preferencesAvailable;
+
+            if (self.namesAvailable)
+                self.viewState = 'Control';
         });
 
         venues.query({id: self.eventId}, function (data) {
