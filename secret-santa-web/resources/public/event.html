@@ -9,10 +9,6 @@
             You are the <strong>owner</strong> of this event. <a href="#/event/{{event.eventId}}/edit">You can edit the event here</a>
         </div>
 
-        <div class="alert alert-success ajax-success col-lg-12 col-xs-12 col-md-12" ng-show="event.success">
-            <strong>Thanks!</strong> Your preferences have been saved
-        </div>
-
         <div class="alert alert-danger ajax-failure col-lg-12 col-xs-12 col-md-12" ng-show="event.fail">
             <button type="button" class="close fui-cross" data-dismiss="alert"></button>
             <h4><strong>Uh oh!</strong> There was a problem communicating with the server</h4>
@@ -32,11 +28,11 @@
                     <a type="button" class="btn btn-primary btn-large btn-block" href="#/event/{{event.eventId}}/preferences">Take me to it!</a>
                 </div>
 
-                <div class="tile" ng-show="!event.namesAvailable && !event.santaSaysNo && !event.event.preferencesAvailable">
+                <!--<div class="tile" ng-show="!event.namesAvailable && !event.santaSaysNo && !event.event.preferencesAvailable">
                     <img src="img/icons/svg/clocks.svg" alt="Retina" class="tile-image big-illustration">
                     <h3 class="tile-title">Nothing to do right now...</h3>
                     <p>Hang tight, your organiser will be in touch soon!</p>
-                </div>
+                </div>-->
 
                 <!--<div class="tile" ng-show="!event.event.paymentDue && !event.event.paymentDue">
                     <img src="img/icons/svg/money.svg" alt="Retina" class="tile-image big-illustration">

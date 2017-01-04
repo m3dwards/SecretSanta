@@ -85,7 +85,7 @@ app.config(['$routeProvider', '$locationProvider',
             user.get(function (data) {
                 self.name = data.name;
 
-                if (!self.name)
+                if (!self.name && $location.path().indexOf('/login') === -1)
                     $location.path('/user/details')
             }, function (error) {
                 $location.path('/login');
